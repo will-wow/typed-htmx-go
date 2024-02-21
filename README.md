@@ -23,8 +23,8 @@ go get github.com/will-wow/typed-htmx-go
 
 ```go
 import (
-	"github.com/will-wow/typed-htmx-go/htmx"
-	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"github.com/will-wow/typed-htmx-go/hx"
+	"github.com/will-wow/typed-htmx-go/hx/swap"
 )
 
 templ SearchInput(search string) {
@@ -32,7 +32,7 @@ templ SearchInput(search string) {
 		method="GET"
 		action={ templ.URL(currentPage) }
 		class="relative mb-2"
-		{ htmx.HX().
+		{ hx.New().
 		Get(currentPage).
 		Target("body").
 		ReplaceURL(true).
@@ -40,7 +40,7 @@ templ SearchInput(search string) {
 		Build()... }
 	>
 		@ui.Input(
-			htmx.HX().
+			hx.New().
 				Get(currentPage).
 				Trigger("input changed delay:500ms").
 				More(map[string]any{

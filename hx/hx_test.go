@@ -1,10 +1,10 @@
-package htmx_test
+package hx_test
 
 import (
 	"testing"
 
-	"github.com/will-wow/typed-htmx-go/htmx"
-	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"github.com/will-wow/typed-htmx-go/hx"
+	"github.com/will-wow/typed-htmx-go/hx/swap"
 )
 
 func TestHX(t *testing.T) {
@@ -13,69 +13,69 @@ func TestHX(t *testing.T) {
 	tests := []struct {
 		name  string
 		want  string
-		attrs htmx.Builder
+		attrs hx.HX
 	}{
 		{
 			name:  "Boost",
-			attrs: htmx.HX().Boost(true),
+			attrs: hx.New().Boost(true),
 			want:  `hx-boost='true'`,
 		},
 		{
 			name:  "Get",
-			attrs: htmx.HX().Get("/example"),
+			attrs: hx.New().Get("/example"),
 			want:  `hx-get='/example'`,
 		},
 		{
 			name:  "Post",
-			attrs: htmx.HX().Post("/example"),
+			attrs: hx.New().Post("/example"),
 			want:  `hx-post='/example'`,
 		},
 		{
 			name:  "On",
-			attrs: htmx.HX().On("click", `alert("clicked")`),
+			attrs: hx.New().On("click", `alert("clicked")`),
 			want:  `hx-on:click='alert("clicked")'`,
 		},
 		{
 			name:  "OnHTMX",
-			attrs: htmx.HX().OnHTMX("before-request", `alert("before")`),
+			attrs: hx.New().OnHTMX("before-request", `alert("before")`),
 			want:  `hx-on::before-request='alert("before")'`,
 		},
 		{
 			name:  "PushURL",
-			attrs: htmx.HX().PushURL(true),
+			attrs: hx.New().PushURL(true),
 			want:  `hx-push-url='true'`,
 		},
 		{
 			name:  "PushURLPath",
-			attrs: htmx.HX().PushURLPath("/example"),
+			attrs: hx.New().PushURLPath("/example"),
 			want:  `hx-push-url='/example'`,
 		},
 		{
 			name:  "Select",
-			attrs: htmx.HX().Select("#example"),
+			attrs: hx.New().Select("#example"),
 			want:  `hx-select='#example'`,
 		},
 		{
 			name:  "SelectOOB",
-			attrs: htmx.HX().SelectOOB("#info-details", "#other-details"),
+			attrs: hx.New().SelectOOB("#info-details", "#other-details"),
 			want:  `hx-select-oob='#info-details,#other-details'`,
 		},
 		{
 			name: "SelectOOBWithStrategy",
-			attrs: htmx.HX().SelectOOBWithStrategy(
-				htmx.SelectOOBStrategy{Selector: "#info-details", Strategy: swap.AfterBegin},
-				htmx.SelectOOBStrategy{Selector: "#other-details", Strategy: ""},
+			attrs: hx.New().SelectOOBWithStrategy(
+				hx.SelectOOBStrategy{Selector: "#info-details", Strategy: swap.AfterBegin},
+				hx.SelectOOBStrategy{Selector: "#other-details", Strategy: ""},
 			),
 			want: `hx-select-oob='#info-details:afterbegin,#other-details'`,
 		},
 		{
 			name:  "Swap",
-			attrs: htmx.HX().Swap(swap.OuterHTML),
+			attrs: hx.New().Swap(swap.OuterHTML),
 			want:  `hx-swap='outerHTML'`,
 		},
 		{
 			name: "SwapExtended",
-			attrs: htmx.HX().SwapExtended(
+			attrs: hx.New().SwapExtended(
 				swap.New().
 					Style(swap.OuterHTML).
 					SettleTiming("1s").
@@ -85,27 +85,27 @@ func TestHX(t *testing.T) {
 		},
 		{
 			name:  "Target",
-			attrs: htmx.HX().Target("#example"),
+			attrs: hx.New().Target("#example"),
 			want:  `hx-target='#example'`,
 		},
 		{
 			name:  "TargetSpecial",
-			attrs: htmx.HX().TargetSpecial(htmx.TargetThis),
+			attrs: hx.New().TargetSpecial(hx.TargetThis),
 			want:  `hx-target='this'`,
 		},
 		{
 			name:  "TargetSelector",
-			attrs: htmx.HX().TargetRelative(htmx.TargetSelectorClosest, "#example"),
+			attrs: hx.New().TargetRelative(hx.TargetSelectorClosest, "#example"),
 			want:  `hx-target='closest #example'`,
 		},
 		{
 			name:  "Vals",
-			attrs: htmx.HX().Vals(map[string]int{"one": 1, "two": 2}),
+			attrs: hx.New().Vals(map[string]int{"one": 1, "two": 2}),
 			want:  `hx-vals='{"one":1,"two":2}'`,
 		},
 		{
 			name:  "ValsJS",
-			attrs: htmx.HX().ValsJS(map[string]int{"one": 1, "two": 2}),
+			attrs: hx.New().ValsJS(map[string]int{"one": 1, "two": 2}),
 			want:  `hx-vals='js:{"one":1,"two":2}'`,
 		},
 	}

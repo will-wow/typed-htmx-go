@@ -3,7 +3,7 @@ package swap_test
 import (
 	"testing"
 
-	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"github.com/will-wow/typed-htmx-go/hx/swap"
 )
 
 func TestSwap(t *testing.T) {
