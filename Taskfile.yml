@@ -17,6 +17,11 @@ tasks:
       - go test -coverpkg ./... -coverprofile=coverage/coverage.out ./...
       - go tool cover -html=coverage/coverage.out -o coverage/coverage.html
 
+  test:cover:badge:
+    desc: generate the coverage badge
+    cmds:
+      - ./scripts/badge.sh
+
   doc:
     desc: Serve godoc
     cmds:
@@ -63,7 +68,7 @@ tasks:
     cmds:
       - task: fmt
       - task: lint
-      - task: test:all
+      - task: test:cover:badge
 
   tools:
     desc: Install tools
