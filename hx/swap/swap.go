@@ -22,7 +22,7 @@ const (
 
 // Builder is a builder to create a new hx-swap attribute.
 type Builder struct {
-	style     Style
+	strategy  Strategy
 	modifiers map[Modifier]string
 }
 
@@ -32,7 +32,7 @@ type Builder struct {
 // Call .End() to get the final hx-swap string.
 func New() *Builder {
 	return &Builder{
-		style:     InnerHTML,
+		strategy:  InnerHTML,
 		modifiers: map[Modifier]string{},
 	}
 }
@@ -42,7 +42,7 @@ func (s *Builder) String() string {
 	// This is a port of strings.Join, with support for a key:value set.
 
 	if len(s.modifiers) == 0 {
-		return string(s.style)
+		return string(s.strategy)
 	}
 
 	// Start with the length of all the separators
@@ -54,20 +54,18 @@ func (s *Builder) String() string {
 
 	var b strings.Builder
 
-	// First always render the swap style.
-	_, _ = b.WriteString(string(s.style))
+	// First always render the swap strategy.
+	_, _ = b.WriteString(string(s.strategy))
 	_ = b.WriteByte(' ')
 
-	// Stable sort the modifiers to ensure a consistent order
+	// Sort the modifiers to ensure a consistent order
 	mods := make([]Modifier, len(s.modifiers))
 	i := 0
 	for modifier := range s.modifiers {
 		mods[i] = modifier
 		i++
 	}
-	slices.SortStableFunc(mods, func(a Modifier, b Modifier) int {
-		return strings.Compare(string(a), string(b))
-	})
+	slices.Sort(mods)
 
 	// Then render each modifier:value pair
 	for i, modifier := range mods {
@@ -85,23 +83,23 @@ func (s *Builder) String() string {
 	return b.String()
 }
 
-// Style specifies how the response will be swapped in relative to the target of an AJAX request.
-type Style string
+// Strategy specifies how the response will be swapped in relative to the target of an AJAX request.
+type Strategy string
 
 const (
-	InnerHTML   Style = "innerHTML"   // Replace the inner html of the target element
-	OuterHTML   Style = "outerHTML"   // Replace the entire target element with the response
-	BeforeBegin Style = "beforebegin" // Insert the response before the target element
-	AfterBegin  Style = "afterbegin"  // Insert the response before the first child of the target element
-	BeforeEnd   Style = "beforeend"   // Insert the response after the last child of the target element
-	AfterEnd    Style = "afterend"    // Insert the response after the target element
-	Delete      Style = "delete"      // Deletes the target element regardless of the response
-	None        Style = "none"        // Does not append content from response (out of band items will still be processed).
+	InnerHTML   Strategy = "innerHTML"   // Replace the inner html of the target element
+	OuterHTML   Strategy = "outerHTML"   // Replace the entire target element with the response
+	BeforeBegin Strategy = "beforebegin" // Insert the response before the target element
+	AfterBegin  Strategy = "afterbegin"  // Insert the response before the first child of the target element
+	BeforeEnd   Strategy = "beforeend"   // Insert the response after the last child of the target element
+	AfterEnd    Strategy = "afterend"    // Insert the response after the target element
+	Delete      Strategy = "delete"      // Deletes the target element regardless of the response
+	None        Strategy = "none"        // Does not append content from response (out of band items will still be processed).
 )
 
-// Style allows you to specify how the response will be swapped in relative to the target of an AJAX request. If you do not specify the option, the default is htmx.config.defaultSwapStyle (innerHTML).
-func (s *Builder) Style(style Style) *Builder {
-	s.style = style
+// Strategy allows you to specify how the response will be swapped in relative to the target of an AJAX request. If you do not specify the option, the default is htmx.config.defaultSwapStyle (innerHTML).
+func (s *Builder) Strategy(strategy Strategy) *Builder {
+	s.strategy = strategy
 	return s
 }
 

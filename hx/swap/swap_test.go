@@ -20,8 +20,8 @@ func TestSwap(t *testing.T) {
 			want:    "innerHTML",
 		},
 		{
-			name:    "Style",
-			builder: *swap.New().Style(swap.OuterHTML),
+			name:    "Strategy",
+			builder: *swap.New().Strategy(swap.OuterHTML),
 			want:    "outerHTML",
 		},
 	}

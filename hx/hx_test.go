@@ -77,11 +77,26 @@ func TestHX(t *testing.T) {
 			name: "SwapExtended",
 			attrs: hx.New().SwapExtended(
 				swap.New().
-					Style(swap.OuterHTML).
+					Strategy(swap.OuterHTML).
 					SettleTiming("1s").
 					ShowElement("#example", swap.Top),
 			),
 			want: `hx-swap='outerHTML settle:1s show:#example:top'`,
+		},
+		{
+			name:  "SwapOOB",
+			attrs: hx.New().SwapOOB(),
+			want:  `hx-swap-oob='true'`,
+		},
+		{
+			name:  "SwapOOBWithStrategy",
+			attrs: hx.New().SwapOOBWithStrategy(swap.AfterBegin),
+			want:  `hx-swap-oob='afterbegin'`,
+		},
+		{
+			name:  "SwapOOBWithStrategySelector",
+			attrs: hx.New().SwapOOBSelector(swap.AfterBegin, "#example"),
+			want:  `hx-swap-oob='afterbegin:#example'`,
 		},
 		{
 			name:  "Target",
@@ -105,8 +120,8 @@ func TestHX(t *testing.T) {
 		},
 		{
 			name:  "ValsJS",
-			attrs: hx.New().ValsJS(map[string]int{"one": 1, "two": 2}),
-			want:  `hx-vals='js:{"one":1,"two":2}'`,
+			attrs: hx.New().ValsJS(map[string]string{"lastKey": "event.key"}),
+			want:  `hx-vals='js:{lastKey: event.key}'`,
 		},
 	}
 

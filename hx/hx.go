@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/will-wow/typed-htmx-go/hx/swap"
@@ -38,12 +37,9 @@ func (hx HX) String() string {
 		i++
 	}
 
-	// Do a stable sort, which makes testing easier.
+	// Sort, which makes testing easier.
 	if len(attributes) > 1 {
-		sort.StringSlice(attributes).Sort()
-		slices.SortStableFunc(attributes, func(a string, hx string) int {
-			return strings.Compare(a, hx)
-		})
+		slices.Sort(attributes)
 	}
 
 	return strings.Join(attributes, " ")
@@ -144,7 +140,7 @@ func (hx HX) Post(url string) HX {
 //
 // The hx-on* attributes improve upon onevent by enabling the handling of any arbitrary JavaScript event, for enhanced Locality of Behaviour (LoB) even when dealing with non-standard DOM events. For example, these attributes allow you to handle htmx events.
 //
-// HX().On() attaches to standard DOM events. For htmx custom events, use [Builder.OnHTMX].
+// HX().On() attaches to standard DOM events. For htmx custom events, use [HX.OnHTMX].
 //
 // If you wish to handle multiple different events, you can simply add multiple attributes to an element.
 //
@@ -171,7 +167,7 @@ func (hx HX) On(event string, action string) HX {
 //
 // The hx-on* attributes improve upon onevent by enabling the handling of any arbitrary JavaScript event, for enhanced Locality of Behaviour (LoB) even when dealing with non-standard DOM events. For example, these attributes allow you to handle htmx events.
 //
-// All htmx and other custom events can be captured, too! To respond to standard DOM events, use [Builder.On] instead.
+// All htmx and other custom events can be captured, too! To respond to standard DOM events, use [HX.On] instead.
 //
 // One gotcha to note is that DOM attributes do not preserve case. This means, unfortunately, an attribute like hx-on:htmx:beforeRequest will not work, because the DOM lowercases the attribute names. Fortunately, htmx supports both camel case event names and also kebab-case event names, so you can use .OnHTMX("before-request") instead.
 //
@@ -331,7 +327,7 @@ func (hx HX) SelectOOB(selectors ...string) HX {
 
 type SelectOOBStrategy struct {
 	Selector string
-	Strategy swap.Style
+	Strategy swap.Strategy
 }
 
 // SelectOOBWithStrategy allows you to select content from a response to be swapped in via an out-of-band swap, with an optional strategy for each selector.
@@ -379,18 +375,124 @@ func (hx HX) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) HX {
 	return hx
 }
 
-func (hx HX) Swap(style swap.Style) HX {
-	hx.attrs["hx-swap"] = string(style)
+// Swap allows you to specify how the response will be swapped in relative to the target of an AJAX request.
+//
+// So in this code:
+//
+//	<div {hx.New().Get("/example").Swap(swap.AfterEnd).Build()...} >
+//		Get Some HTML & Append It
+//	</div>
+//
+// The div will issue a request to /example and append the returned content after the div.
+//
+// For advanced usage with modifiers, see [HX.SwapExtended()].
+//
+// HTMX Attribute: [hx-swap]
+//
+// [hx-swap]: https://htmx.org/attributes/hx-swap
+func (hx HX) Swap(strategy swap.Strategy) HX {
+	hx.attrs["hx-swap"] = string(strategy)
 	return hx
 }
 
+// SwapExtended allows you to specify how the response will be swapped in relative to the target of an AJAX request, with modifiers for changing the behavior of the swap.
+//
+// So in this code:
+//
+//	<div {hx.New().Get("/example").SwapExtended(swap.New().Strategy(swap.AfterEnd)).Build()...} >
+//		Get Some HTML & Append It
+//	</div>
+//
+// The div will issue a request to /example and append the returned content after the div.
+//
+// For documentation about modifiers, see [swap.Builder].
+//
+// HTMX Attribute: [hx-swap]
+//
+// [hx-swap]: https://htmx.org/attributes/hx-swap
 func (hx HX) SwapExtended(swap *swap.Builder) HX {
 	hx.attrs["hx-swap"] = swap.String()
 	return hx
 }
 
-func (hx HX) SwapOOB(selector string) HX {
-	hx.attrs["hx-swap-oob"] = selector
+// SwapOOP allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target by ID, that is “Out of Band”. This allows you to piggy back updates to other element updates on a response.
+//
+// Consider the following response HTML:
+//
+//	<div>
+//	...
+//	</div>
+//	<div id="alerts" {hx.New().SwapOOB().Build()...}>
+//		 Saved!
+//	</div>
+//
+// The first div will be swapped into the target the usual manner. The second div, however, will be swapped in as a replacement for the element with the id alerts, and will not end up in the target.
+//
+// If the value is true or outerHTML (which are equivalent) the element will be swapped inline.
+//
+// # Notes
+//
+// hx-swap-oob is not inherited
+//
+// HTMX Attribute: [hx-swap-oob]
+//
+// [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
+func (hx HX) SwapOOB() HX {
+	hx.attrs["hx-swap-oob"] = "true"
+	return hx
+}
+
+// SwapOOBWithStrategy allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target by ID with a swap strategy, that is “Out of Band”. This allows you to piggy back updates to other element updates on a response.
+//
+// Consider the following response HTML:
+//
+//	<div>
+//	...
+//	</div>
+//	<div id="alerts" {hx.New().SwapOOBWithStrategy(swap.AfterBegin).Build()...}>
+//		 Saved!
+//	</div>
+//
+// The first div will be swapped into the target the usual manner. The second div, however, will be swapped in after the start of the element with the id #alerts, and will not end up in the target.
+//
+// If the value is outerHTML (which is equivalent to [HX.SwapOOB]) the element will be swapped inline.
+//
+// # Notes
+//
+// hx-swap-oob is not inherited
+//
+// HTMX Attribute: [hx-swap-oob]
+//
+// [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
+func (hx HX) SwapOOBWithStrategy(strategy swap.Strategy) HX {
+	hx.attrs["hx-swap-oob"] = string(strategy)
+	return hx
+}
+
+// SwapOOP allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target by selector, that is “Out of Band”. This allows you to piggy back updates to other element updates on a response.
+//
+// Consider the following response HTML:
+//
+//	<div>
+//	...
+//	</div>
+//	<div {hx.New().SwapOOBSelector(swap.OuterHTML, "#alerts").Build()...}>
+//		 Saved!
+//	</div>
+//
+// The first div will be swapped into the target the usual manner. The second div, however, will be swapped in as a replacement for the element with the id #alerts, and will not end up in the target.
+//
+// If the value is outerHTML the element will be swapped inline.
+//
+// # Notes
+//
+// hx-swap-oob is not inherited
+//
+// HTMX Attribute: [hx-swap-oob]
+//
+// [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
+func (hx HX) SwapOOBSelector(strategy swap.Strategy, selector string) HX {
+	hx.attrs["hx-swap-oob"] = fmt.Sprintf("%s:%s", strategy, selector)
 	return hx
 }
 
@@ -405,9 +507,9 @@ func (hx HX) SwapOOB(selector string) HX {
 //   - previous which resolves to element.previousElementSibling
 //   - previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
 //
-// For targeting a special target like `this`, see [Builder.TargetSpecial()].
+// For targeting a special target like `this`, see [HX.TargetSpecial()].
 //
-// For targeting finding the nearest element, see [Builder.TargetRelative()].
+// For targeting finding the nearest element, see [HX.TargetRelative()].
 //
 // Here is an example that targets a div:
 //
@@ -453,9 +555,9 @@ const (
 //   - next which resolves to element.nextElementSibling
 //   - previous which resolves to element.previousElementSibling
 //
-// For targeting with a general selector target, see [Builder.Target()].
+// For targeting with a general selector target, see [HX.Target()].
 //
-// For targeting finding the nearest element, see [Builder.TargetRelative()].
+// For targeting finding the nearest element, see [HX.TargetRelative()].
 //
 // This example uses hx-target="this" to make a link that updates itself when clicked:
 //
@@ -473,13 +575,14 @@ func (hx HX) TargetSpecial(target TargetSpecialType) HX {
 	return hx
 }
 
+// A TargetSelectorType is a special named HTMX target for swapping.
 type TargetSelectorType string
 
 const (
-	TargetSelectorClosest  TargetSelectorType = "closest"
-	TargetSelectorFind     TargetSelectorType = "find"
-	TargetSelectorNext     TargetSelectorType = "next"
-	TargetSelectorPrevious TargetSelectorType = "previous"
+	TargetSelectorClosest  TargetSelectorType = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
+	TargetSelectorFind     TargetSelectorType = "find"     // find the first child descendant element that matches the given CSS selector
+	TargetSelectorNext     TargetSelectorType = "next"     // which will scan the DOM forward for the first element that matches the given CSS selector.
+	TargetSelectorPrevious TargetSelectorType = "previous" // scan the DOM backwards for the first element that matches the given CSS selector
 )
 
 // TargetRelative allows you to target a different element for swapping than the one issuing the AJAX request, and find the target relative to the current element. The value of this attribute can be:
@@ -489,7 +592,7 @@ const (
 //   - next <CSS selector> which will scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
 //   - previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
 //
-// For targeting a special target like `this`, see [Builder.TargetElement()].
+// For targeting a special target like `this`, see [HX.TargetElement()].
 //
 // Here is an example that targets the previous div by ID:
 //
@@ -521,11 +624,33 @@ func (hx HX) TargetRelative(targetType TargetSelectorType, selector string) HX {
 	return hx
 }
 
+// Trigger allows you to specify what triggers an AJAX request. A trigger value can be one of the following:
+//
+// TODO: Support trigger similarly to [HX.SwapExtended]
+//
+// HTMX Attribute: [hx-trigger]
+//
+// [hx-trigger]: https://htmx.org/attributes/hx-trigger/
 func (hx HX) Trigger(event string) HX {
 	hx.attrs["hx-trigger"] = event
 	return hx
 }
 
+// Vals allows you to add to the parameters that will be submitted with an AJAX request.
+//
+// The value of this attribute is a list of name-expression values in JSON (JavaScript Object Notation) format, marshaled from a struct or map.
+//
+// By default, the value of hx-vals must be valid JSON. It is not dynamically computed.
+//
+// # Notes
+//
+// hx-vals is inherited and can be placed on a parent element.
+// A child declaration of a variable overrides a parent declaration.
+// Input values with the same name will be overridden by variable declarations.
+//
+// HTMX Attribute: [hx-vals]
+//
+// [hx-vals]: https://htmx.org/attributes/hx-vals
 func (hx HX) Vals(vals any) HX {
 	json, err := json.Marshal(vals)
 	if err != nil {
@@ -536,13 +661,42 @@ func (hx HX) Vals(vals any) HX {
 	return hx
 }
 
-func (hx HX) ValsJS(vals any) HX {
-	json, err := json.Marshal(vals)
-	if err != nil {
-		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
-		return hx
+// ValsJS allows you to add to the parameters that will be submitted with an AJAX request, using JavaScript to compute the values.
+//
+// Pass a map[string]string to this method, to generate a Javascript object. The values should be valid JavaScript expressions.
+//
+// When using evaluated code you can access the event object. This example includes the value of the last typed key within the input.
+//
+//	<div {hx.New().Get("/example").Trigger("keyup").ValsJS(map[string]string{"lastKey": "event.key"}).Build()...} >
+//		<input type="text" />
+//	</div>
+//
+// # Security Considerations
+//
+// If you use the javascript: prefix, be aware that you are introducing security considerations, especially when dealing with user input such as query strings or user-generated content, which could introduce a Cross-Site Scripting (XSS) vulnerability.
+//
+// # Notes
+//
+// hx-vals is inherited and can be placed on a parent element.
+// A child declaration of a variable overrides a parent declaration.
+// Input values with the same name will be overridden by variable declarations.
+//
+// HTMX Attribute: [hx-vals]
+//
+// [hx-vals]: https://htmx.org/attributes/hx-val
+func (hx HX) ValsJS(vals map[string]string) HX {
+	values := make([]string, len(vals))
+
+	i := 0
+	for k, v := range vals {
+		// Note that values are not wrapped in "", because they are javascript expressions.
+		values[i] = fmt.Sprintf(`%s: %s`, k, v)
+		i++
 	}
-	hx.attrs["hx-vals"] = fmt.Sprintf("js:%s", json)
+	// Sort by keys.
+	slices.Sort(values)
+
+	hx.attrs["hx-vals"] = fmt.Sprintf("js:{%s}", strings.Join(values, ", "))
 	return hx
 }
 
