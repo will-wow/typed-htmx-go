@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/will-wow/typed-htmx-go/swap"
+	"github.com/will-wow/typed-htmx-go/htmx/swap"
 )
 
 type Builder struct {
