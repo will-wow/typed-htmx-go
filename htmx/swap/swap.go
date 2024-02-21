@@ -1,3 +1,4 @@
+// package swap provides a builder for the hx-swap attribute value.
 package swap
 
 import (

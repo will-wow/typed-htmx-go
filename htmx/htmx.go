@@ -1,3 +1,4 @@
+// package htmx provides well-documented Go functions for building HTMX attributes.
 package htmx
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 )
 
+// A Builder constructs HTMX attributes.
 type Builder struct {
 	attrs map[string]any
 }
@@ -47,7 +49,7 @@ func (b Builder) String() string {
 	return strings.Join(attributes, " ")
 }
 
-// Boost  allows you to “boost” normal anchors and form tags to use AJAX instead. This has the [nice fallback] that, if the user does not have javascript enabled, the site will continue to work.
+// Boost allows you to “boost” normal anchors and form tags to use AJAX instead. This has the [nice fallback] that, if the user does not have javascript enabled, the site will continue to work.
 //
 // For anchor tags, clicking on the anchor will issue a GET request to the url specified in the href and will push the url so that a history entry is created. The target is the <body> tag, and the innerHTML swap strategy is used by default. All of these can be modified by using the appropriate attributes, except the click trigger.
 //
@@ -276,8 +278,104 @@ func (b Builder) Select(selector string) Builder {
 	return b
 }
 
-func (b Builder) SelectOOB(selector string) Builder {
-	b.attrs["hx-select-oob"] = selector
+// SelectOOB allows you to select content from a response to be swapped in via an out-of-band swap.
+// The value of this attribute is comma separated list of elements to be swapped out of band. This attribute is almost always paired with hx-select.
+//
+// Here is an example that selects a subset of the response content:
+//
+//	<div>
+//	   <div id="alert"></div>
+//	    <button
+//				{ htmx.HX().
+//					Get("/info").
+//					Select("#info-details").
+//					Swap(swap.OuterHTML).
+//					SelectOOB("#alert").
+//					Build()... }
+//			>
+//	        Get Info!
+//	    </button>
+//	</div>
+//
+// This button will issue a GET to /info and then select the element with the id info-details, which will replace the entire button in the DOM, and, in addition, pick out an element with the id alert in the response and swap it in for div in the DOM with the same ID.
+//
+// Each value in the comma separated list of values can specify any valid hx-swap strategy by separating the selector and the swap strategy with a :.
+//
+// For example, to prepend the alert content instead of replacing it:
+//
+//	<div>
+//	   <div id="alert"></div>
+//	    <button
+//				{ htmx.HX().
+//					Get("/info").
+//					Select("#info-details").
+//					Swap(swap.OuterHTML).
+//					SelectOOB("#alert:afterbegin").
+//					Build()... }
+//			>
+//	        Get Info!
+//	    </button>
+//	</div>
+//
+// # Notes
+//
+// hx-select-oob is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-select-oob]
+//
+// [hx-select-oob]: https://htmx.org/attributes/hx-select-oob/
+func (b Builder) SelectOOB(selectors ...string) Builder {
+	b.attrs["hx-select-oob"] = strings.Join(selectors, ",")
+	return b
+}
+
+type SelectOOBStrategy struct {
+	Selector string
+	Strategy swap.Style
+}
+
+// SelectOOBWithStrategy allows you to select content from a response to be swapped in via an out-of-band swap, with an optional strategy for each selector.
+//
+// The value of this attribute is comma separated list of elements to be swapped out of band. This attribute is almost always paired with hx-select.
+//
+// Each value in the comma separated list of values can specify any valid hx-swap strategy by separating the selector and the swap strategy with a :.
+//
+// For example, to prepend the alert content instead of replacing it:
+//
+//	<div>
+//	   <div id="alert"></div>
+//	    <button
+//				{ htmx.HX().
+//					Get("/info").
+//					Select("#info-details").
+//					Swap(swap.OuterHTML).
+//					SelectOOBWithStrategy(
+//						htmx.SelectOOBStrategy{Selector:"#alert", Strategy: swap.AfterBegin},
+//					).
+//					Build()... }
+//			>
+//	        Get Info!
+//	    </button>
+//	</div>
+//
+// # Notes
+//
+// hx-select-oob is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-select-oob]
+//
+// [hx-select-oob]: https://htmx.org/attributes/hx-select-oob
+func (b Builder) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) Builder {
+	values := make([]string, len(selectors))
+	for i, s := range selectors {
+		if s.Strategy == "" {
+			values[i] = s.Selector
+		} else {
+			values[i] = fmt.Sprintf("%s:%s", s.Selector, s.Strategy)
+		}
+	}
+
+	b.attrs["hx-select-oob"] = strings.Join(values, ",")
 	return b
 }
 
@@ -296,20 +394,81 @@ func (b Builder) SwapOOB(selector string) Builder {
 	return b
 }
 
+// Target allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
+//
+//   - A CSS query selector of the element to target.
+//   - this which indicates that the element that the hx-target attribute is on is the target.
+//   - closest <CSS selector> which will find the closest ancestor element or itself, that matches the given CSS selector (e.g. closest tr will target the closest table row to the element).
+//   - find <CSS selector> which will find the first child descendant element that matches the given CSS selector.
+//   - next which resolves to element.nextElementSibling
+//   - next <CSS selector> which will scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+//   - previous which resolves to element.previousElementSibling
+//   - previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
+//
+// For targeting a special target like `this`, see [Builder.TargetSpecial()].
+//
+// For targeting finding the nearest element, see [Builder.TargetRelative()].
+//
+// Here is an example that targets a div:
+//
+//	<div>
+//		<div id="response-div"></div>
+//	 	<button {
+//			htmx.HX().
+//			Post("/register").
+//			Target("#response-div").
+//			Swap(swap.BeforeEnd).
+//			Build()...}
+//			>
+//	 		Register!
+//	 	</button>
+//	</div>
+//
+// The response from the /register url will be appended to the div with the id response-div.
+//
+// # Notes
+//
+// hx-target is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-target]
+//
+// [hx-target]: https://htmx.org/attributes/hx-target
 func (b Builder) Target(selector string) Builder {
 	b.attrs["hx-target"] = selector
 	return b
 }
 
-type TargetElementType string
+// A TargetSpecialType is a special HTMX target for swapping.
+type TargetSpecialType string
 
 const (
-	TargetElementThis     TargetElementType = "this"
-	TargetElementNext     TargetElementType = "next"
-	TargetElementPrevious TargetElementType = "previous"
+	TargetThis     TargetSpecialType = "this"     // indicates that the element that the hx-target attribute is on is the target.
+	TargetNext     TargetSpecialType = "next"     // resolves to element.nextElementSibling
+	TargetPrevious TargetSpecialType = "previous" // resolves to element.previousElementSibling
 )
 
-func (b Builder) TargetElement(target TargetElementType) Builder {
+// TargetSpecial allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
+//
+//   - this which indicates that the element that the hx-target attribute is on is the target.
+//   - next which resolves to element.nextElementSibling
+//   - previous which resolves to element.previousElementSibling
+//
+// For targeting with a general selector target, see [Builder.Target()].
+//
+// For targeting finding the nearest element, see [Builder.TargetRelative()].
+//
+// This example uses hx-target="this" to make a link that updates itself when clicked:
+//
+// <a hx-post="/new-link" hx-target="this" hx-swap="outerHTML">New link</a>
+//
+// # Notes
+//
+// hx-target is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-target]
+//
+// [hx-target]: https://htmx.org/attributes/hx-target
+func (b Builder) TargetSpecial(target TargetSpecialType) Builder {
 	b.attrs["hx-target"] = string(target)
 	return b
 }
@@ -323,7 +482,41 @@ const (
 	TargetSelectorPrevious TargetSelectorType = "previous"
 )
 
-func (b Builder) TargetSelector(targetType TargetSelectorType, selector string) Builder {
+// TargetRelative allows you to target a different element for swapping than the one issuing the AJAX request, and find the target relative to the current element. The value of this attribute can be:
+//
+//   - closest <CSS selector> which will find the closest ancestor element or itself, that matches the given CSS selector (e.g. closest tr will target the closest table row to the element).
+//   - find <CSS selector> which will find the first child descendant element that matches the given CSS selector.
+//   - next <CSS selector> which will scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+//   - previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
+//
+// For targeting a special target like `this`, see [Builder.TargetElement()].
+//
+// Here is an example that targets the previous div by ID:
+//
+//	<div>
+//		<div id="response-div">Not me</div>
+//		<div id="response-div"></div>
+//	 	<button {
+//			htmx.HX().
+//			Post("/register").
+//			TargetRelative(htmx.TargetSelectorPrevious, "#response-div").
+//			Swap(swap.BeforeEnd).
+//			Build()...}
+//			>
+//	 		Register!
+//	 	</button>
+//	</div>
+//
+// The response from the /register url will be appended to the first previous div with the id response-div.
+//
+// # Notes
+//
+// hx-target is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-target]
+//
+// [hx-target]: https://htmx.org/attributes/hx-target
+func (b Builder) TargetRelative(targetType TargetSelectorType, selector string) Builder {
 	b.attrs["hx-target"] = fmt.Sprintf("%s %s", targetType, selector)
 	return b
 }

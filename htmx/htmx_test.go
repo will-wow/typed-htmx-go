@@ -56,6 +56,19 @@ func TestHX(t *testing.T) {
 			want:  `hx-select='#example'`,
 		},
 		{
+			name:  "SelectOOB",
+			attrs: htmx.HX().SelectOOB("#info-details", "#other-details"),
+			want:  `hx-select-oob='#info-details,#other-details'`,
+		},
+		{
+			name: "SelectOOBWithStrategy",
+			attrs: htmx.HX().SelectOOBWithStrategy(
+				htmx.SelectOOBStrategy{Selector: "#info-details", Strategy: swap.AfterBegin},
+				htmx.SelectOOBStrategy{Selector: "#other-details", Strategy: ""},
+			),
+			want: `hx-select-oob='#info-details:afterbegin,#other-details'`,
+		},
+		{
 			name:  "Swap",
 			attrs: htmx.HX().Swap(swap.OuterHTML),
 			want:  `hx-swap='outerHTML'`,
@@ -71,13 +84,18 @@ func TestHX(t *testing.T) {
 			want: `hx-swap='outerHTML settle:1s show:#example:top'`,
 		},
 		{
-			name:  "TargetElement",
-			attrs: htmx.HX().TargetElement(htmx.TargetElementThis),
+			name:  "Target",
+			attrs: htmx.HX().Target("#example"),
+			want:  `hx-target='#example'`,
+		},
+		{
+			name:  "TargetSpecial",
+			attrs: htmx.HX().TargetSpecial(htmx.TargetThis),
 			want:  `hx-target='this'`,
 		},
 		{
 			name:  "TargetSelector",
-			attrs: htmx.HX().TargetSelector(htmx.TargetSelectorClosest, "#example"),
+			attrs: htmx.HX().TargetRelative(htmx.TargetSelectorClosest, "#example"),
 			want:  `hx-target='closest #example'`,
 		},
 		{
