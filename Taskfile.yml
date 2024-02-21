@@ -1,0 +1,72 @@
+version: "3"
+
+tasks:
+  test:
+    desc: Run test suite
+    cmds:
+      - go test -v {{.CLI_ARGS}} ./...
+
+  test:all:
+    desc: Run test suite without caching
+    cmds:
+      - go test -count=1 -v {{.CLI_ARGS}} ./...
+
+  test:cover:
+    desc: Run test suite with coverage
+    cmds:
+      - go test -coverpkg ./... -coverprofile=coverage/coverage.out ./...
+      - go tool cover -html=coverage/coverage.out -o coverage/coverage.html
+
+  doc:
+    desc: Serve godoc
+    cmds:
+      - go run golang.org/x/tools/cmd/godoc@latest -http=:6060
+
+  lint:
+    desc: Run linters
+    deps: [lint:prettier, lint:go]
+
+  lint:prettier:
+    desc: Check if prettier has been run
+    cmds:
+      - npx prettier --check .
+
+  lint:go:
+    desc: Run golangci-lint
+    cmds:
+      - golangci-lint run
+
+  publish:
+    desc: Publish a version
+    cmds:
+      - git tag -a v{{.VERSION}} -m "Release v{{.VERSION}}"
+      - git push origin v{{.VERSION}}
+      - GOPROXY=proxy.golang.org go list -m github.com/will-wow/typed-htmx-go@v{{.VERSION}}
+
+  fmt:
+    desc: Run all formatters
+    deps: [fmt:go, fmt:prettier]
+
+  fmt:go:
+    desc: Run goimports
+    cmds:
+      - go mod tidy
+      - goimports -w -local github.com/will-wow/typed-htmx-go .
+
+  fmt:prettier:
+    desc: Run prettier on non-go files
+    cmds:
+      - npx prettier --write .
+
+  ready:
+    desc: Format, lint, and test code. If this passes, then the code is ready to be committed.
+    cmds:
+      - task: fmt
+      - task: lint
+      - task: test:all
+
+  tools:
+    desc: Install tools
+    cmds:
+      - go install golang.org/x/tools/cmd/goimports@latest
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2

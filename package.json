@@ -1,0 +1,8 @@
+{
+  "name": "typed-htmx-go",
+  "version": "0.0.0",
+  "description": "Prettier dev tool for typed-htmx-go",
+  "devDependencies": {
+    "prettier": "^3.2.5"
+  }
+}
