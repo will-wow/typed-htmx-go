@@ -2,7 +2,7 @@
 
 Well-documented Go functions for building [HTMX](https://htmx.org) attributes.
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/will-wow/typed-htmx-go.svg)](https://pkg.go.dev/github.com/will-wow/typed-htmx-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/will-wow/typed-htmx-go.svg)](https://pkg.go.dev/github.com/will-wow/typed-htmx-go/hx)
 ![Code Coverage](./assets/badge.svg)
 
 [htmx](https://htmx.org) is a powerful and simple tool for building dynamic, server-rendered web applications. It also pairs particularly well with [Templ](https://templ.guide), a JSX-like template builder for Go.
