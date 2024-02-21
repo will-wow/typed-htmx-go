@@ -2,6 +2,7 @@ package swap
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -35,15 +36,12 @@ func New() *Builder {
 	}
 }
 
-// Value is a type that represents the final hx-swap string.
-type Value string
-
-// Build returns the final hx-swap string.
-func (s *Builder) Build() Value {
+// String returns the final hx-swap string.
+func (s *Builder) String() string {
 	// This is a port of strings.Join, with support for a key:value set.
 
 	if len(s.modifiers) == 0 {
-		return Value(s.style)
+		return string(s.style)
 	}
 
 	// Start with the length of all the separators
@@ -59,9 +57,21 @@ func (s *Builder) Build() Value {
 	_, _ = b.WriteString(string(s.style))
 	_ = b.WriteByte(' ')
 
-	// Then render each modifier:value pair
+	// Stable sort the modifiers to ensure a consistent order
+	mods := make([]Modifier, len(s.modifiers))
 	i := 0
-	for modifier, value := range s.modifiers {
+	for modifier := range s.modifiers {
+		mods[i] = modifier
+		i++
+	}
+	slices.SortStableFunc(mods, func(a Modifier, b Modifier) int {
+		return strings.Compare(string(a), string(b))
+	})
+
+	// Then render each modifier:value pair
+	for i, modifier := range mods {
+		value := s.modifiers[modifier]
+
 		_, _ = b.WriteString(string(modifier))
 		_ = b.WriteByte(':')
 		_, _ = b.WriteString(value)
@@ -71,7 +81,7 @@ func (s *Builder) Build() Value {
 		}
 	}
 
-	return Value(b.String())
+	return b.String()
 }
 
 // Style specifies how the response will be swapped in relative to the target of an AJAX request.

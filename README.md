@@ -6,7 +6,7 @@ Well-documented Go functions for building [HTMX](https://htmx.org) attributes.
 
 However, when using it I constantly have to have the [docs](https://htmx.org/reference) open, to look up the specifics of each modifier. I wanted the simplicity of HTMX, the editor support of Go, and beautiful integration with Templ, without sacrificing performance. I built typed-htmx-go.
 
-typed-htmx-go provides a builder struct that wraps all documented [HTMX attributes](https://htmx.org/reference/) with Go functions, and returns a map that conforms to [templ.Attributes](https://templ.guide/syntax-and-usage/attributes). This allows the result to be spread into a Templ element or be passed to a Templ component. However this library has no actual dependency of Templ, and can be used by anything that can render a `map[string]any` to HTML attributes.
+typed-htmx-go provides a builder struct that wraps all documented [HTMX attributes](https://htmx.org/reference/) with Go functions, and `.Build()` returns a map that conforms to [templ.Attributes](https://templ.guide/syntax-and-usage/attributes). This allows the result to be spread into a Templ element or be passed to a Templ component. However this library has no actual dependency of Templ, and can be used by anything that can render a `map[string]any` to HTML attributes. You can also use `.String()` to get a formatted string of HTML attributes to directly render in a template.
 
 Each function and option includes a Godoc comment copied from the extensive HTMX docs, so you can access that documentation right from the comfort of your editor.
 

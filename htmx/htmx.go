@@ -3,16 +3,44 @@ package htmx
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
+	"sort"
 	"strings"
 
 	"github.com/will-wow/typed-htmx-go/swap"
 )
 
-type hx map[string]any
+type Builder map[string]any
 
 // HX starts a new HTMX attributes builder.
-func HX() hx {
-	return hx{}
+func HX() Builder {
+	return Builder{}
+}
+
+// Build returns the final attribute map, compatible with [templ.Attributes].
+func (attrs Builder) Build() map[string]any {
+	return attrs
+}
+
+// String renders the attributes as HTML attributes.
+func (attrs Builder) String() string {
+	attributes := make([]string, len(attrs))
+
+	i := 0
+	for k, v := range attrs {
+		attributes[i] = fmt.Sprintf(`%s='%v'`, k, v)
+		i++
+	}
+
+	// Do a stable sort, which makes testing easier.
+	if len(attributes) > 1 {
+		sort.StringSlice(attributes).Sort()
+		slices.SortStableFunc(attributes, func(a string, b string) int {
+			return strings.Compare(a, b)
+		})
+	}
+
+	return strings.Join(attributes, " ")
 }
 
 // Boost  allows you to “boost” normal anchors and form tags to use AJAX instead. This has the [nice fallback] that, if the user does not have javascript enabled, the site will continue to work.
@@ -50,7 +78,7 @@ func HX() hx {
 //
 // [hx-boost]: https://htmx.org/attributes/hx-boost/
 // [nice fallback]: https://en.wikipedia.org/wiki/Progressive_enhancement
-func (attrs hx) Boost(boost bool) hx {
+func (attrs Builder) Boost(boost bool) Builder {
 	if boost {
 		attrs["hx-boost"] = "true"
 	} else {
@@ -77,7 +105,7 @@ func (attrs hx) Boost(boost bool) hx {
 //
 // [hx-get]: https://htmx.org/attributes/hx-get/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (attrs hx) Get(url string) hx {
+func (attrs Builder) Get(url string) Builder {
 	attrs["hx-get"] = url
 	return attrs
 }
@@ -101,7 +129,7 @@ func (attrs hx) Get(url string) hx {
 //
 // [hx-post]: https://htmx.org/attributes/hx-post/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (attrs hx) Post(url string) hx {
+func (attrs Builder) Post(url string) Builder {
 	attrs["hx-post"] = url
 	return attrs
 }
@@ -110,18 +138,38 @@ func (attrs hx) Post(url string) hx {
 //
 // The hx-on* attributes improve upon onevent by enabling the handling of any arbitrary JavaScript event, for enhanced Locality of Behaviour (LoB) even when dealing with non-standard DOM events. For example, these attributes allow you to handle htmx events.
 //
-// Note that, in addition to the standard DOM events, all htmx and other custom events can be captured, too!
+// HX().On() attaches to standard DOM events. For htmx custom events, use [Builder.OnHTMX].
 //
-// One gotcha to note is that DOM attributes do not preserve case. This means, unfortunately, an attribute like hx-on:htmx:beforeRequest will not work, because the DOM lowercases the attribute names. Fortunately, htmx supports both camel case event names and also kebab-case event names, so you can use hx-on:htmx:before-request instead.
+// If you wish to handle multiple different events, you can simply add multiple attributes to an element.
 //
-// In order to make writing htmx-based event handlers a little easier, you can use the shorthand leading colon for htmx events, and omit the “htmx” part:
+// # Symbols
 //
-//	<!-- These two are equivalent -->
-//	<button {htmx.HX().On("htmx:before-request", "alert('making a request!')").Get("/info").Build()...}} >
-//	Get Info!
-//	</button>
+// Like onevent, two symbols are made available to event handler scripts:
 //
-//	<button {htmx.HX().On(":before-request", "alert('making a request!')").Get("/info").Build()...}} >
+//   - this - The element on which the hx-on attribute is defined
+//   - event - The event that triggered the handler
+//
+// # Notes
+//
+// hx-on is not inherited, however due to event bubbling, hx-on attributes on parent elements will typically be triggered by events on child elements.
+//
+// HTMX Attribute: [hx-on]
+//
+// [hx-on]: https://htmx.org/attributes/hx-on/
+func (attrs Builder) On(event string, action string) Builder {
+	attrs[fmt.Sprintf("hx-on:%s", event)] = action
+	return attrs
+}
+
+// OnHTMX allows you to embed scripts inline to respond to HTMX events directly on an element; similar to the onevent properties found in HTML, such as onClick.
+//
+// The hx-on* attributes improve upon onevent by enabling the handling of any arbitrary JavaScript event, for enhanced Locality of Behaviour (LoB) even when dealing with non-standard DOM events. For example, these attributes allow you to handle htmx events.
+//
+// All htmx and other custom events can be captured, too! To respond to standard DOM events, use [Builder.On] instead.
+//
+// One gotcha to note is that DOM attributes do not preserve case. This means, unfortunately, an attribute like hx-on:htmx:beforeRequest will not work, because the DOM lowercases the attribute names. Fortunately, htmx supports both camel case event names and also kebab-case event names, so you can use .OnHTMX("before-request") instead.
+//
+//	<button {htmx.HX().OnHTMX("before-request", "alert('making a request!')").Get("/info").Build()...}} >
 //	Get Info!
 //	</button>
 //
@@ -141,8 +189,8 @@ func (attrs hx) Post(url string) hx {
 // HTMX Attribute: [hx-on]
 //
 // [hx-on]: https://htmx.org/attributes/hx-on/
-func (attrs hx) On(event string, action string) hx {
-	attrs[fmt.Sprintf("hx-on:%s", event)] = action
+func (attrs Builder) OnHTMX(event string, action string) Builder {
+	attrs[fmt.Sprintf("hx-on::%s", event)] = action
 	return attrs
 }
 
@@ -169,7 +217,7 @@ func (attrs hx) On(event string, action string) hx {
 // HTMX Attribute: [hx-push-url]
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
-func (attrs hx) PushURL(on bool) hx {
+func (attrs Builder) PushURL(on bool) Builder {
 	attrs["hx-push-url"] = boolToString(on)
 	return attrs
 }
@@ -195,7 +243,7 @@ func (attrs hx) PushURL(on bool) hx {
 // HTMX Attribute: [hx-push-url]
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
-func (attrs hx) PushURLPath(url string) hx {
+func (attrs Builder) PushURLPath(url string) Builder {
 	attrs["hx-push-url"] = url
 	return attrs
 }
@@ -212,37 +260,39 @@ func (attrs hx) PushURLPath(url string) hx {
 //
 // So this button will issue a GET to /info and then select the element with the id info-detail, which will replace the entire button in the DOM.
 //
+// # Notes
+//
+// hx-select is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-select]
+//
 // [hx-select]: https://htmx.org/attributes/hx-select/
-func (attrs hx) Select(selector string) hx {
+func (attrs Builder) Select(selector string) Builder {
 	attrs["hx-select"] = selector
 	return attrs
 }
 
-func (attrs hx) SelectOOB(selector string) hx {
+func (attrs Builder) SelectOOB(selector string) Builder {
 	attrs["hx-select-oob"] = selector
 	return attrs
 }
 
-func (attrs hx) Build() map[string]any {
-	return attrs
-}
-
-func (attrs hx) Swap(style swap.Style) hx {
+func (attrs Builder) Swap(style swap.Style) Builder {
 	attrs["hx-swap"] = string(style)
 	return attrs
 }
 
-func (attrs hx) SwapExtended(swap *swap.Builder) hx {
-	attrs["hx-swap"] = string(swap.Build())
+func (attrs Builder) SwapExtended(swap *swap.Builder) Builder {
+	attrs["hx-swap"] = swap.String()
 	return attrs
 }
 
-func (attrs hx) SwapOOB(selector string) hx {
+func (attrs Builder) SwapOOB(selector string) Builder {
 	attrs["hx-swap-oob"] = selector
 	return attrs
 }
 
-func (attrs hx) Target(selector string) hx {
+func (attrs Builder) Target(selector string) Builder {
 	attrs["hx-target"] = selector
 	return attrs
 }
@@ -250,36 +300,36 @@ func (attrs hx) Target(selector string) hx {
 type TargetElementType string
 
 const (
-	TargetElementTypeThis     TargetElementType = "this"
-	TargetElementTypeNext     TargetElementType = "next"
-	TargetElementTypePrevious TargetElementType = "previous"
+	TargetElementThis     TargetElementType = "this"
+	TargetElementNext     TargetElementType = "next"
+	TargetElementPrevious TargetElementType = "previous"
 )
 
-func (attrs hx) TargetElement(target TargetElementType) hx {
-	attrs["hx-target"] = target
+func (attrs Builder) TargetElement(target TargetElementType) Builder {
+	attrs["hx-target"] = string(target)
 	return attrs
 }
 
 type TargetSelectorType string
 
 const (
-	TargetSelectorTypeClosest  TargetSelectorType = "closest"
-	TargetSelectorTypeFind     TargetSelectorType = "find"
-	TargetSelectorTypeNext     TargetSelectorType = "next"
-	TargetSelectorTypePrevious TargetSelectorType = "previous"
+	TargetSelectorClosest  TargetSelectorType = "closest"
+	TargetSelectorFind     TargetSelectorType = "find"
+	TargetSelectorNext     TargetSelectorType = "next"
+	TargetSelectorPrevious TargetSelectorType = "previous"
 )
 
-func (attrs hx) TargetSelector(selector string, targetType TargetSelectorType) hx {
+func (attrs Builder) TargetSelector(targetType TargetSelectorType, selector string) Builder {
 	attrs["hx-target"] = fmt.Sprintf("%s %s", targetType, selector)
 	return attrs
 }
 
-func (attrs hx) Trigger(event string) hx {
+func (attrs Builder) Trigger(event string) Builder {
 	attrs["hx-trigger"] = event
 	return attrs
 }
 
-func (attrs hx) Vals(vals any) hx {
+func (attrs Builder) Vals(vals any) Builder {
 	json, err := json.Marshal(vals)
 	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
@@ -289,39 +339,39 @@ func (attrs hx) Vals(vals any) hx {
 	return attrs
 }
 
-func (attrs hx) ValsJS(vals any) hx {
+func (attrs Builder) ValsJS(vals any) Builder {
 	json, err := json.Marshal(vals)
-	if err == nil {
+	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
 		return attrs
 	}
-	attrs["hx-vals"] = fmt.Sprintf("js:%b", json)
+	attrs["hx-vals"] = fmt.Sprintf("js:%s", json)
 	return attrs
 }
 
 // Additional Attributes
 
-func (attrs hx) Confirm(msg string) hx {
+func (attrs Builder) Confirm(msg string) Builder {
 	attrs["hx-confirm"] = msg
 	return attrs
 }
-func (attrs hx) Delete(url string) hx {
+func (attrs Builder) Delete(url string) Builder {
 	attrs["hx-delete"] = url
 	return attrs
 }
 
-func (attrs hx) Disable() hx {
+func (attrs Builder) Disable() Builder {
 	attrs["hx-disable"] = true
 	return attrs
 }
 
-func (attrs hx) DisabledElt(selector string) hx {
+func (attrs Builder) DisabledElt(selector string) Builder {
 	attrs["hx-disabled-elt"] = selector
 	return attrs
 }
 
 // TODO: Typed disinherit https://htmx.org/attributes/hx-disinherit/
-func (attrs hx) Disinherit(attr string) hx {
+func (attrs Builder) Disinherit(attr string) Builder {
 	attrs["hx-disinherit"] = attr
 	return attrs
 }
@@ -332,16 +382,16 @@ const (
 	EncodingMultipart Encoding = "multipart/form-data"
 )
 
-func (attrs hx) Encoding(encoding Encoding) hx {
+func (attrs Builder) Encoding(encoding Encoding) Builder {
 	attrs["hx-encoding"] = encoding
 	return attrs
 }
-func (attrs hx) Ext(ext string) hx {
+func (attrs Builder) Ext(ext string) Builder {
 	attrs["hx-ext"] = ext
 	return attrs
 }
 
-func (attrs hx) Headers(headers any) hx {
+func (attrs Builder) Headers(headers any) Builder {
 	json, err := json.Marshal(headers)
 	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
@@ -351,7 +401,7 @@ func (attrs hx) Headers(headers any) hx {
 	return attrs
 }
 
-func (attrs hx) HeadersJS(headers any) hx {
+func (attrs Builder) HeadersJS(headers any) Builder {
 	json, err := json.Marshal(headers)
 	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
@@ -361,7 +411,7 @@ func (attrs hx) HeadersJS(headers any) hx {
 	return attrs
 }
 
-func (attrs hx) History(on bool) hx {
+func (attrs Builder) History(on bool) Builder {
 	attrs["hx-history"] = boolToString(on)
 	return attrs
 }
@@ -386,19 +436,19 @@ func (attrs hx) History(on bool) hx {
 // HTMX Attribute: [hx-history-elt]
 //
 // [hx-history-elt]: https://htmx.org/attributes/hx-history-elt/
-func (attrs hx) HistoryElt() hx {
+func (attrs Builder) HistoryElt() Builder {
 	attrs["hx-history-elt"] = true
 	return attrs
 }
 
 // include additional data in requests
-func (attrs hx) Include(selector string) hx {
+func (attrs Builder) Include(selector string) Builder {
 	attrs["hx-include"] = selector
 	return attrs
 }
 
 // include additional data in requests
-func (attrs hx) IncludeThis() hx {
+func (attrs Builder) IncludeThis() Builder {
 	attrs["hx-include"] = "this"
 	return attrs
 }
@@ -406,73 +456,73 @@ func (attrs hx) IncludeThis() hx {
 type IncludeExtension string
 
 const (
-	IncludeExtensionClosest  IncludeExtension = "closest"
-	IncludeExtensionFind     IncludeExtension = "find"
-	IncludeExtensionNext     IncludeExtension = "next"
-	IncludeExtensionPrevious IncludeExtension = "previous"
+	IncludeClosest  IncludeExtension = "closest"
+	IncludeFind     IncludeExtension = "find"
+	IncludeNext     IncludeExtension = "next"
+	IncludePrevious IncludeExtension = "previous"
 )
 
 // include additional data in requests
-func (attrs hx) IncludeExtended(selector string, extension IncludeExtension) hx {
+func (attrs Builder) IncludeExtended(extension IncludeExtension, selector string) Builder {
 	attrs["hx-include"] = fmt.Sprintf("%s %s", extension, selector)
 	return attrs
 }
 
-func (attrs hx) Indicator(selector string) hx {
+func (attrs Builder) Indicator(selector string) Builder {
 	attrs["hx-indicator"] = selector
 	return attrs
 }
-func (attrs hx) IndicatorClosest(selector string) hx {
+func (attrs Builder) IndicatorClosest(selector string) Builder {
 	attrs["hx-indicator"] = fmt.Sprintf("closest %s", selector)
 	return attrs
 }
 
-func (attrs hx) ParamsAll() hx {
+func (attrs Builder) ParamsAll() Builder {
 	attrs["hx-params"] = "*"
 	return attrs
 }
 
-func (attrs hx) ParamsNone() hx {
+func (attrs Builder) ParamsNone() Builder {
 	attrs["hx-params"] = "none"
 	return attrs
 }
 
-func (attrs hx) Params(params []string) hx {
+func (attrs Builder) Params(params []string) Builder {
 	attrs["hx-params"] = strings.Join(params, ",")
 	return attrs
 }
 
-func (attrs hx) ParamsNot(params []string) hx {
+func (attrs Builder) ParamsNot(params []string) Builder {
 	attrs["hx-params"] = fmt.Sprintf("not %s", strings.Join(params, ","))
 	return attrs
 }
 
-func (attrs hx) Patch(url string) hx {
+func (attrs Builder) Patch(url string) Builder {
 	attrs["hx-patch"] = url
 	return attrs
 }
 
-func (attrs hx) Preserve() hx {
+func (attrs Builder) Preserve() Builder {
 	attrs["hx-preserve"] = true
 	return attrs
 }
 
-func (attrs hx) Prompt(msg string) hx {
+func (attrs Builder) Prompt(msg string) Builder {
 	attrs["hx-prompt"] = msg
 	return attrs
 }
 
-func (attrs hx) Put(url string) hx {
+func (attrs Builder) Put(url string) Builder {
 	attrs["hx-put"] = url
 	return attrs
 }
 
-func (attrs hx) ReplaceURL(on bool) hx {
+func (attrs Builder) ReplaceURL(on bool) Builder {
 	attrs["hx-replace-url"] = boolToString(on)
 	return attrs
 }
 
-func (attrs hx) ReplaceURLWith(url string) hx {
+func (attrs Builder) ReplaceURLWith(url string) Builder {
 	attrs["hx-replace-url"] = url
 	return attrs
 }
@@ -508,7 +558,7 @@ func (r Request) String() string {
 	}
 }
 
-func (attrs hx) Request(request Request) hx {
+func (attrs Builder) Request(request Request) Builder {
 	attrs["hx-request"] = request.String()
 	return attrs
 }
@@ -516,34 +566,34 @@ func (attrs hx) Request(request Request) hx {
 type SyncStrategy string
 
 const (
-	SyncStrategyDefault    SyncStrategy = ""
-	SyncStrategyDrop       SyncStrategy = "drop"        // drop (ignore) this request if an existing request is in flight (the default)
-	SyncStrategyAbort      SyncStrategy = "abort"       // drop (ignore) this request if an existing request is in flight, and, if that is not the case, abort this request if another request occurs while it is still in flight
-	SyncStrategyReplace    SyncStrategy = "replace"     // abort the current request, if any, and replace it with this request
-	SyncStrategyQueue      SyncStrategy = "queue"       // place this request in the request queue associated with the given element
-	SyncStrategyQueueFirst SyncStrategy = "queue first" // queue the first request to show up while a request is in flight
-	SyncStrategyQueueLast  SyncStrategy = "queue last"  // queue the last request to show up while a request is in flight
-	SyncStrategyQueueAll   SyncStrategy = "queue all"   // queue all requests that show up while a request is in flight
+	SyncDefault    SyncStrategy = ""
+	SyncDrop       SyncStrategy = "drop"        // drop (ignore) this request if an existing request is in flight (the default)
+	SyncAbort      SyncStrategy = "abort"       // drop (ignore) this request if an existing request is in flight, and, if that is not the case, abort this request if another request occurs while it is still in flight
+	SyncReplace    SyncStrategy = "replace"     // abort the current request, if any, and replace it with this request
+	SyncQueue      SyncStrategy = "queue"       // place this request in the request queue associated with the given element
+	SyncQueueFirst SyncStrategy = "queue first" // queue the first request to show up while a request is in flight
+	SyncQueueLast  SyncStrategy = "queue last"  // queue the last request to show up while a request is in flight
+	SyncQueueAll   SyncStrategy = "queue all"   // queue all requests that show up while a request is in flight
 )
 
-func (attrs hx) Sync(selector string) hx {
+func (attrs Builder) Sync(selector string) Builder {
 	attrs["hx-sync"] = selector
 	return attrs
 }
 
-func (attrs hx) SyncStrategy(selector string, strategy SyncStrategy) hx {
+func (attrs Builder) SyncStrategy(selector string, strategy SyncStrategy) Builder {
 	attrs["hx-sync"] = fmt.Sprintf("%s:%s", selector, strategy)
 	return attrs
 }
 
-func (attrs hx) Validate() hx {
+func (attrs Builder) Validate() Builder {
 	attrs["hx-validate"] = true
 	return attrs
 }
 
 // More allow you to merge arbitrary maps into the final attributes.
 // This allows additional attributes to be passed down in a single map.
-func (attrs hx) More(more map[string]any) hx {
+func (attrs Builder) More(more map[string]any) Builder {
 	for k, v := range more {
 		attrs[k] = v
 	}
