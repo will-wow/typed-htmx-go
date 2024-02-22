@@ -2,9 +2,11 @@ package hx_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/will-wow/typed-htmx-go/hx"
 	"github.com/will-wow/typed-htmx-go/hx/swap"
+	"github.com/will-wow/typed-htmx-go/hx/trigger"
 )
 
 func TestHX(t *testing.T) {
@@ -94,7 +96,7 @@ func TestHX(t *testing.T) {
 			want:  `hx-swap-oob='afterbegin'`,
 		},
 		{
-			name:  "SwapOOBWithStrategySelector",
+			name:  "SwapOOBSelector",
 			attrs: hx.New().SwapOOBSelector(swap.AfterBegin, "#example"),
 			want:  `hx-swap-oob='afterbegin:#example'`,
 		},
@@ -104,14 +106,28 @@ func TestHX(t *testing.T) {
 			want:  `hx-target='#example'`,
 		},
 		{
-			name:  "TargetSpecial",
-			attrs: hx.New().TargetSpecial(hx.TargetThis),
+			name:  "TargetNonStandard",
+			attrs: hx.New().TargetNonStandard(hx.TargetThis),
 			want:  `hx-target='this'`,
 		},
 		{
 			name:  "TargetSelector",
 			attrs: hx.New().TargetRelative(hx.TargetSelectorClosest, "#example"),
 			want:  `hx-target='closest #example'`,
+		},
+		{
+			name:  "Trigger",
+			attrs: hx.New().Trigger("click"),
+			want:  `hx-trigger='click'`,
+		},
+		{
+			name: "TriggerExtended",
+			attrs: hx.New().TriggerExtended(
+				trigger.NewEvent("click").Filter("ctrlKey").Target("#element"),
+				trigger.NewPoll(time.Second),
+				trigger.NewIntersectEvent().Root("#element").Threshold(0.2),
+			),
+			want: `hx-trigger='click[ctrlKey] target:#element, every 1s, intersect root:#element threshold:0.2'`,
 		},
 		{
 			name:  "Vals",
@@ -122,6 +138,27 @@ func TestHX(t *testing.T) {
 			name:  "ValsJS",
 			attrs: hx.New().ValsJS(map[string]string{"lastKey": "event.key"}),
 			want:  `hx-vals='js:{lastKey: event.key}'`,
+		},
+		// Additional Attributes
+		{
+			name:  "Confirm",
+			attrs: hx.New().Confirm("Are you sure?"),
+			want:  `hx-confirm='Are you sure?'`,
+		},
+		{
+			name:  "Delete",
+			attrs: hx.New().Delete("/example"),
+			want:  `hx-delete='/example'`,
+		},
+		{
+			name:  "Disable",
+			attrs: hx.New().Disable(),
+			want:  `hx-disable`,
+		},
+		{
+			name:  "DisabledElt",
+			attrs: hx.New().DisabledElt("#example"),
+			want:  `hx-disabled-elt='#example'`,
 		},
 	}
 

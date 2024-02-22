@@ -3,8 +3,8 @@ package swap
 
 import (
 	"fmt"
-	"slices"
-	"strings"
+
+	"github.com/will-wow/typed-htmx-go/hx/internal/mod"
 )
 
 // Modifier is an enum of the possible hx-swap modifiers.
@@ -39,48 +39,7 @@ func New() *Builder {
 
 // String returns the final hx-swap string.
 func (s *Builder) String() string {
-	// This is a port of strings.Join, with support for a key:value set.
-
-	if len(s.modifiers) == 0 {
-		return string(s.strategy)
-	}
-
-	// Start with the length of all the separators
-	n := len(s.modifiers) - 1
-	for modifier, value := range s.modifiers {
-		// Add the length of every modifier:value pair
-		n += len(modifier) + 1 + len(value)
-	}
-
-	var b strings.Builder
-
-	// First always render the swap strategy.
-	_, _ = b.WriteString(string(s.strategy))
-	_ = b.WriteByte(' ')
-
-	// Sort the modifiers to ensure a consistent order
-	mods := make([]Modifier, len(s.modifiers))
-	i := 0
-	for modifier := range s.modifiers {
-		mods[i] = modifier
-		i++
-	}
-	slices.Sort(mods)
-
-	// Then render each modifier:value pair
-	for i, modifier := range mods {
-		value := s.modifiers[modifier]
-
-		_, _ = b.WriteString(string(modifier))
-		_ = b.WriteByte(':')
-		_, _ = b.WriteString(value)
-
-		if i < len(s.modifiers)-1 {
-			_ = b.WriteByte(' ')
-		}
-	}
-
-	return b.String()
+	return mod.Join(string(s.strategy), s.modifiers)
 }
 
 // Strategy specifies how the response will be swapped in relative to the target of an AJAX request.

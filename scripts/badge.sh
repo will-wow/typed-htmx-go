@@ -18,5 +18,7 @@ if (( $(echo "$COVERAGE <= 50" | bc -l) )) ; then
     COLOR=green
 fi
 
+echo "Coverage is $COVERAGE%"
+
 # Generate a badge to display in the README.
 curl "https://img.shields.io/badge/coverage-$COVERAGE%25-$COLOR" > ./assets/badge.svg

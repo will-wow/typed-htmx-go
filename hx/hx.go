@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/will-wow/typed-htmx-go/hx/swap"
+	"github.com/will-wow/typed-htmx-go/hx/trigger"
 )
 
 // An HX constructs HTMX attributes.
@@ -29,12 +31,19 @@ func (hx HX) Build() map[string]any {
 
 // String renders the attributes as HTML attributes.
 func (hx HX) String() string {
-	attributes := make([]string, len(hx.attrs))
+	attributes := make([]string, 0, len(hx.attrs))
 
-	i := 0
 	for k, v := range hx.attrs {
-		attributes[i] = fmt.Sprintf(`%s='%v'`, k, v)
-		i++
+		switch v := v.(type) {
+		// For strings, print the key='value' pair.
+		case string:
+			attributes = append(attributes, fmt.Sprintf(`%s='%v'`, k, v))
+		// For booleans, print just the key if true.
+		case bool:
+			if v {
+				attributes = append(attributes, k)
+			}
+		}
 	}
 
 	// Sort, which makes testing easier.
@@ -49,7 +58,7 @@ func (hx HX) String() string {
 //
 // For anchor tags, clicking on the anchor will issue a GET request to the url specified in the href and will push the url so that a history entry is created. The target is the <body> tag, and the innerHTML swap strategy is used by default. All of these can be modified by using the appropriate attributes, except the click trigger.
 //
-// For forms the request will be converted into a GET or POST, based on the method in the method attribute and will be triggered by a submit. Again, the target will be the body of the page, and the innerHTML swap will be used. The url will not be pushed, however, and no history entry will be created. (You can use the [hx.PushUrl] attribute if you want the url to be pushed.)
+// For forms the request will be converted into a GET or POST, based on the method in the method attribute and will be triggered by a submit. Again, the target will be the body of the page, and the innerHTML swap will be used. The url will not be pushed, however, and no history entry will be created. (You can use the [HX.PushUrl] attribute if you want the url to be pushed.)
 //
 //	<div { hx.New().Boost(true).Build()...} >
 //		<a href="/page1">Go To Page 1</a>
@@ -540,16 +549,16 @@ func (hx HX) Target(selector string) HX {
 	return hx
 }
 
-// A TargetSpecialType is a special HTMX target for swapping.
-type TargetSpecialType string
+// A TargetNonStandardSelector is a special HTMX target for swapping.
+type TargetNonStandardSelector string
 
 const (
-	TargetThis     TargetSpecialType = "this"     // indicates that the element that the hx-target attribute is on is the target.
-	TargetNext     TargetSpecialType = "next"     // resolves to element.nextElementSibling
-	TargetPrevious TargetSpecialType = "previous" // resolves to element.previousElementSibling
+	TargetThis     TargetNonStandardSelector = "this"     // indicates that the element that the hx-target attribute is on is the target.
+	TargetNext     TargetNonStandardSelector = "next"     // resolves to element.nextElementSibling
+	TargetPrevious TargetNonStandardSelector = "previous" // resolves to element.previousElementSibling
 )
 
-// TargetSpecial allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
+// TargetNonStandard allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
 //
 //   - this which indicates that the element that the hx-target attribute is on is the target.
 //   - next which resolves to element.nextElementSibling
@@ -570,19 +579,19 @@ const (
 // HTMX Attribute: [hx-target]
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
-func (hx HX) TargetSpecial(target TargetSpecialType) HX {
+func (hx HX) TargetNonStandard(target TargetNonStandardSelector) HX {
 	hx.attrs["hx-target"] = string(target)
 	return hx
 }
 
-// A TargetSelectorType is a special named HTMX target for swapping.
-type TargetSelectorType string
+// A TargetSelectorModifier is a relative modifier to a CSS selector.
+type TargetSelectorModifier string
 
 const (
-	TargetSelectorClosest  TargetSelectorType = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
-	TargetSelectorFind     TargetSelectorType = "find"     // find the first child descendant element that matches the given CSS selector
-	TargetSelectorNext     TargetSelectorType = "next"     // which will scan the DOM forward for the first element that matches the given CSS selector.
-	TargetSelectorPrevious TargetSelectorType = "previous" // scan the DOM backwards for the first element that matches the given CSS selector
+	TargetSelectorClosest  TargetSelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
+	TargetSelectorFind     TargetSelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector
+	TargetSelectorNext     TargetSelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+	TargetSelectorPrevious TargetSelectorModifier = "previous" // scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
 )
 
 // TargetRelative allows you to target a different element for swapping than the one issuing the AJAX request, and find the target relative to the current element. The value of this attribute can be:
@@ -619,20 +628,43 @@ const (
 // HTMX Attribute: [hx-target]
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
-func (hx HX) TargetRelative(targetType TargetSelectorType, selector string) HX {
-	hx.attrs["hx-target"] = fmt.Sprintf("%s %s", targetType, selector)
+func (hx HX) TargetRelative(modifier TargetSelectorModifier, selector string) HX {
+	hx.attrs["hx-target"] = fmt.Sprintf("%s %s", modifier, selector)
 	return hx
 }
 
-// Trigger allows you to specify what triggers an AJAX request. A trigger value can be one of the following:
+// Trigger allows you to specify what event triggers an AJAX request.
 //
-// TODO: Support trigger similarly to [HX.SwapExtended]
+// For usage with modifiers and polling, see [HX.TriggerExtended()].
 //
 // HTMX Attribute: [hx-trigger]
 //
 // [hx-trigger]: https://htmx.org/attributes/hx-trigger/
 func (hx HX) Trigger(event string) HX {
 	hx.attrs["hx-trigger"] = event
+	return hx
+}
+
+// TriggerExtended allows you to specify what triggers an AJAX request, with modifiers for changing the behavior of the trigger.
+// A trigger value can be one of the following:
+//
+//   - An event name (e.g. “click” or “my-custom-event”) followed by an event filter and a set of event modifiers
+//   - A polling definition of the form every <timing declaration>
+//   - A comma-separated list of such events
+//
+// See [trigger.Event] and [trigger.Poll] for more information on options.
+//
+// HTMX Attribute: [hx-trigger]
+//
+// [hx-trigger]: https://htmx.org/attributes/hx-trigger/
+func (hx HX) TriggerExtended(triggers ...trigger.Trigger) HX {
+	values := make([]string, len(triggers))
+	for i, t := range triggers {
+		values[i] = t.String()
+	}
+
+	hx.attrs["hx-trigger"] = strings.Join(values, ", ")
+
 	return hx
 }
 
@@ -706,6 +738,7 @@ func (hx HX) Confirm(msg string) HX {
 	hx.attrs["hx-confirm"] = msg
 	return hx
 }
+
 func (hx HX) Delete(url string) HX {
 	hx.attrs["hx-delete"] = url
 	return hx
@@ -878,20 +911,19 @@ func (hx HX) ReplaceURLWith(url string) HX {
 	return hx
 }
 
-// Request describes the hx-request attributes
+// Request describes static hx-request attributes
 // See https://htmx.org/attributes/hx-request/
 type Request struct {
-	TimeoutMS   int  // the timeout for the request in milliseconds
-	Credentials bool // if the request will send credentials
-	NoHeaders   bool // strips all headers from the request
-	JS          bool // You may make the values dynamically evaluated by adding this prefix.
+	Timeout     time.Duration // the timeout for the request
+	Credentials bool          // if the request will send credentials
+	NoHeaders   bool          // strips all headers from the request
 }
 
 func (r Request) String() string {
 	opts := []string{}
 
-	if r.TimeoutMS > 0 {
-		opts = append(opts, fmt.Sprintf(`"timeout":%d`, r.TimeoutMS))
+	if r.Timeout > 0 {
+		opts = append(opts, fmt.Sprintf(`"timeout":%d`, r.Timeout.Milliseconds()))
 	}
 	if r.Credentials {
 		opts = append(opts, `"credentials": true`)
@@ -900,16 +932,52 @@ func (r Request) String() string {
 		opts = append(opts, `"noHeaders": true`)
 	}
 
-	value := strings.Join(opts, ",")
-
-	if r.JS {
-		return fmt.Sprintf("js: %s", value)
-	} else {
-		return value
-	}
+	return strings.Join(opts, ",")
 }
 
+// Request allows you to configure various aspects of the request.
+// These attributes are set using a JSON-like syntax.
+//
+// HTMX Attribute: [hx-request]
+//
+// [hx-request]: https://htmx.org/attributes/hx-request/
 func (hx HX) Request(request Request) HX {
+	hx.attrs["hx-request"] = request.String()
+	return hx
+}
+
+// RequestJS describes runtime hx-request attributes
+// See https://htmx.org/attributes/hx-request/
+type RequestJS struct {
+	Timeout     string // the timeout for the request in milliseconds
+	Credentials string // if the request will send credentials
+	NoHeaders   string // strips all headers from the request
+}
+
+func (r RequestJS) String() string {
+	opts := []string{}
+
+	if r.Timeout != "" {
+		opts = append(opts, fmt.Sprintf(`"timeout":%s`, r.Timeout))
+	}
+	if r.Credentials != "" {
+		opts = append(opts, fmt.Sprintf(`"credentials": %s`, r.Credentials))
+	}
+	if r.NoHeaders != "" {
+		opts = append(opts, fmt.Sprintf(`"noHeaders": %s`, r.NoHeaders))
+	}
+
+	value := strings.Join(opts, ",")
+	return fmt.Sprintf("js: %s", value)
+}
+
+// RequestJS allows you to configure various aspects of the request, with each value being a valid JavaScript expression.
+// To pass a literal string, use wrap it in quotes like "'string'".
+//
+// HTMX Attribute: [hx-request]
+//
+// [hx-request]: https://htmx.org/attributes/hx-request/
+func (hx HX) RequestJS(request RequestJS) HX {
 	hx.attrs["hx-request"] = request.String()
 	return hx
 }
