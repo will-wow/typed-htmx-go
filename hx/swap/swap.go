@@ -3,6 +3,7 @@ package swap
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/will-wow/typed-htmx-go/hx/internal/mod"
 )
@@ -69,17 +70,17 @@ func (s *Builder) Transition() *Builder {
 	return s
 }
 
-// SwapTiming modifies the amount of time that htmx will wait after receiving a response to swap the content.
+// Swap modifies the amount of time that htmx will wait after receiving a response to swap the content.
 // This attribute can be used to synchronize htmx with the timing of CSS transition effects.
-func (s *Builder) SwapTiming(wait string) *Builder {
-	s.modifiers[Swap] = wait
+func (s *Builder) Swap(wait time.Duration) *Builder {
+	s.modifiers[Swap] = wait.String()
 	return s
 }
 
-// SettleTiming modifies the time between the swap and the settle logic.
+// Settle modifies the time between the swap and the settle logic.
 // This attribute can be used to synchronize htmx with the timing of CSS transition effects.
-func (s *Builder) SettleTiming(wait string) *Builder {
-	s.modifiers[Settle] = wait
+func (s *Builder) Settle(wait time.Duration) *Builder {
+	s.modifiers[Settle] = wait.String()
 	return s
 }
 

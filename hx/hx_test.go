@@ -80,7 +80,7 @@ func TestHX(t *testing.T) {
 			attrs: hx.New().SwapExtended(
 				swap.New().
 					Strategy(swap.OuterHTML).
-					SettleTiming("1s").
+					Settle(time.Second).
 					ShowElement("#example", swap.Top),
 			),
 			want: `hx-swap='outerHTML settle:1s show:#example:top'`,

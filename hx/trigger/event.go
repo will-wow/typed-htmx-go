@@ -168,6 +168,13 @@ func (e *Event) Queue(option QueueOption) *Event {
 	return e
 }
 
+// Clear removes a modifier entirely from the builder.
+// Used to undo an previously set modifier.
+func (s *Event) Clear(modifier Modifier) *Event {
+	delete(s.modifiers, modifier)
+	return s
+}
+
 // coreEvent returns the event name with the filter appended, if present.
 func (e *Event) coreEvent() string {
 	if e.filter == "" {

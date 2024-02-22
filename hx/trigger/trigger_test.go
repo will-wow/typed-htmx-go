@@ -89,6 +89,11 @@ func TestNewEvent(t *testing.T) {
 			want:    "click queue:first",
 		},
 		{
+			name:    "Clear",
+			trigger: trigger.NewEvent("click").Consume().Clear(trigger.Consume),
+			want:    "click",
+		},
+		{
 			name:    "Ordering multiple",
 			trigger: trigger.NewEvent("click").Filter("isActive").Queue(trigger.First).Consume().Target("#element").From("#parent > #child"),
 			want:    "click[isActive] consume from:(#parent > #child) queue:first target:#element",
