@@ -15,7 +15,7 @@ func TestHX(t *testing.T) {
 	tests := []struct {
 		name  string
 		want  string
-		attrs hx.HX
+		attrs *hx.HX
 	}{
 		{
 			name:  "Boost",

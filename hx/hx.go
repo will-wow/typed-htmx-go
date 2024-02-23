@@ -20,19 +20,19 @@ type HX struct {
 
 // New starts a new HTMX attributes builder.
 // Methods support HTMX v1.9.10.
-func New() HX {
-	return HX{
+func New() *HX {
+	return &HX{
 		attrs: map[string]any{},
 	}
 }
 
 // Build returns the final attribute map, compatible with [templ.Attributes].
-func (hx HX) Build() map[string]any {
+func (hx *HX) Build() map[string]any {
 	return hx.attrs
 }
 
 // String renders the attributes as HTML attributes.
-func (hx HX) String() string {
+func (hx *HX) String() string {
 	attributes := make([]string, 0, len(hx.attrs))
 
 	for k, v := range hx.attrs {
@@ -91,7 +91,7 @@ func (hx HX) String() string {
 //
 // [hx-boost]: https://htmx.org/attributes/hx-boost/
 // [nice fallback]: https://en.wikipedia.org/wiki/Progressive_enhancement
-func (hx HX) Boost(boost bool) HX {
+func (hx *HX) Boost(boost bool) *HX {
 	if boost {
 		hx.set(Boost, "true")
 	} else {
@@ -118,7 +118,7 @@ func (hx HX) Boost(boost bool) HX {
 //
 // [hx-get]: https://htmx.org/attributes/hx-get/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (hx HX) Get(url string) HX {
+func (hx *HX) Get(url string) *HX {
 	return hx.set(Get, url)
 }
 
@@ -141,7 +141,7 @@ func (hx HX) Get(url string) HX {
 //
 // [hx-post]: https://htmx.org/attributes/hx-post/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (hx HX) Post(url string) HX {
+func (hx *HX) Post(url string) *HX {
 	return hx.set(Post, url)
 }
 
@@ -167,7 +167,7 @@ func (hx HX) Post(url string) HX {
 // HTMX Attribute: [hx-on]
 //
 // [hx-on]: https://htmx.org/attributes/hx-on/
-func (hx HX) On(event string, action string) HX {
+func (hx *HX) On(event string, action string) *HX {
 	return hx.setOther(fmt.Sprintf("hx-on:%s", event), action)
 }
 
@@ -199,7 +199,7 @@ func (hx HX) On(event string, action string) HX {
 // HTMX Attribute: [hx-on]
 //
 // [hx-on]: https://htmx.org/attributes/hx-on/
-func (hx HX) OnHTMX(event string, action string) HX {
+func (hx *HX) OnHTMX(event string, action string) *HX {
 	return hx.setOther(fmt.Sprintf("hx-on::%s", event), action)
 }
 
@@ -226,7 +226,7 @@ func (hx HX) OnHTMX(event string, action string) HX {
 // HTMX Attribute: [hx-push-url]
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
-func (hx HX) PushURL(on bool) HX {
+func (hx *HX) PushURL(on bool) *HX {
 	return hx.set(PushURL, boolToString(on))
 }
 
@@ -251,7 +251,7 @@ func (hx HX) PushURL(on bool) HX {
 // HTMX Attribute: [hx-push-url]
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
-func (hx HX) PushURLPath(url string) HX {
+func (hx *HX) PushURLPath(url string) *HX {
 	return hx.set(PushURL, url)
 }
 
@@ -274,7 +274,7 @@ func (hx HX) PushURLPath(url string) HX {
 // HTMX Attribute: [hx-select]
 //
 // [hx-select]: https://htmx.org/attributes/hx-select/
-func (hx HX) Select(selector string) HX {
+func (hx *HX) Select(selector string) *HX {
 	return hx.set(Select, selector)
 }
 
@@ -324,7 +324,7 @@ func (hx HX) Select(selector string) HX {
 // HTMX Attribute: [hx-select-oob]
 //
 // [hx-select-oob]: https://htmx.org/attributes/hx-select-oob/
-func (hx HX) SelectOOB(selectors ...string) HX {
+func (hx *HX) SelectOOB(selectors ...string) *HX {
 	return hx.set(SelectOOB, strings.Join(selectors, ","))
 }
 
@@ -364,7 +364,7 @@ type SelectOOBStrategy struct {
 // HTMX Attribute: [hx-select-oob]
 //
 // [hx-select-oob]: https://htmx.org/attributes/hx-select-oob
-func (hx HX) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) HX {
+func (hx *HX) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) *HX {
 	values := make([]string, len(selectors))
 	for i, s := range selectors {
 		if s.Strategy == "" {
@@ -392,7 +392,7 @@ func (hx HX) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) HX {
 // HTMX Attribute: [hx-swap]
 //
 // [hx-swap]: https://htmx.org/attributes/hx-swap
-func (hx HX) Swap(strategy swap.Strategy) HX {
+func (hx *HX) Swap(strategy swap.Strategy) *HX {
 	return hx.set(Swap, string(strategy))
 }
 
@@ -411,7 +411,7 @@ func (hx HX) Swap(strategy swap.Strategy) HX {
 // HTMX Attribute: [hx-swap]
 //
 // [hx-swap]: https://htmx.org/attributes/hx-swap
-func (hx HX) SwapExtended(swap *swap.Builder) HX {
+func (hx *HX) SwapExtended(swap *swap.Builder) *HX {
 	return hx.set(Swap, swap.String())
 }
 
@@ -437,7 +437,7 @@ func (hx HX) SwapExtended(swap *swap.Builder) HX {
 // HTMX Attribute: [hx-swap-oob]
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
-func (hx HX) SwapOOB() HX {
+func (hx *HX) SwapOOB() *HX {
 	return hx.set(SwapOOB, "true")
 }
 
@@ -463,7 +463,7 @@ func (hx HX) SwapOOB() HX {
 // HTMX Attribute: [hx-swap-oob]
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
-func (hx HX) SwapOOBWithStrategy(strategy swap.Strategy) HX {
+func (hx *HX) SwapOOBWithStrategy(strategy swap.Strategy) *HX {
 	return hx.set(SwapOOB, string(strategy))
 }
 
@@ -489,7 +489,7 @@ func (hx HX) SwapOOBWithStrategy(strategy swap.Strategy) HX {
 // HTMX Attribute: [hx-swap-oob]
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
-func (hx HX) SwapOOBSelector(strategy swap.Strategy, selector string) HX {
+func (hx *HX) SwapOOBSelector(strategy swap.Strategy, selector string) *HX {
 	return hx.set(SwapOOB, fmt.Sprintf("%s:%s", strategy, selector))
 }
 
@@ -532,7 +532,7 @@ func (hx HX) SwapOOBSelector(strategy swap.Strategy, selector string) HX {
 // HTMX Attribute: [hx-target]
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
-func (hx HX) Target(selector string) HX {
+func (hx *HX) Target(selector string) *HX {
 	return hx.set(Target, selector)
 }
 
@@ -566,7 +566,7 @@ const (
 // HTMX Attribute: [hx-target]
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
-func (hx HX) TargetNonStandard(target TargetNonStandardSelector) HX {
+func (hx *HX) TargetNonStandard(target TargetNonStandardSelector) *HX {
 	return hx.set(Target, string(target))
 }
 
@@ -614,7 +614,7 @@ const (
 // HTMX Attribute: [hx-target]
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
-func (hx HX) TargetRelative(modifier TargetSelectorModifier, selector string) HX {
+func (hx *HX) TargetRelative(modifier TargetSelectorModifier, selector string) *HX {
 	return hx.set(Target, fmt.Sprintf("%s %s", modifier, selector))
 }
 
@@ -625,7 +625,7 @@ func (hx HX) TargetRelative(modifier TargetSelectorModifier, selector string) HX
 // HTMX Attribute: [hx-trigger]
 //
 // [hx-trigger]: https://htmx.org/attributes/hx-trigger/
-func (hx HX) Trigger(event string) HX {
+func (hx *HX) Trigger(event string) *HX {
 	return hx.set(Trigger, event)
 }
 
@@ -641,7 +641,7 @@ func (hx HX) Trigger(event string) HX {
 // HTMX Attribute: [hx-trigger]
 //
 // [hx-trigger]: https://htmx.org/attributes/hx-trigger/
-func (hx HX) TriggerExtended(triggers ...trigger.Trigger) HX {
+func (hx *HX) TriggerExtended(triggers ...trigger.Trigger) *HX {
 	values := make([]string, len(triggers))
 	for i, t := range triggers {
 		values[i] = t.String()
@@ -665,7 +665,7 @@ func (hx HX) TriggerExtended(triggers ...trigger.Trigger) HX {
 // HTMX Attribute: [hx-vals]
 //
 // [hx-vals]: https://htmx.org/attributes/hx-vals
-func (hx HX) Vals(vals any) HX {
+func (hx *HX) Vals(vals any) *HX {
 	json, err := json.Marshal(vals)
 	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
@@ -697,7 +697,7 @@ func (hx HX) Vals(vals any) HX {
 // HTMX Attribute: [hx-vals]
 //
 // [hx-vals]: https://htmx.org/attributes/hx-val
-func (hx HX) ValsJS(vals map[string]string) HX {
+func (hx *HX) ValsJS(vals map[string]string) *HX {
 	return hx.set(Vals, mapToJS(vals))
 }
 
@@ -728,7 +728,7 @@ func (hx HX) ValsJS(vals map[string]string) HX {
 // HTMX Attribute: [hx-confirm]
 //
 // [hx-confirm]: https://htmx.org/attributes/hx-confirm/
-func (hx HX) Confirm(msg string) HX {
+func (hx *HX) Confirm(msg string) *HX {
 	return hx.set(Confirm, msg)
 }
 
@@ -754,7 +754,7 @@ func (hx HX) Confirm(msg string) HX {
 // [hx-delete]: https://htmx.org/attributes/hx-delete
 // [Parameters]: https://htmx.org/docs/#parameters
 // [Requests & Responses]: https://htmx.org/docs/#requests
-func (hx HX) Delete(url string) HX {
+func (hx *HX) Delete(url string) *HX {
 	return hx.set(Delete, url)
 }
 
@@ -765,7 +765,7 @@ func (hx HX) Delete(url string) HX {
 // HTMX Attribute: [hx-disable]
 //
 // [hx-disable]: https://htmx.org/attributes/hx-disable
-func (hx HX) Disable() HX {
+func (hx *HX) Disable() *HX {
 	return hx.set(Disable, true)
 }
 
@@ -784,7 +784,7 @@ func (hx HX) Disable() HX {
 // HTMX Attribute: [hx-disabled-elt]
 //
 // [hx-disabled-elt]: https://htmx.org/attributes/hx-disabled-elt
-func (hx HX) DisabledElt(selector string) HX {
+func (hx *HX) DisabledElt(selector string) *HX {
 	return hx.set(DisabledElt, selector)
 }
 
@@ -816,7 +816,7 @@ func (hx HX) DisabledElt(selector string) HX {
 //
 // [hx-disinherit]: https://htmx.org/attributes/hx-disinherit/
 // [Attribute Inheritance]: https://htmx.org/docs/#inheritance
-func (hx HX) Disinherit(attr ...Attribute) HX {
+func (hx *HX) Disinherit(attr ...Attribute) *HX {
 	// Convert to strings for joining.
 	attrStrings := make([]string, len(attr))
 	for i, a := range attr {
@@ -846,7 +846,7 @@ func (hx HX) Disinherit(attr ...Attribute) HX {
 //
 // [hx-disinherit]: https://htmx.org/attributes/hx-disinherit/
 // [Attribute Inheritance]: https://htmx.org/docs/#inheritance
-func (hx HX) DisinheritAll() HX {
+func (hx *HX) DisinheritAll() *HX {
 	return hx.set(Disinherit, "*")
 }
 
@@ -870,7 +870,7 @@ const (
 // HTMX Attribute: [hx-encoding]
 //
 // [hx-encoding]: https://htmx.org/attributes/hx-encoding
-func (hx HX) Encoding(encoding EncodingContentType) HX {
+func (hx *HX) Encoding(encoding EncodingContentType) *HX {
 	return hx.set(Encoding, string(encoding))
 }
 
@@ -888,7 +888,7 @@ func (hx HX) Encoding(encoding EncodingContentType) HX {
 //
 // [hx-ext]: https://htmx.org/attributes/hx-ext
 // [extension]: https://htmx.org/extensions
-func (hx HX) Ext(ext ...string) HX {
+func (hx *HX) Ext(ext ...string) *HX {
 	return hx.set(Ext, strings.Join(ext, ","))
 }
 
@@ -905,7 +905,7 @@ func (hx HX) Ext(ext ...string) HX {
 //
 // [hx-ext]: https://htmx.org/attributes/hx-ext
 // [extension]: https://htmx.org/extensions
-func (hx HX) ExtIgnore(ext string) HX {
+func (hx *HX) ExtIgnore(ext string) *HX {
 	return hx.set(Ext, fmt.Sprintf("ignore:%s", ext))
 }
 
@@ -923,7 +923,7 @@ func (hx HX) ExtIgnore(ext string) HX {
 // HTMX Attribute: [hx-headers]
 //
 // [hx-headers]: https://htmx.org/attributes/hx-headers
-func (hx HX) Headers(headers any) HX {
+func (hx *HX) Headers(headers any) *HX {
 	json, err := json.Marshal(headers)
 	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
@@ -948,11 +948,11 @@ func (hx HX) Headers(headers any) HX {
 // HTMX Attribute: [hx-headers]
 //
 // [hx-headers]: https://htmx.org/attributes/hx-headers
-func (hx HX) HeadersJS(headers map[string]string) HX {
+func (hx *HX) HeadersJS(headers map[string]string) *HX {
 	return hx.set(Headers, mapToJS(headers))
 }
 
-func (hx HX) History(on bool) HX {
+func (hx *HX) History(on bool) *HX {
 	return hx.set(History, boolToString(on))
 }
 
@@ -976,17 +976,17 @@ func (hx HX) History(on bool) HX {
 // HTMX Attribute: [hx-history-elt]
 //
 // [hx-history-elt]: https://htmx.org/attributes/hx-history-elt/
-func (hx HX) HistoryElt() HX {
+func (hx *HX) HistoryElt() *HX {
 	return hx.set(HistoryElt, true)
 }
 
 // include additional data in requests
-func (hx HX) Include(selector string) HX {
+func (hx *HX) Include(selector string) *HX {
 	return hx.set(Include, selector)
 }
 
 // include additional data in requests
-func (hx HX) IncludeThis() HX {
+func (hx *HX) IncludeThis() *HX {
 	return hx.set(Include, "this")
 }
 
@@ -1000,55 +1000,55 @@ const (
 )
 
 // include additional data in requests
-func (hx HX) IncludeExtended(extension IncludeExtension, selector string) HX {
+func (hx *HX) IncludeExtended(extension IncludeExtension, selector string) *HX {
 	return hx.set(Include, fmt.Sprintf("%s %s", extension, selector))
 }
 
-func (hx HX) Indicator(selector string) HX {
+func (hx *HX) Indicator(selector string) *HX {
 	return hx.set(Indicator, selector)
 }
 
-func (hx HX) IndicatorClosest(selector string) HX {
+func (hx *HX) IndicatorClosest(selector string) *HX {
 	return hx.set(Indicator, fmt.Sprintf("closest %s", selector))
 }
 
-func (hx HX) ParamsAll() HX {
+func (hx *HX) ParamsAll() *HX {
 	return hx.set(Params, "*")
 }
 
-func (hx HX) ParamsNone() HX {
+func (hx *HX) ParamsNone() *HX {
 	return hx.set(Params, "none")
 }
 
-func (hx HX) Params(params []string) HX {
+func (hx *HX) Params(params []string) *HX {
 	return hx.set(Params, strings.Join(params, ","))
 }
 
-func (hx HX) ParamsNot(params []string) HX {
+func (hx *HX) ParamsNot(params []string) *HX {
 	return hx.set(Params, fmt.Sprintf("not %s", strings.Join(params, ",")))
 }
 
-func (hx HX) Patch(url string) HX {
+func (hx *HX) Patch(url string) *HX {
 	return hx.set(Patch, url)
 }
 
-func (hx HX) Preserve() HX {
+func (hx *HX) Preserve() *HX {
 	return hx.set(Preserve, true)
 }
 
-func (hx HX) Prompt(msg string) HX {
+func (hx *HX) Prompt(msg string) *HX {
 	return hx.set(Prompt, msg)
 }
 
-func (hx HX) Put(url string) HX {
+func (hx *HX) Put(url string) *HX {
 	return hx.set(Put, url)
 }
 
-func (hx HX) ReplaceURL(on bool) HX {
+func (hx *HX) ReplaceURL(on bool) *HX {
 	return hx.set(ReplaceURL, boolToString(on))
 }
 
-func (hx HX) ReplaceURLWith(url string) HX {
+func (hx *HX) ReplaceURLWith(url string) *HX {
 	return hx.set(ReplaceURL, url)
 }
 
@@ -1082,7 +1082,7 @@ func (r RequestConfig) String() string {
 // HTMX Attribute: [hx-request]
 //
 // [hx-request]: https://htmx.org/attributes/hx-request/
-func (hx HX) Request(request RequestConfig) HX {
+func (hx *HX) Request(request RequestConfig) *HX {
 	return hx.set(Request, request.String())
 }
 
@@ -1117,7 +1117,7 @@ func (r RequestConfigJS) String() string {
 // HTMX Attribute: [hx-request]
 //
 // [hx-request]: https://htmx.org/attributes/hx-request/
-func (hx HX) RequestJS(request RequestConfigJS) HX {
+func (hx *HX) RequestJS(request RequestConfigJS) *HX {
 	return hx.set(Request, request.String())
 }
 
@@ -1134,21 +1134,21 @@ const (
 	SyncQueueAll   SyncStrategy = "queue all"   // queue all requests that show up while a request is in flight
 )
 
-func (hx HX) Sync(selector string) HX {
+func (hx *HX) Sync(selector string) *HX {
 	return hx.set(Sync, selector)
 }
 
-func (hx HX) SyncStrategy(selector string, strategy SyncStrategy) HX {
+func (hx *HX) SyncStrategy(selector string, strategy SyncStrategy) *HX {
 	return hx.set(Sync, fmt.Sprintf("%s:%s", selector, strategy))
 }
 
-func (hx HX) Validate() HX {
+func (hx *HX) Validate() *HX {
 	return hx.set(Validate, true)
 }
 
 // More allow you to merge arbitrary maps into the final attributes.
 // This allows additional attributes to be passed down in a single map.
-func (hx HX) More(more map[string]any) HX {
+func (hx *HX) More(more map[string]any) *HX {
 	for k, v := range more {
 		hx.attrs[k] = v
 	}
@@ -1156,7 +1156,7 @@ func (hx HX) More(more map[string]any) HX {
 }
 
 // Unset sets the value of the selected attributes as "unset"  to clear a property that would normally be inherited (e.g. hx-confirm).
-func (hx HX) Unset(attrs ...Attribute) HX {
+func (hx *HX) Unset(attrs ...Attribute) *HX {
 	for _, attr := range attrs {
 		hx.set(attr, "unset")
 	}
@@ -1164,13 +1164,13 @@ func (hx HX) Unset(attrs ...Attribute) HX {
 }
 
 // set sets a valid attribute to a value.
-func (hx HX) set(key Attribute, value any) HX {
+func (hx *HX) set(key Attribute, value any) *HX {
 	hx.attrs[string(key)] = value
 	return hx
 }
 
 // set sets a non-standard attribute to a value.
-func (hx HX) setOther(key string, value any) HX {
+func (hx *HX) setOther(key string, value any) *HX {
 	hx.attrs[key] = value
 	return hx
 }
