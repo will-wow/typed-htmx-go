@@ -112,7 +112,7 @@ func TestHX(t *testing.T) {
 		},
 		{
 			name:  "TargetSelector",
-			attrs: hx.New().TargetRelative(hx.TargetSelectorClosest, "#example"),
+			attrs: hx.New().TargetRelative(hx.SelectorClosest, "#example"),
 			want:  `hx-target='closest #example'`,
 		},
 		{
@@ -219,6 +219,101 @@ func TestHX(t *testing.T) {
 			name:  "Include",
 			attrs: hx.New().Include("#example"),
 			want:  `hx-include='#example'`,
+		},
+		{
+			name:  "IncludeThis",
+			attrs: hx.New().IncludeThis(),
+			want:  `hx-include='this'`,
+		},
+		{
+			name:  "IncludeRelative",
+			attrs: hx.New().IncludeRelative(hx.SelectorClosest, "#example"),
+			want:  `hx-include='closest #example'`,
+		},
+		{
+			name:  "Indicator",
+			attrs: hx.New().Indicator("#example"),
+			want:  `hx-indicator='#example'`,
+		},
+		{
+			name:  "IndicatorRelative",
+			attrs: hx.New().IndicatorRelative(hx.SelectorClosest, "#example"),
+			want:  `hx-indicator='closest #example'`,
+		},
+		{
+			name:  "ParamsAll",
+			attrs: hx.New().ParamsAll(),
+			want:  `hx-params='*'`,
+		},
+		{
+			name:  "ParamsNone",
+			attrs: hx.New().ParamsNone(),
+			want:  `hx-params='none'`,
+		},
+		{
+			name:  "Params",
+			attrs: hx.New().Params("one", "two"),
+			want:  `hx-params='one,two'`,
+		},
+		{
+			name:  "ParamsNot",
+			attrs: hx.New().ParamsNot("one", "two"),
+			want:  `hx-params='not one,two'`,
+		},
+		{
+			name:  "Patch",
+			attrs: hx.New().Patch("/example"),
+			want:  `hx-patch='/example'`,
+		},
+		{
+			name:  "Preserve",
+			attrs: hx.New().Preserve(),
+			want:  `hx-preserve`,
+		},
+		{
+			name:  "Prompt",
+			attrs: hx.New().Prompt("Enter a value"),
+			want:  `hx-prompt='Enter a value'`,
+		},
+		{
+			name:  "Put",
+			attrs: hx.New().Put("/example"),
+			want:  `hx-put='/example'`,
+		},
+		{
+			name:  "ReplaceURL",
+			attrs: hx.New().ReplaceURL(true),
+			want:  `hx-replace-url='true'`,
+		},
+		{
+			name:  "ReplaceURLWith",
+			attrs: hx.New().ReplaceURLWith("/example"),
+			want:  `hx-replace-url='/example'`,
+		},
+		{
+			name:  "Sync",
+			attrs: hx.New().Sync("this"),
+			want:  `hx-sync='this'`,
+		},
+		{
+			name:  "SyncStrategy",
+			attrs: hx.New().SyncStrategy("this", hx.SyncDrop),
+			want:  `hx-sync='this:drop'`,
+		},
+		{
+			name:  "SyncStrategyRelative",
+			attrs: hx.New().SyncStrategyRelative(hx.SelectorClosest, "this", hx.SyncDrop),
+			want:  `hx-sync='closest this:drop'`,
+		},
+		{
+			name:  "Validate",
+			attrs: hx.New().Validate(true),
+			want:  `hx-validate='true'`,
+		},
+		{
+			name:  "More",
+			attrs: hx.New().More(map[string]any{"method": "GET", "action": "/page"}),
+			want:  `action='/page' method='GET'`,
 		},
 		{
 			name:  "Unset",

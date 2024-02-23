@@ -570,14 +570,14 @@ func (hx *HX) TargetNonStandard(target TargetNonStandardSelector) *HX {
 	return hx.set(Target, string(target))
 }
 
-// A TargetSelectorModifier is a relative modifier to a CSS selector.
-type TargetSelectorModifier string
+// A SelectorModifier is a relative modifier to a CSS selector. This is used for most "extended selectors".
+type SelectorModifier string
 
 const (
-	TargetSelectorClosest  TargetSelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
-	TargetSelectorFind     TargetSelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector
-	TargetSelectorNext     TargetSelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
-	TargetSelectorPrevious TargetSelectorModifier = "previous" // scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
+	SelectorClosest  SelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
+	SelectorFind     SelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector
+	SelectorNext     SelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+	SelectorPrevious SelectorModifier = "previous" // scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
 )
 
 // TargetRelative allows you to target a different element for swapping than the one issuing the AJAX request, and find the target relative to the current element. The value of this attribute can be:
@@ -614,7 +614,7 @@ const (
 // HTMX Attribute: [hx-target]
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
-func (hx *HX) TargetRelative(modifier TargetSelectorModifier, selector string) *HX {
+func (hx *HX) TargetRelative(modifier SelectorModifier, selector string) *HX {
 	return hx.set(Target, fmt.Sprintf("%s %s", modifier, selector))
 }
 
@@ -952,6 +952,26 @@ func (hx *HX) HeadersJS(headers map[string]string) *HX {
 	return hx.set(Headers, mapToJS(headers))
 }
 
+// History when set to false on any element in the current document, or any html fragment loaded into the current document by htmx, will prevent sensitive data being saved to the localStorage cache when htmx takes a snapshot of the page state.
+//
+// History navigation will work as expected, but on restoration the URL will be requested from the server instead of the history cache.
+//
+// Here is an example:
+//
+//	<html>
+//	<body>
+//	<div {hx.New().History(false).Build()...}>
+//	 ...
+//	</div>
+//	</body>
+//	</html>
+//
+// # Notes
+//   - hx-history="false" can be present anywhere in the document to embargo the current page state from the history cache (i.e. even outside the element specified for the history snapshot hx-history-elt).
+//
+// HTMX Attribute: [hx-history]
+//
+// [hx-history]: https://htmx.org/attributes/hx-history/
 func (hx *HX) History(on bool) *HX {
 	return hx.set(History, boolToString(on))
 }
@@ -990,48 +1010,92 @@ func (hx *HX) IncludeThis() *HX {
 	return hx.set(Include, "this")
 }
 
-type IncludeExtension string
-
-const (
-	IncludeClosest  IncludeExtension = "closest"
-	IncludeFind     IncludeExtension = "find"
-	IncludeNext     IncludeExtension = "next"
-	IncludePrevious IncludeExtension = "previous"
-)
-
 // include additional data in requests
-func (hx *HX) IncludeExtended(extension IncludeExtension, selector string) *HX {
-	return hx.set(Include, fmt.Sprintf("%s %s", extension, selector))
+func (hx *HX) IncludeRelative(modifier SelectorModifier, selector string) *HX {
+	return hx.set(Include, fmt.Sprintf("%s %s", modifier, selector))
 }
 
 func (hx *HX) Indicator(selector string) *HX {
 	return hx.set(Indicator, selector)
 }
 
-func (hx *HX) IndicatorClosest(selector string) *HX {
-	return hx.set(Indicator, fmt.Sprintf("closest %s", selector))
+func (hx *HX) IndicatorRelative(modifier SelectorModifier, selector string) *HX {
+	return hx.set(Indicator, fmt.Sprintf("%s %s", modifier, selector))
 }
 
+// ParamsAll allows you to include all parameters with an AJAX request (default).
+//
+//	<div {hx.New().Get("/example").ParamsAll().Build()...}>Get Some HTML, Including Params</div>
+//
+// This div will include all the parameters that a POST would, but they will be URL encoded and included in the URL, as per usual with a GET.
+//
+// # Notes
+//
+//   - hx-params is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-params]
+//
+// [hx-params]: https://htmx.org/attributes/hx-params/
 func (hx *HX) ParamsAll() *HX {
 	return hx.set(Params, "*")
 }
 
+// ParamsNone allows you to include no parameters with an AJAX request.
+//
+// # Notes
+//
+//   - hx-params is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-params]
+//
+// [hx-params]: https://htmx.org/attributes/hx-params/
 func (hx *HX) ParamsNone() *HX {
 	return hx.set(Params, "none")
 }
 
-func (hx *HX) Params(params []string) *HX {
-	return hx.set(Params, strings.Join(params, ","))
+// Params allows you to filter the parameters that will be submitted with an AJAX request.
+//
+// # Notes
+//
+//   - hx-params is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-params]
+//
+// [hx-params]: https://htmx.org/attributes/hx-params/
+func (hx *HX) Params(paramNames ...string) *HX {
+	return hx.set(Params, strings.Join(paramNames, ","))
 }
 
-func (hx *HX) ParamsNot(params []string) *HX {
-	return hx.set(Params, fmt.Sprintf("not %s", strings.Join(params, ",")))
+// ParamsNot allows you to include all params except the comma separated list of parameter
+// when submitting an AJAX request.
+//
+// # Notes
+//
+//   - hx-params is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-params]
+//
+// [hx-params]: https://htmx.org/attributes/hx-params/
+func (hx *HX) ParamsNot(paramNames ...string) *HX {
+	return hx.set(Params, fmt.Sprintf("not %s", strings.Join(paramNames, ",")))
 }
 
 func (hx *HX) Patch(url string) *HX {
 	return hx.set(Patch, url)
 }
 
+// Preserve allows you to keep an element unchanged during HTML replacement. Elements with hx-preserve set are preserved by id when htmx updates any ancestor element. You must set an unchanging id on elements for hx-preserve to work. The response requires an element with the same id, but its type and other attributes are ignored.
+//
+// Note that some elements cannot unfortunately be preserved properly, such as <input type="text"> (focus and caret position are lost), iframes or certain types of videos. To tackle some of these cases we recommend the [morphdom extension], which does a more elaborate DOM reconciliation.
+//
+// # Notes
+//
+// hx-preserve is not inherited
+//
+// HTMX Attribute: [hx-preserve]
+//
+// [hx-preserve]: https://htmx.org/attributes/hx-preserve/
+// [morphdom extension]: https://htmx.org/extensions/morphdom
 func (hx *HX) Preserve() *HX {
 	return hx.set(Preserve, true)
 }
@@ -1044,10 +1108,53 @@ func (hx *HX) Put(url string) *HX {
 	return hx.set(Put, url)
 }
 
+// ReplaceURL allows you to replace the current url of the browser location history.
+//
+// The possible values of this attribute are:
+//
+//   - true, which replaces the fetched URL in the browser navigation bar.
+//   - false, which disables replacing the fetched URL if it would otherwise be replaced due to inheritance.
+//
+// Here is an example:
+//
+//	<div {hx.New().Get("/account").ReplaceURL(true).Build()...} >
+//		Go to My Account
+//	</div>
+//
+// This will cause htmx to snapshot the current DOM to localStorage and replace the URL `/account’ in the browser location bar.
+//
+// # Notes
+//   - hx-replace-url is inherited and can be placed on a parent element
+//   - The HX-Replace-Url response header has similar behavior and can override this attribute.
+//   - The hx-history-elt attribute allows changing which element is saved in the history cache.
+//   - The hx-push-url attribute is a similar and more commonly used attribute, which creates a new history entry rather than replacing the current one.
+//
+// HTMX Attribute: [hx-replace]
+//
+// [hx-replace]: https://htmx.org/attributes/hx-replace/
 func (hx *HX) ReplaceURL(on bool) *HX {
 	return hx.set(ReplaceURL, boolToString(on))
 }
 
+// ReplaceURLWith allows you to replace the current url of the browser location history with
+// a URL to be replaced into the location bar. This may be relative or absolute, as per [history.replaceState()].
+//
+//	<div {hx.New().Get("/account").ReplaceURLWith("/account/home").Build()...} >
+//		Go to My Account
+//	</div>
+//
+// This will replace the URL `/account/home’ in the browser location bar.
+//
+// # Notes
+//   - hx-replace-url is inherited and can be placed on a parent element
+//   - The HX-Replace-Url response header has similar behavior and can override this attribute.
+//   - The hx-history-elt attribute allows changing which element is saved in the history cache.
+//   - The hx-push-url attribute is a similar and more commonly used attribute, which creates a new history entry rather than replacing the current one.
+//
+// HTMX Attribute: [hx-replace]
+//
+// [hx-replace]: https://htmx.org/attributes/hx-replace/
+// [history.replaceState()]: https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
 func (hx *HX) ReplaceURLWith(url string) *HX {
 	return hx.set(ReplaceURL, url)
 }
@@ -1134,17 +1241,69 @@ const (
 	SyncQueueAll   SyncStrategy = "queue all"   // queue all requests that show up while a request is in flight
 )
 
+// SyncStrategy allows you to synchronize AJAX requests between multiple elements.
+//
+// The hx-sync attribute consists of a CSS selector to indicate the element to synchronize on. By default, this will use the [SyncDrop] strategy.
+//
+// You can pass "this" as a selector to synchronize requests from the current element.
+//
+// # Notes
+//   - hx-sync is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-sync]
+//
+// [hx-sync]: https://htmx.org/attributes/hx-sync/
 func (hx *HX) Sync(selector string) *HX {
 	return hx.set(Sync, selector)
 }
 
+// SyncStrategy allows you to synchronize AJAX requests between multiple elements.
+//
+// The hx-sync attribute consists of a CSS selector to indicate the element to synchronize on, followed optionally by a colon and then by an optional syncing strategy.
+//
+// You can pass "this" as a selector to synchronize requests from the current element.
+//
+// # Notes
+//   - hx-sync is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-sync]
+//
+// [hx-sync]: https://htmx.org/attributes/hx-sync/
 func (hx *HX) SyncStrategy(selector string, strategy SyncStrategy) *HX {
 	return hx.set(Sync, fmt.Sprintf("%s:%s", selector, strategy))
 }
 
-func (hx *HX) Validate() *HX {
-	return hx.set(Validate, true)
+// SyncStrategy allows you to synchronize AJAX requests between multiple elements.
+//
+// The hx-sync attribute consists of a CSS selector to indicate the element to synchronize on, followed optionally by a colon and then by an optional syncing strategy.
+//
+// You can pass "this" as a selector to synchronize requests from the current element.
+//
+// # Notes
+//   - hx-sync is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-sync]
+//
+// [hx-sync]: https://htmx.org/attributes/hx-sync/
+func (hx *HX) SyncStrategyRelative(modifier SelectorModifier, selector string, strategy SyncStrategy) *HX {
+	return hx.set(Sync, fmt.Sprintf("%s %s:%s", modifier, selector, strategy))
 }
+
+// Validate will cause an element to validate itself by way of the HTML5 Validation API before it submits a request.
+//
+// Only <form> elements validate data by default, but other elements do not. Adding hx-validate="true" to <input>, <textarea> or <select> enables validation before sending requests.
+//
+// # Notes
+//   - hx-validate is not inherited
+//
+// HTMX Attribute: [hx-validate]
+//
+// [hx-validate]: https://htmx.org/attributes/hx-validate/
+func (hx *HX) Validate(validate bool) *HX {
+	return hx.set(Validate, boolToString(validate))
+}
+
+// Non-standard attributes
 
 // More allow you to merge arbitrary maps into the final attributes.
 // This allows additional attributes to be passed down in a single map.
