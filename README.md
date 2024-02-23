@@ -13,6 +13,10 @@ However, when using it I have to have the [docs](https://htmx.org/reference) ope
 
 Each function and option includes a Godoc comment copied from the extensive HTMX docs, so you can access that documentation right from the comfort of your editor.
 
+## HTMX Version
+
+`hx` strives to keep up with HTMX releases. It currently supports HTMX `v1.9.10`.
+
 ## Goals
 
 The project has some specific goals that drive the API.
@@ -31,7 +35,7 @@ That's necessary for a tool that embeds in standard HTML attributes, but it requ
 
 Sometimes that means that `hx` will provide multiple functions for a single attribute. For instance, `hx` provides three methods for `hx-target`, stop you from doing `hx-target='this #element'` (which is invalid), and instead guide you towards valid options like:
 
-- `.Target("#element")` => `hx-target="#element'` 
+- `.Target("#element")` => `hx-target="#element'`
 - `.TargetNonStandard(hx.TargetThis)` => `hx-target='this'`
 - `.TargetRelative(hx.TargetSelectorNext, "#element")` => `hx-target='next #element'`
 

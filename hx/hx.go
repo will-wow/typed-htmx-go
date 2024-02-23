@@ -4,6 +4,7 @@ package hx
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -18,6 +19,7 @@ type HX struct {
 }
 
 // New starts a new HTMX attributes builder.
+// Methods support HTMX v1.9.10.
 func New() HX {
 	return HX{
 		attrs: map[string]any{},
@@ -91,9 +93,9 @@ func (hx HX) String() string {
 // [nice fallback]: https://en.wikipedia.org/wiki/Progressive_enhancement
 func (hx HX) Boost(boost bool) HX {
 	if boost {
-		hx.attrs["hx-boost"] = "true"
+		hx.set(Boost, "true")
 	} else {
-		hx.attrs["hx-boost"] = "false"
+		hx.set(Boost, "false")
 	}
 	return hx
 }
@@ -117,8 +119,7 @@ func (hx HX) Boost(boost bool) HX {
 // [hx-get]: https://htmx.org/attributes/hx-get/
 // [Parameters]: https://htmx.org/docs/#parameters
 func (hx HX) Get(url string) HX {
-	hx.attrs["hx-get"] = url
-	return hx
+	return hx.set(Get, url)
 }
 
 // Post will cause an element to issue a POST to the specified URL and swap the HTML into the DOM using a swap strategy.
@@ -141,8 +142,7 @@ func (hx HX) Get(url string) HX {
 // [hx-post]: https://htmx.org/attributes/hx-post/
 // [Parameters]: https://htmx.org/docs/#parameters
 func (hx HX) Post(url string) HX {
-	hx.attrs["hx-post"] = url
-	return hx
+	return hx.set(Post, url)
 }
 
 // On allows you to embed scripts inline to respond to events directly on an element; similar to the onevent properties found in HTML, such as onClick.
@@ -168,8 +168,7 @@ func (hx HX) Post(url string) HX {
 //
 // [hx-on]: https://htmx.org/attributes/hx-on/
 func (hx HX) On(event string, action string) HX {
-	hx.attrs[fmt.Sprintf("hx-on:%s", event)] = action
-	return hx
+	return hx.setOther(fmt.Sprintf("hx-on:%s", event), action)
 }
 
 // OnHTMX allows you to embed scripts inline to respond to HTMX events directly on an element; similar to the onevent properties found in HTML, such as onClick.
@@ -201,8 +200,7 @@ func (hx HX) On(event string, action string) HX {
 //
 // [hx-on]: https://htmx.org/attributes/hx-on/
 func (hx HX) OnHTMX(event string, action string) HX {
-	hx.attrs[fmt.Sprintf("hx-on::%s", event)] = action
-	return hx
+	return hx.setOther(fmt.Sprintf("hx-on::%s", event), action)
 }
 
 // PushURL allows you to push a URL into the browser location history. This creates a new history entry, allowing navigation with the browser’s back and forward buttons. htmx snapshots the current DOM and saves it into its history cache, and restores from this cache on navigation.
@@ -229,8 +227,7 @@ func (hx HX) OnHTMX(event string, action string) HX {
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
 func (hx HX) PushURL(on bool) HX {
-	hx.attrs["hx-push-url"] = boolToString(on)
-	return hx
+	return hx.set(PushURL, boolToString(on))
 }
 
 // PushURLPath allows you to push a URL into the browser location history. This creates a new history entry, allowing navigation with the browser’s back and forward buttons. htmx snapshots the current DOM and saves it into its history cache, and restores from this cache on navigation.
@@ -255,8 +252,7 @@ func (hx HX) PushURL(on bool) HX {
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
 func (hx HX) PushURLPath(url string) HX {
-	hx.attrs["hx-push-url"] = url
-	return hx
+	return hx.set(PushURL, url)
 }
 
 // Select allows you to select the content you want swapped from a response. The value of this attribute is a CSS query selector of the element or elements to select from the response.
@@ -279,8 +275,7 @@ func (hx HX) PushURLPath(url string) HX {
 //
 // [hx-select]: https://htmx.org/attributes/hx-select/
 func (hx HX) Select(selector string) HX {
-	hx.attrs["hx-select"] = selector
-	return hx
+	return hx.set(Select, selector)
 }
 
 // SelectOOB allows you to select content from a response to be swapped in via an out-of-band swap.
@@ -330,8 +325,7 @@ func (hx HX) Select(selector string) HX {
 //
 // [hx-select-oob]: https://htmx.org/attributes/hx-select-oob/
 func (hx HX) SelectOOB(selectors ...string) HX {
-	hx.attrs["hx-select-oob"] = strings.Join(selectors, ",")
-	return hx
+	return hx.set(SelectOOB, strings.Join(selectors, ","))
 }
 
 type SelectOOBStrategy struct {
@@ -380,8 +374,7 @@ func (hx HX) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) HX {
 		}
 	}
 
-	hx.attrs["hx-select-oob"] = strings.Join(values, ",")
-	return hx
+	return hx.set(SelectOOB, strings.Join(values, ","))
 }
 
 // Swap allows you to specify how the response will be swapped in relative to the target of an AJAX request.
@@ -400,8 +393,7 @@ func (hx HX) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) HX {
 //
 // [hx-swap]: https://htmx.org/attributes/hx-swap
 func (hx HX) Swap(strategy swap.Strategy) HX {
-	hx.attrs["hx-swap"] = string(strategy)
-	return hx
+	return hx.set(Swap, string(strategy))
 }
 
 // SwapExtended allows you to specify how the response will be swapped in relative to the target of an AJAX request, with modifiers for changing the behavior of the swap.
@@ -420,8 +412,7 @@ func (hx HX) Swap(strategy swap.Strategy) HX {
 //
 // [hx-swap]: https://htmx.org/attributes/hx-swap
 func (hx HX) SwapExtended(swap *swap.Builder) HX {
-	hx.attrs["hx-swap"] = swap.String()
-	return hx
+	return hx.set(Swap, swap.String())
 }
 
 // SwapOOP allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target by ID, that is “Out of Band”. This allows you to piggy back updates to other element updates on a response.
@@ -447,8 +438,7 @@ func (hx HX) SwapExtended(swap *swap.Builder) HX {
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
 func (hx HX) SwapOOB() HX {
-	hx.attrs["hx-swap-oob"] = "true"
-	return hx
+	return hx.set(SwapOOB, "true")
 }
 
 // SwapOOBWithStrategy allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target by ID with a swap strategy, that is “Out of Band”. This allows you to piggy back updates to other element updates on a response.
@@ -474,8 +464,7 @@ func (hx HX) SwapOOB() HX {
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
 func (hx HX) SwapOOBWithStrategy(strategy swap.Strategy) HX {
-	hx.attrs["hx-swap-oob"] = string(strategy)
-	return hx
+	return hx.set(SwapOOB, string(strategy))
 }
 
 // SwapOOP allows you to specify that some content in a response should be swapped into the DOM somewhere other than the target by selector, that is “Out of Band”. This allows you to piggy back updates to other element updates on a response.
@@ -501,8 +490,7 @@ func (hx HX) SwapOOBWithStrategy(strategy swap.Strategy) HX {
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
 func (hx HX) SwapOOBSelector(strategy swap.Strategy, selector string) HX {
-	hx.attrs["hx-swap-oob"] = fmt.Sprintf("%s:%s", strategy, selector)
-	return hx
+	return hx.set(SwapOOB, fmt.Sprintf("%s:%s", strategy, selector))
 }
 
 // Target allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
@@ -516,7 +504,7 @@ func (hx HX) SwapOOBSelector(strategy swap.Strategy, selector string) HX {
 //   - previous which resolves to element.previousElementSibling
 //   - previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
 //
-// For targeting a special target like `this`, see [HX.TargetSpecial()].
+// For targeting a special target like `this`, see [HX.TargetNonStandardSelector()].
 //
 // For targeting finding the nearest element, see [HX.TargetRelative()].
 //
@@ -545,8 +533,7 @@ func (hx HX) SwapOOBSelector(strategy swap.Strategy, selector string) HX {
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
 func (hx HX) Target(selector string) HX {
-	hx.attrs["hx-target"] = selector
-	return hx
+	return hx.set(Target, selector)
 }
 
 // A TargetNonStandardSelector is a special HTMX target for swapping.
@@ -580,8 +567,7 @@ const (
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
 func (hx HX) TargetNonStandard(target TargetNonStandardSelector) HX {
-	hx.attrs["hx-target"] = string(target)
-	return hx
+	return hx.set(Target, string(target))
 }
 
 // A TargetSelectorModifier is a relative modifier to a CSS selector.
@@ -629,8 +615,7 @@ const (
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
 func (hx HX) TargetRelative(modifier TargetSelectorModifier, selector string) HX {
-	hx.attrs["hx-target"] = fmt.Sprintf("%s %s", modifier, selector)
-	return hx
+	return hx.set(Target, fmt.Sprintf("%s %s", modifier, selector))
 }
 
 // Trigger allows you to specify what event triggers an AJAX request.
@@ -641,8 +626,7 @@ func (hx HX) TargetRelative(modifier TargetSelectorModifier, selector string) HX
 //
 // [hx-trigger]: https://htmx.org/attributes/hx-trigger/
 func (hx HX) Trigger(event string) HX {
-	hx.attrs["hx-trigger"] = event
-	return hx
+	return hx.set(Trigger, event)
 }
 
 // TriggerExtended allows you to specify what triggers an AJAX request, with modifiers for changing the behavior of the trigger.
@@ -663,9 +647,7 @@ func (hx HX) TriggerExtended(triggers ...trigger.Trigger) HX {
 		values[i] = t.String()
 	}
 
-	hx.attrs["hx-trigger"] = strings.Join(values, ", ")
-
-	return hx
+	return hx.set(Trigger, strings.Join(values, ", "))
 }
 
 // Vals allows you to add to the parameters that will be submitted with an AJAX request.
@@ -689,8 +671,7 @@ func (hx HX) Vals(vals any) HX {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
 		return hx
 	}
-	hx.attrs["hx-vals"] = string(json)
-	return hx
+	return hx.set(Vals, string(json))
 }
 
 // ValsJS allows you to add to the parameters that will be submitted with an AJAX request, using JavaScript to compute the values.
@@ -717,19 +698,7 @@ func (hx HX) Vals(vals any) HX {
 //
 // [hx-vals]: https://htmx.org/attributes/hx-val
 func (hx HX) ValsJS(vals map[string]string) HX {
-	values := make([]string, len(vals))
-
-	i := 0
-	for k, v := range vals {
-		// Note that values are not wrapped in "", because they are javascript expressions.
-		values[i] = fmt.Sprintf(`%s: %s`, k, v)
-		i++
-	}
-	// Sort by keys.
-	slices.Sort(values)
-
-	hx.attrs["hx-vals"] = fmt.Sprintf("js:{%s}", strings.Join(values, ", "))
-	return hx
+	return hx.set(Vals, mapToJS(vals))
 }
 
 // Additional Attributes
@@ -760,69 +729,231 @@ func (hx HX) ValsJS(vals map[string]string) HX {
 //
 // [hx-confirm]: https://htmx.org/attributes/hx-confirm/
 func (hx HX) Confirm(msg string) HX {
-	hx.attrs["hx-confirm"] = msg
-	return hx
+	return hx.set(Confirm, msg)
 }
 
+// Delete will cause an element to issue a DELETE to the specified URL and swap the HTML into the DOM using a swap strategy:
+//
+//	<button {hx.New().Delete("/account").Target("body").Build()...} >
+//		Delete Your Account
+//	</button>
+//
+// This example will cause the button to issue a DELETE to /account and swap the returned HTML into the innerHTML of the body.
+//
+// # Notes
+//
+//   - hx-delete is not inherited
+//   - You can control the target of the swap using the [HX.Target] attribute
+//   - You can control the swap strategy by using the [HX.Swap] attribute
+//   - You can control what event triggers the request with the [HX.Trigger] attribute
+//   - You can control the data submitted with the request in various ways, documented here: [Parameters]
+//   - To remove the element following a successful DELETE, return a 200 status code with an empty body; if the server responds with a 204, no swap takes place, documented here: [Requests & Responses]
+//
+// HTMX Attribute: [hx-delete]
+//
+// [hx-delete]: https://htmx.org/attributes/hx-delete
+// [Parameters]: https://htmx.org/docs/#parameters
+// [Requests & Responses]: https://htmx.org/docs/#requests
 func (hx HX) Delete(url string) HX {
-	hx.attrs["hx-delete"] = url
-	return hx
+	return hx.set(Delete, url)
 }
 
+// Disable will disable htmx processing for a given element and all its children. This can be useful as a backup for HTML escaping, when you include user generated content in your site, and you want to prevent malicious scripting attacks.
+//
+// The value of the tag is ignored, and it cannot be reversed by any content beneath it.
+//
+// HTMX Attribute: [hx-disable]
+//
+// [hx-disable]: https://htmx.org/attributes/hx-disable
 func (hx HX) Disable() HX {
-	hx.attrs["hx-disable"] = true
-	return hx
+	return hx.set(Disable, true)
 }
 
+// DisabledElt allows you to specify elements that will have the disabled attribute added to them for the duration of the request.
+//
+// The value of this attribute is a CSS query selector of the element or elements to apply the class to, or the keyword closest, followed by a CSS selector, which will find the closest ancestor element or itself, that matches the given CSS selector (e.g. closest tr), or the keyword this
+//
+// Here is an example with a button that will disable itself during a request:
+//
+//	<button { hx.New().Post("/example").DisabledElt("this").Build()...} hx-post="/example" hx-disabled-elt="this">
+//		Post It!
+//	</button>
+//
+// When a request is in flight, this will cause the button to be marked with the disabled attribute, which will prevent further clicks from occurring.
+//
+// HTMX Attribute: [hx-disabled-elt]
+//
+// [hx-disabled-elt]: https://htmx.org/attributes/hx-disabled-elt
 func (hx HX) DisabledElt(selector string) HX {
-	hx.attrs["hx-disabled-elt"] = selector
-	return hx
+	return hx.set(DisabledElt, selector)
 }
 
-// TODO: Typed disinherit https://htmx.org/attributes/hx-disinherit/
-func (hx HX) Disinherit(attr string) HX {
-	hx.attrs["hx-disinherit"] = attr
-	return hx
+// Disinherit allows you to disable automatic attribute inheritance for one or multiple specified attributes.
+//
+// The default behavior for htmx is to “inherit” many attributes automatically: that is, an attribute such as hx-target may be placed on a parent element, and all child elements will inherit that target.
+//
+// An example scenario is to allow you to place an hx-boost on the body element of a page, but overriding that behavior in a specific part of the page to allow for more specific behaviors.
+//
+//	<div {hx.New().Boost(true).Select("#content").Target("#content").Disinherit(hx.Target).Build()...} >
+//		<!-- hx-select is automatically set to parent value; hx-target is not inherited -->
+//	  <button {hx.New().Get("/test").Build()...}></button>
+//	</div>
+//
+//	<div {hx.New().Select("#content").Build()...} >
+//		<div {hx.New().Boost(true).Target("#content").Disinherit(hx.Select).Build()...}>
+//	  	<!-- hx-target is automatically inherited from parent value -->
+//	    <!-- hx-select is not inherited, because the direct parent does
+//	    disables inheritance, despite not specifying hx-select itself -->
+//	    <button {hx.New().Get("/test").Build()...}></button>
+//	  </div>
+//	</div>
+//
+// Notes
+//
+//   - Read more about [Attribute Inheritance]
+//
+// HTMX Attribute: [hx-disinherit]
+//
+// [hx-disinherit]: https://htmx.org/attributes/hx-disinherit/
+// [Attribute Inheritance]: https://htmx.org/docs/#inheritance
+func (hx HX) Disinherit(attr ...Attribute) HX {
+	// Convert to strings for joining.
+	attrStrings := make([]string, len(attr))
+	for i, a := range attr {
+		attrStrings[i] = string(a)
+	}
+
+	return hx.set(Disinherit, strings.Join(attrStrings, " "))
 }
 
-type Encoding string
+// DisinheritAll allows you to disable automatic attribute inheritance for all attributes.
+//
+// The default behavior for htmx is to “inherit” many attributes automatically: that is, an attribute such as hx-target may be placed on a parent element, and all child elements will inherit that target.
+//
+// An example scenario is to allow you to place an hx-boost on the body element of a page, but overriding that behavior in a specific part of the page to allow for more specific behaviors.
+//
+//	<div { hx.New().Boost(true).Select("#content").Target("#content").DisinheritAll().Build()...} hx-boost="true" >
+//		<a href="/page1">Go To Page 1</a> <!-- boosted with the attribute settings above -->
+//	  <a href="/page2" {hx.New().Unset(hx.Boost).Build()...} >Go To Page 1</a> <!-- not boosted -->
+//	  <button {hx.New().Get("/test").TargetNonStandard(hx.TargetThis).Build()... }></button> <!-- hx-select is not inherited -->
+//	</div>
+//
+// Notes
+//
+//   - Read more about [Attribute Inheritance]
+//
+// HTMX Attribute: [hx-disinherit]
+//
+// [hx-disinherit]: https://htmx.org/attributes/hx-disinherit/
+// [Attribute Inheritance]: https://htmx.org/docs/#inheritance
+func (hx HX) DisinheritAll() HX {
+	return hx.set(Disinherit, "*")
+}
+
+// An EncodingContentType is a valid encoding override for an [HX.Encoding()].
+type EncodingContentType string
 
 const (
-	EncodingMultipart Encoding = "multipart/form-data"
+	EncodingMultipart EncodingContentType = "multipart/form-data" // support file uploads in an ajax request
 )
 
-func (hx HX) Encoding(encoding Encoding) HX {
-	hx.attrs["hx-encoding"] = encoding
-	return hx
-}
-func (hx HX) Ext(ext string) HX {
-	hx.attrs["hx-ext"] = ext
-	return hx
+// Encoding allows you to switch the request encoding from the usual application/x-www-form-urlencoded encoding to multipart/form-data, usually to support file uploads in an ajax request.
+//
+// The value of this attribute should be "multipart/form-data".
+//
+// The hx-encoding tag may be placed on parent elements.
+//
+// # Notes
+//
+//   - hx-encoding is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-encoding]
+//
+// [hx-encoding]: https://htmx.org/attributes/hx-encoding
+func (hx HX) Encoding(encoding EncodingContentType) HX {
+	return hx.set(Encoding, string(encoding))
 }
 
+// Ext enables an htmx [extension] for an element and all its children.
+//
+// The value can be one or more extension names to apply.
+//
+// The hx-ext tag may be placed on parent elements if you want a plugin to apply to an entire swath of the DOM, and on the body tag for it to apply to all htmx requests.
+//
+// # Notes
+//
+//   - hx-ext is both inherited and merged with parent elements, so you can specify extensions on any element in the DOM hierarchy and it will apply to all child elements.
+//
+// HTMX Attribute: [hx-ext]
+//
+// [hx-ext]: https://htmx.org/attributes/hx-ext
+// [extension]: https://htmx.org/extensions
+func (hx HX) Ext(ext ...string) HX {
+	return hx.set(Ext, strings.Join(ext, ","))
+}
+
+// ExtIgnore ignores an [extension] that is defined by a parent node.
+//
+//	<div {hx.New().Ext("example").Build()...}>
+//	  "Example" extension is used in this part of the tree...
+//	  <div {hx.New().ExtIgnore("example").Build()...}>
+//	    ... but it will not be used in this part.
+//	  </div>
+//	</div>
+//
+// HTMX Attribute: [hx-ext]
+//
+// [hx-ext]: https://htmx.org/attributes/hx-ext
+// [extension]: https://htmx.org/extensions
+func (hx HX) ExtIgnore(ext string) HX {
+	return hx.set(Ext, fmt.Sprintf("ignore:%s", ext))
+}
+
+// Headers allows you to add to the headers that will be submitted with an AJAX request.
+//
+// The value of this attribute is a list of name-expression values in JSON (JavaScript Object Notation) format.
+//
+// For values computed at runtime, see [HX.HeadersJS()].
+//
+// # Notes
+//
+//   - hx-headers is inherited and can be placed on a parent element.
+//   - A child declaration of a header overrides a parent declaration.
+//
+// HTMX Attribute: [hx-headers]
+//
+// [hx-headers]: https://htmx.org/attributes/hx-headers
 func (hx HX) Headers(headers any) HX {
 	json, err := json.Marshal(headers)
 	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
 		return hx
 	}
-	hx.attrs["hx-headers"] = fmt.Sprintf("js:%s", json)
-	return hx
+	return hx.set(Headers, string(json))
 }
 
-func (hx HX) HeadersJS(headers any) HX {
-	json, err := json.Marshal(headers)
-	if err != nil {
-		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
-		return hx
-	}
-	hx.attrs["hx-headers"] = string(json)
-	return hx
+// HeadersJS allows you to add to the headers that will be submitted with an AJAX request, with values evaluated as JavaScript expressions at runtime.
+//
+// # Security Considerations
+//
+// Be aware that you are introducing security considerations, especially when dealing with user input such as query strings or user-generated content, which could introduce a Cross-Site Scripting (XSS) vulnerability.
+//
+// For values static JSON, see [HX.Headers()].
+//
+// # Notes
+//
+//   - hx-headers is inherited and can be placed on a parent element.
+//   - A child declaration of a header overrides a parent declaration.
+//
+// HTMX Attribute: [hx-headers]
+//
+// [hx-headers]: https://htmx.org/attributes/hx-headers
+func (hx HX) HeadersJS(headers map[string]string) HX {
+	return hx.set(Headers, mapToJS(headers))
 }
 
 func (hx HX) History(on bool) HX {
-	hx.attrs["hx-history"] = boolToString(on)
-	return hx
+	return hx.set(History, boolToString(on))
 }
 
 // HistoryElt allows you to specify the element that will be used to snapshot and restore page state during navigation. By default, the body tag is used. This is typically good enough for most setups, but you may want to narrow it down to a child element. Just make sure that the element is always visible in your application, or htmx will not be able to restore history navigation properly.
@@ -846,20 +977,17 @@ func (hx HX) History(on bool) HX {
 //
 // [hx-history-elt]: https://htmx.org/attributes/hx-history-elt/
 func (hx HX) HistoryElt() HX {
-	hx.attrs["hx-history-elt"] = true
-	return hx
+	return hx.set(HistoryElt, true)
 }
 
 // include additional data in requests
 func (hx HX) Include(selector string) HX {
-	hx.attrs["hx-include"] = selector
-	return hx
+	return hx.set(Include, selector)
 }
 
 // include additional data in requests
 func (hx HX) IncludeThis() HX {
-	hx.attrs["hx-include"] = "this"
-	return hx
+	return hx.set(Include, "this")
 }
 
 type IncludeExtension string
@@ -873,78 +1001,66 @@ const (
 
 // include additional data in requests
 func (hx HX) IncludeExtended(extension IncludeExtension, selector string) HX {
-	hx.attrs["hx-include"] = fmt.Sprintf("%s %s", extension, selector)
-	return hx
+	return hx.set(Include, fmt.Sprintf("%s %s", extension, selector))
 }
 
 func (hx HX) Indicator(selector string) HX {
-	hx.attrs["hx-indicator"] = selector
-	return hx
+	return hx.set(Indicator, selector)
 }
+
 func (hx HX) IndicatorClosest(selector string) HX {
-	hx.attrs["hx-indicator"] = fmt.Sprintf("closest %s", selector)
-	return hx
+	return hx.set(Indicator, fmt.Sprintf("closest %s", selector))
 }
 
 func (hx HX) ParamsAll() HX {
-	hx.attrs["hx-params"] = "*"
-	return hx
+	return hx.set(Params, "*")
 }
 
 func (hx HX) ParamsNone() HX {
-	hx.attrs["hx-params"] = "none"
-	return hx
+	return hx.set(Params, "none")
 }
 
 func (hx HX) Params(params []string) HX {
-	hx.attrs["hx-params"] = strings.Join(params, ",")
-	return hx
+	return hx.set(Params, strings.Join(params, ","))
 }
 
 func (hx HX) ParamsNot(params []string) HX {
-	hx.attrs["hx-params"] = fmt.Sprintf("not %s", strings.Join(params, ","))
-	return hx
+	return hx.set(Params, fmt.Sprintf("not %s", strings.Join(params, ",")))
 }
 
 func (hx HX) Patch(url string) HX {
-	hx.attrs["hx-patch"] = url
-	return hx
+	return hx.set(Patch, url)
 }
 
 func (hx HX) Preserve() HX {
-	hx.attrs["hx-preserve"] = true
-	return hx
+	return hx.set(Preserve, true)
 }
 
 func (hx HX) Prompt(msg string) HX {
-	hx.attrs["hx-prompt"] = msg
-	return hx
+	return hx.set(Prompt, msg)
 }
 
 func (hx HX) Put(url string) HX {
-	hx.attrs["hx-put"] = url
-	return hx
+	return hx.set(Put, url)
 }
 
 func (hx HX) ReplaceURL(on bool) HX {
-	hx.attrs["hx-replace-url"] = boolToString(on)
-	return hx
+	return hx.set(ReplaceURL, boolToString(on))
 }
 
 func (hx HX) ReplaceURLWith(url string) HX {
-	hx.attrs["hx-replace-url"] = url
-	return hx
+	return hx.set(ReplaceURL, url)
 }
 
-// Request describes static hx-request attributes
+// RequestConfig describes static hx-request attributes
 // See https://htmx.org/attributes/hx-request/
-type Request struct {
+type RequestConfig struct {
 	Timeout     time.Duration // the timeout for the request
 	Credentials bool          // if the request will send credentials
 	NoHeaders   bool          // strips all headers from the request
 }
 
-func (r Request) String() string {
+func (r RequestConfig) String() string {
 	opts := []string{}
 
 	if r.Timeout > 0 {
@@ -966,20 +1082,19 @@ func (r Request) String() string {
 // HTMX Attribute: [hx-request]
 //
 // [hx-request]: https://htmx.org/attributes/hx-request/
-func (hx HX) Request(request Request) HX {
-	hx.attrs["hx-request"] = request.String()
-	return hx
+func (hx HX) Request(request RequestConfig) HX {
+	return hx.set(Request, request.String())
 }
 
-// RequestJS describes runtime hx-request attributes
+// RequestConfigJS describes runtime hx-request attributes
 // See https://htmx.org/attributes/hx-request/
-type RequestJS struct {
+type RequestConfigJS struct {
 	Timeout     string // the timeout for the request in milliseconds
 	Credentials string // if the request will send credentials
 	NoHeaders   string // strips all headers from the request
 }
 
-func (r RequestJS) String() string {
+func (r RequestConfigJS) String() string {
 	opts := []string{}
 
 	if r.Timeout != "" {
@@ -1002,9 +1117,8 @@ func (r RequestJS) String() string {
 // HTMX Attribute: [hx-request]
 //
 // [hx-request]: https://htmx.org/attributes/hx-request/
-func (hx HX) RequestJS(request RequestJS) HX {
-	hx.attrs["hx-request"] = request.String()
-	return hx
+func (hx HX) RequestJS(request RequestConfigJS) HX {
+	return hx.set(Request, request.String())
 }
 
 type SyncStrategy string
@@ -1021,18 +1135,15 @@ const (
 )
 
 func (hx HX) Sync(selector string) HX {
-	hx.attrs["hx-sync"] = selector
-	return hx
+	return hx.set(Sync, selector)
 }
 
 func (hx HX) SyncStrategy(selector string, strategy SyncStrategy) HX {
-	hx.attrs["hx-sync"] = fmt.Sprintf("%s:%s", selector, strategy)
-	return hx
+	return hx.set(Sync, fmt.Sprintf("%s:%s", selector, strategy))
 }
 
 func (hx HX) Validate() HX {
-	hx.attrs["hx-validate"] = true
-	return hx
+	return hx.set(Validate, true)
 }
 
 // More allow you to merge arbitrary maps into the final attributes.
@@ -1044,9 +1155,96 @@ func (hx HX) More(more map[string]any) HX {
 	return hx
 }
 
+// Unset sets the value of the selected attributes as "unset"  to clear a property that would normally be inherited (e.g. hx-confirm).
+func (hx HX) Unset(attrs ...Attribute) HX {
+	for _, attr := range attrs {
+		hx.set(attr, "unset")
+	}
+	return hx
+}
+
+// set sets a valid attribute to a value.
+func (hx HX) set(key Attribute, value any) HX {
+	hx.attrs[string(key)] = value
+	return hx
+}
+
+// set sets a non-standard attribute to a value.
+func (hx HX) setOther(key string, value any) HX {
+	hx.attrs[key] = value
+	return hx
+}
+
+// An Attribute is a valid HTMX attribute name. Used for general type changes like `unset` and `disinherit`.
+type Attribute string
+
+const (
+	Get         Attribute = "hx-get"
+	Post        Attribute = "hx-post"
+	PushURL     Attribute = "hx-push-url"
+	Select      Attribute = "hx-select"
+	SelectOOB   Attribute = "hx-select-oob"
+	Swap        Attribute = "hx-swap"
+	SwapOOB     Attribute = "hx-swap-oob"
+	Target      Attribute = "hx-target"
+	Trigger     Attribute = "hx-trigger"
+	Vals        Attribute = "hx-vals"
+	Boost       Attribute = "hx-boost"
+	Confirm     Attribute = "hx-confirm"
+	Delete      Attribute = "hx-delete"
+	Disable     Attribute = "hx-disable"
+	DisabledElt Attribute = "hx-disabled-elt"
+	Disinherit  Attribute = "hx-disinherit"
+	Encoding    Attribute = "hx-encoding"
+	Ext         Attribute = "hx-ext"
+	Headers     Attribute = "hx-headers"
+	History     Attribute = "hx-history"
+	HistoryElt  Attribute = "hx-history-elt"
+	Include     Attribute = "hx-include"
+	Indicator   Attribute = "hx-indicator"
+	Params      Attribute = "hx-params"
+	Patch       Attribute = "hx-patch"
+	Preserve    Attribute = "hx-preserve"
+	Prompt      Attribute = "hx-prompt"
+	Put         Attribute = "hx-put"
+	ReplaceURL  Attribute = "hx-replace-url"
+	Request     Attribute = "hx-request"
+	Sse         Attribute = "hx-sse"
+	Sync        Attribute = "hx-sync"
+	Validate    Attribute = "hx-validate"
+	Vars        Attribute = "hx-vars"
+	WS          Attribute = "hx-ws"
+)
+
 func boolToString(hx bool) string {
 	if hx {
 		return "true"
 	}
 	return "false"
+}
+
+func mapToJS(vals map[string]string) string {
+	values := make([]string, len(vals))
+
+	i := 0
+	for k, v := range vals {
+		// Note that values are not wrapped in "", because they are javascript expressions.
+		values[i] = fmt.Sprintf(`%s:%s`, quoteJSIdentifier(k), v)
+		i++
+	}
+	// Sort by keys.
+	slices.Sort(values)
+
+	return fmt.Sprintf("js:{%s}", strings.Join(values, ","))
+}
+
+// reJSIdentifier is a regular expression to match valid JavaScript identifiers.
+var reJSIdentifier = regexp.MustCompile(`^[a-zA-Z_$][a-zA-Z0-9_$]*$`)
+
+// quoteJSIdentifier quotes a string if it is not a valid JavaScript identifier, for use as a key.
+func quoteJSIdentifier(identifier string) string {
+	if reJSIdentifier.MatchString(identifier) {
+		return identifier
+	}
+	return fmt.Sprintf(`"%s"`, identifier)
 }

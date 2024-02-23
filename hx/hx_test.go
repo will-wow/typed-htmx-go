@@ -137,7 +137,12 @@ func TestHX(t *testing.T) {
 		{
 			name:  "ValsJS",
 			attrs: hx.New().ValsJS(map[string]string{"lastKey": "event.key"}),
-			want:  `hx-vals='js:{lastKey: event.key}'`,
+			want:  `hx-vals='js:{lastKey:event.key}'`,
+		},
+		{
+			name:  "ValsJS with invalid identifier",
+			attrs: hx.New().ValsJS(map[string]string{"last-key": "event.key"}),
+			want:  `hx-vals='js:{"last-key":event.key}'`,
 		},
 		// Additional Attributes
 		{
@@ -157,8 +162,68 @@ func TestHX(t *testing.T) {
 		},
 		{
 			name:  "DisabledElt",
-			attrs: hx.New().DisabledElt("#example"),
-			want:  `hx-disabled-elt='#example'`,
+			attrs: hx.New().DisabledElt("this"),
+			want:  `hx-disabled-elt='this'`,
+		},
+		{
+			name:  "Disinherit",
+			attrs: hx.New().Disinherit(hx.Get, hx.Boost),
+			want:  `hx-disinherit='hx-get hx-boost'`,
+		},
+		{
+			name:  "DisinheritAll",
+			attrs: hx.New().DisinheritAll(),
+			want:  `hx-disinherit='*'`,
+		},
+		{
+			name:  "Encoding",
+			attrs: hx.New().Encoding(hx.EncodingMultipart),
+			want:  `hx-encoding='multipart/form-data'`,
+		},
+		{
+			name:  "Ext",
+			attrs: hx.New().Ext("example-extension"),
+			want:  `hx-ext='example-extension'`,
+		},
+		{
+			name:  "ExtIgnore",
+			attrs: hx.New().ExtIgnore("example-extension"),
+			want:  `hx-ext='ignore:example-extension'`,
+		},
+		{
+			name:  "Headers",
+			attrs: hx.New().Headers(map[string]string{"Content-Type": "application/json"}),
+			want:  `hx-headers='{"Content-Type":"application/json"}'`,
+		},
+		{
+			name:  "HeadersJS",
+			attrs: hx.New().HeadersJS(map[string]string{"Content-Type": "getContentType()"}),
+			want:  `hx-headers='js:{"Content-Type":getContentType()}'`,
+		},
+		{
+			name:  "History",
+			attrs: hx.New().History(true),
+			want:  `hx-history='true'`,
+		},
+		{
+			name:  "History off",
+			attrs: hx.New().History(false),
+			want:  `hx-history='false'`,
+		},
+		{
+			name:  "HistoryElt",
+			attrs: hx.New().HistoryElt(),
+			want:  `hx-history-elt`,
+		},
+		{
+			name:  "Include",
+			attrs: hx.New().Include("#example"),
+			want:  `hx-include='#example'`,
+		},
+		{
+			name:  "Unset",
+			attrs: hx.New().Unset(hx.Boost, hx.Get),
+			want:  `hx-boost='unset' hx-get='unset'`,
 		},
 	}
 
