@@ -9,7 +9,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/hx/swap"
 )
 
-templ Page(form *form) {
+templ page(form *form) {
 	@layout.Base("Click to edit") {
 		<h1>Click To Edit</h1>
 		<p>
@@ -22,7 +22,7 @@ templ Page(form *form) {
 		</ul>
 		<pre>
 			{ dedent.Dedent(`
-				templ ViewForm(form *form) {
+				templ viewForm(form *form) {
 					<div { hx.New().Target(hx.TargetThis).Swap(swap.OuterHTML).Build()... }>
 						<dl>
 							<dt>First Name</dt>
@@ -48,7 +48,7 @@ templ Page(form *form) {
 		</ul>
 		<pre>
 			{ dedent.Dedent(`
-				templ EditForm(form *form) {
+				templ editForm(form *form) {
 					<form
 						method="POST"
 						action="/examples/click-to-edit/edit"
@@ -123,11 +123,11 @@ templ Page(form *form) {
 			</li>
 		</ul>
 		<h2>Demo</h2>
-		@ViewForm(form)
+		@viewForm(form)
 	}
 }
 
-templ ViewForm(form *form) {
+templ viewForm(form *form) {
 	<div { hx.New().Target(hx.TargetThis).Swap(swap.OuterHTML).Build()... }>
 		<dl>
 			<dt>First Name</dt>
@@ -145,7 +145,7 @@ templ ViewForm(form *form) {
 	</div>
 }
 
-templ EditForm(form *form) {
+templ editForm(form *form) {
 	<form
 		method="POST"
 		action="/examples/click-to-edit/edit"
@@ -161,7 +161,9 @@ templ EditForm(form *form) {
 				type="text"
 				name="firstName"
 				value={ form.FirstName }
-				aria-invalid={ form.AriaInvalid("LastName") }
+				if form.HasError("FirstName") {
+					aria-invalid="true"
+				}
 			/>
 			if form.HasError("FirstName") {
 				<small>
@@ -175,7 +177,9 @@ templ EditForm(form *form) {
 				type="text"
 				name="lastName"
 				value={ form.LastName }
-				aria-invalid={ form.AriaInvalid("LastName") }
+				if form.HasError("LastName") {
+					aria-invalid="true"
+				}
 			/>
 			if form.HasError("LastName") {
 				<small>
@@ -189,7 +193,9 @@ templ EditForm(form *form) {
 				type="text"
 				name="email"
 				value={ form.Email }
-				aria-invalid={ form.AriaInvalid("LastName") }
+				if form.HasError("Email") {
+					aria-invalid="true"
+				}
 			/>
 			if form.HasError("Email") {
 				<small>

@@ -19,7 +19,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/examples/templ/web/layout"
 )
 
-func Page(form *form) templ.Component {
+func page(form *form) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -44,7 +44,7 @@ func Page(form *form) templ.Component {
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(dedent.Dedent(`
-				templ ViewForm(form *form) {
+				templ viewForm(form *form) {
 					<div { hx.New().Target(hx.TargetThis).Swap(swap.OuterHTML).Build()... }>
 						<dl>
 							<dt>First Name</dt>
@@ -75,7 +75,7 @@ func Page(form *form) templ.Component {
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(dedent.Dedent(`
-				templ EditForm(form *form) {
+				templ editForm(form *form) {
 					<form
 						method="POST"
 						action="/examples/click-to-edit/edit"
@@ -151,7 +151,7 @@ func Page(form *form) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = ViewForm(form).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = viewForm(form).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -171,7 +171,7 @@ func Page(form *form) templ.Component {
 	})
 }
 
-func ViewForm(form *form) templ.Component {
+func viewForm(form *form) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -250,7 +250,7 @@ func ViewForm(form *form) templ.Component {
 	})
 }
 
-func EditForm(form *form) templ.Component {
+func editForm(form *form) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -283,15 +283,17 @@ func EditForm(form *form) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" aria-invalid=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(form.AriaInvalid("LastName")))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if form.HasError("FirstName") {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-invalid=\"true\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -303,7 +305,7 @@ func EditForm(form *form) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(form.GetError("FirstName"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 167, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 169, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -322,15 +324,17 @@ func EditForm(form *form) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" aria-invalid=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(form.AriaInvalid("LastName")))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if form.HasError("LastName") {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-invalid=\"true\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -342,7 +346,7 @@ func EditForm(form *form) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(form.GetError("LastName"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 181, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 185, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -361,15 +365,17 @@ func EditForm(form *form) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" aria-invalid=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(form.AriaInvalid("LastName")))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if form.HasError("Email") {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" aria-invalid=\"true\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -381,7 +387,7 @@ func EditForm(form *form) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(form.GetError("Email"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 195, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 201, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {

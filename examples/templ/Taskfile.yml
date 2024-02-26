@@ -50,6 +50,13 @@ tasks:
     generates:
       - "**/*_templ.go"
 
+  ready:
+    desc: Format, lint, and test code. If this passes, then the code is ready to be committed.
+    cmds:
+      - task: fmt
+      - task: lint
+      - task: test
+
   tools:
     desc: Install tools
     cmds:

@@ -73,9 +73,5 @@ tasks:
   tools:
     desc: Install tools
     cmds:
-      # Install goimports for formatting
-      - go install golang.org/x/tools/cmd/goimports@latest
-      # Install golangci for linting
-      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
       # Install prettier for formatting non-go files
       - npm install

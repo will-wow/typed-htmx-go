@@ -14,7 +14,7 @@ type form struct {
 	Email     string
 }
 
-func (f *form) Validate() (ok bool) {
+func (f *form) validate() (ok bool) {
 	if f.FirstName == "" {
 		f.SetRequiredError("FirstName")
 	}
@@ -53,7 +53,7 @@ func Handler() http.Handler {
 func demo(w http.ResponseWriter, r *http.Request) {
 	form := newForm()
 
-	component := Page(form)
+	component := page(form)
 
 	w.WriteHeader(http.StatusOK)
 	_ = component.Render(r.Context(), w)
@@ -62,7 +62,7 @@ func demo(w http.ResponseWriter, r *http.Request) {
 func view(w http.ResponseWriter, r *http.Request) {
 	form := newForm()
 
-	component := ViewForm(form)
+	component := viewForm(form)
 	w.WriteHeader(http.StatusOK)
 	_ = component.Render(r.Context(), w)
 }
@@ -76,7 +76,7 @@ func edit(w http.ResponseWriter, r *http.Request) {
 
 	form := newForm()
 
-	component := EditForm(form)
+	component := editForm(form)
 	w.WriteHeader(http.StatusOK)
 	_ = component.Render(r.Context(), w)
 }
@@ -94,16 +94,16 @@ func post(w http.ResponseWriter, r *http.Request) {
 		Email:     r.Form.Get("email"),
 		Form:      ui.NewForm(),
 	}
-	ok := form.Validate()
+	ok := form.validate()
 
 	if !ok {
-		component := EditForm(form)
+		component := editForm(form)
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		_ = component.Render(r.Context(), w)
 		return
 	}
 
-	component := ViewForm(form)
+	component := viewForm(form)
 	w.WriteHeader(http.StatusOK)
 	_ = component.Render(r.Context(), w)
 }
