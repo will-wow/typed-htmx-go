@@ -106,14 +106,16 @@ func TestHX(t *testing.T) {
 			want:  `hx-target='#example'`,
 		},
 		{
-			name:  "TargetNonStandard",
-			attrs: hx.New().TargetNonStandard(hx.TargetThis),
+			name:  "Target non-standard",
+			attrs: hx.New().Target(hx.TargetThis),
 			want:  `hx-target='this'`,
 		},
 		{
-			name:  "TargetSelector",
-			attrs: hx.New().TargetRelative(hx.SelectorClosest, "#example"),
-			want:  `hx-target='closest #example'`,
+			name: "TargetSelector",
+			attrs: hx.New().Target(
+				hx.TargetRelative(hx.Closest, "#example"),
+			),
+			want: `hx-target='closest #example'`,
 		},
 		{
 			name:  "Trigger",
@@ -162,7 +164,19 @@ func TestHX(t *testing.T) {
 		},
 		{
 			name:  "DisabledElt",
-			attrs: hx.New().DisabledElt("this"),
+			attrs: hx.New().DisabledElt("#example"),
+			want:  `hx-disabled-elt='#example'`,
+		},
+		{
+			name: "DisabledElt closest",
+			attrs: hx.New().DisabledElt(
+				hx.DisabledEltRelative(hx.DisabledEltClosest, "#example"),
+			),
+			want: `hx-disabled-elt='closest #example'`,
+		},
+		{
+			name:  "DisabledElt this",
+			attrs: hx.New().DisabledElt(hx.DisabledEltThis),
 			want:  `hx-disabled-elt='this'`,
 		},
 		{
@@ -221,14 +235,16 @@ func TestHX(t *testing.T) {
 			want:  `hx-include='#example'`,
 		},
 		{
-			name:  "IncludeThis",
-			attrs: hx.New().IncludeThis(),
+			name:  "Include this",
+			attrs: hx.New().Include(hx.IncludeThis),
 			want:  `hx-include='this'`,
 		},
 		{
-			name:  "IncludeRelative",
-			attrs: hx.New().IncludeRelative(hx.SelectorClosest, "#example"),
-			want:  `hx-include='closest #example'`,
+			name: "Include relative",
+			attrs: hx.New().Include(
+				hx.IncludeRelative(hx.Closest, "#example"),
+			),
+			want: `hx-include='closest #example'`,
 		},
 		{
 			name:  "Indicator",
@@ -236,9 +252,11 @@ func TestHX(t *testing.T) {
 			want:  `hx-indicator='#example'`,
 		},
 		{
-			name:  "IndicatorRelative",
-			attrs: hx.New().IndicatorRelative(hx.SelectorClosest, "#example"),
-			want:  `hx-indicator='closest #example'`,
+			name: "Indicator relative",
+			attrs: hx.New().Indicator(
+				hx.IndicatorRelative(hx.IndicatorClosest, "#example"),
+			),
+			want: `hx-indicator='closest #example'`,
 		},
 		{
 			name:  "ParamsAll",
@@ -292,18 +310,21 @@ func TestHX(t *testing.T) {
 		},
 		{
 			name:  "Sync",
-			attrs: hx.New().Sync("this"),
+			attrs: hx.New().Sync(hx.SyncThis),
 			want:  `hx-sync='this'`,
 		},
 		{
 			name:  "SyncStrategy",
-			attrs: hx.New().SyncStrategy("this", hx.SyncDrop),
+			attrs: hx.New().SyncStrategy(hx.SyncThis, hx.SyncDrop),
 			want:  `hx-sync='this:drop'`,
 		},
 		{
-			name:  "SyncStrategyRelative",
-			attrs: hx.New().SyncStrategyRelative(hx.SelectorClosest, "this", hx.SyncDrop),
-			want:  `hx-sync='closest this:drop'`,
+			name: "SyncStrategy relative",
+			attrs: hx.New().SyncStrategy(
+				hx.SyncRelative(hx.Closest, "#example"),
+				hx.SyncDrop,
+			),
+			want: `hx-sync='closest #example:drop'`,
 		},
 		{
 			name:  "Validate",

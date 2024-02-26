@@ -46,7 +46,7 @@ func TestNewEvent(t *testing.T) {
 		{
 			name:    "From",
 			trigger: trigger.NewEvent("click").From("#element"),
-			want:    "click from:#element",
+			want:    "click from:(#element)",
 		},
 		{
 			name:    "From with spaces",
@@ -54,19 +54,23 @@ func TestNewEvent(t *testing.T) {
 			want:    "click from:(parent > child)",
 		},
 		{
-			name:    "FromNonStandard",
-			trigger: trigger.NewEvent("click").FromNonStandard(trigger.FromDocument),
-			want:    "click from:document",
+			name:    "From non-standard",
+			trigger: trigger.NewEvent("click").From(trigger.FromDocument),
+			want:    "click from:(document)",
 		},
 		{
-			name:    "FromRelative",
-			trigger: trigger.NewEvent("click").FromRelative(trigger.FromSelectorNext, "#alert"),
-			want:    "click from:next #alert",
+			name: "From relative",
+			trigger: trigger.NewEvent("click").From(
+				trigger.FromRelative(trigger.Next, "#alert"),
+			),
+			want: "click from:next (#alert)",
 		},
 		{
-			name:    "FromRelative with whitespace",
-			trigger: trigger.NewEvent("click").FromRelative(trigger.FromSelectorNext, "#alert > button"),
-			want:    "click from:next (#alert > button)",
+			name: "From relative with whitespace",
+			trigger: trigger.NewEvent("click").From(
+				trigger.FromRelative(trigger.Next, "#alert > button"),
+			),
+			want: "click from:next (#alert > button)",
 		},
 		{
 			name:    "Target",

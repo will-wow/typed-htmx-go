@@ -2,6 +2,7 @@ package trigger
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -99,43 +100,47 @@ func (e *Event) Throttle(timing time.Duration) *Event {
 	return e
 }
 
+// A SelectorModifier is a relative modifier to a CSS selector. This is used for "extended selectors".
+// Some attributes only support a subset of these, but any Relative function that takes this type supports the full set..
+type SelectorModifier string
+
+const (
+	Closest  SelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
+	Find     SelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector
+	Next     SelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+	Previous SelectorModifier = "previous" // scan the DOM backwards fo
+)
+
+// A FromSelector is a non-standard selector for the From modifier.
+type FromSelector string
+
+const (
+	FromDocument FromSelector = "document" // listen for events on the document
+	FromWindow   FromSelector = "window"   // listen for events on the window
+	FromNext     FromSelector = "next"     // resolves to element.nextElementSibling
+	FromPrevious FromSelector = "previous" // resolves to element.previousElementSibling
+)
+
+// FromRelative creates a relative selector for an Event.From modifier.
+// It always wraps the selector in (), in case it contains a space.
+func FromRelative(modifier SelectorModifier, selector string) FromSelector {
+	return FromSelector(fmt.Sprintf("%s (%s)", modifier, selector))
+}
+
+var disambiguatedRe = regexp.MustCompile(`\(`)
+
 // From allows the event that triggers a request to come from another element in the document (e.g. listening to a key event on the body, to support hot keys)
 // A standard CSS selector resolves to all elements matching that selector. Thus, from:input would listen on every input on the page.
 // If the selector contains whitespace, it will be wrapped in () to disambiguate it from other modifiers.
-func (e *Event) From(selector string) *Event {
-	e.modifiers[From] = disambiguateSelector(selector)
-	return e
-}
-
-// A FromNonStandardSelector is a non-standard selector for the From modifier.
-type FromNonStandardSelector string
-
-const (
-	FromDocument FromNonStandardSelector = "document" // listen for events on the document
-	FromWindow   FromNonStandardSelector = "window"   // listen for events on the window
-	FromNext     FromNonStandardSelector = "next"     // resolves to element.nextElementSibling
-	FromPrevious FromNonStandardSelector = "previous" // resolves to element.previousElementSibling
-)
-
-// FromNonStandard allows the event that triggers a request to come from another element in the document. The extended CSS selector here allows for the non-standard CSS values in [FromNonStandardSelector].
-func (e *Event) FromNonStandard(selector FromNonStandardSelector) *Event {
-	e.modifiers[From] = string(selector)
-	return e
-}
-
-type FromSelectorModifier string
-
-const (
-	FromSelectorClosest  FromSelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
-	FromSelectorFind     FromSelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector.
-	FromSelectorNext     FromSelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
-	FromSelectorPrevious FromSelectorModifier = "previous" // scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
-)
-
-// FromRelative allows the event that triggers a request to come from another element in the document. The extended CSS selector here allows for finding a CSS selector relative to the current element.
-// If the selector contains whitespace, it will be wrapped in () to disambiguate it from other modifiers.
-func (e *Event) FromRelative(modifier FromSelectorModifier, selector string) *Event {
-	e.modifiers[From] = fmt.Sprintf("%s %s", modifier, disambiguateSelector(selector))
+func (e *Event) From(extendedSelector FromSelector) *Event {
+	// Wrap the selector in () to disambiguate it, if not done already by [FromRelative].
+	var selector string
+	if disambiguatedRe.MatchString(string(extendedSelector)) {
+		selector = string(extendedSelector)
+	} else {
+		selector = fmt.Sprintf("(%s)", extendedSelector)
+	}
+	e.modifiers[From] = selector
 	return e
 }
 

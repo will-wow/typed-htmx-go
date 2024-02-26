@@ -56,6 +56,9 @@ func (hx *HX) String() string {
 	return strings.Join(attributes, " ")
 }
 
+// A StandardCSSSelector is any valid CSS selector, like #element or `.class > button`.
+type StandardCSSSelector string
+
 // Boost allows you to “boost” normal anchors and form tags to use AJAX instead. This has the [nice fallback] that, if the user does not have javascript enabled, the site will continue to work.
 //
 // For anchor tags, clicking on the anchor will issue a GET request to the url specified in the href and will push the url so that a history entry is created. The target is the <body> tag, and the innerHTML swap strategy is used by default. All of these can be modified by using the appropriate attributes, except the click trigger.
@@ -274,8 +277,8 @@ func (hx *HX) PushURLPath(url string) *HX {
 // HTMX Attribute: [hx-select]
 //
 // [hx-select]: https://htmx.org/attributes/hx-select/
-func (hx *HX) Select(selector string) *HX {
-	return hx.set(Select, selector)
+func (hx *HX) Select(selector StandardCSSSelector) *HX {
+	return hx.set(Select, string(selector))
 }
 
 // SelectOOB allows you to select content from a response to be swapped in via an out-of-band swap.
@@ -324,12 +327,12 @@ func (hx *HX) Select(selector string) *HX {
 // HTMX Attribute: [hx-select-oob]
 //
 // [hx-select-oob]: https://htmx.org/attributes/hx-select-oob/
-func (hx *HX) SelectOOB(selectors ...string) *HX {
-	return hx.set(SelectOOB, strings.Join(selectors, ","))
+func (hx *HX) SelectOOB(selectors ...StandardCSSSelector) *HX {
+	return hx.set(SelectOOB, joinStringLikes(selectors, ","))
 }
 
 type SelectOOBStrategy struct {
-	Selector string
+	Selector StandardCSSSelector
 	Strategy swap.Strategy
 }
 
@@ -368,7 +371,7 @@ func (hx *HX) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) *HX {
 	values := make([]string, len(selectors))
 	for i, s := range selectors {
 		if s.Strategy == "" {
-			values[i] = s.Selector
+			values[i] = string(s.Selector)
 		} else {
 			values[i] = fmt.Sprintf("%s:%s", s.Selector, s.Strategy)
 		}
@@ -489,24 +492,23 @@ func (hx *HX) SwapOOBWithStrategy(strategy swap.Strategy) *HX {
 // HTMX Attribute: [hx-swap-oob]
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
-func (hx *HX) SwapOOBSelector(strategy swap.Strategy, selector string) *HX {
-	return hx.set(SwapOOB, fmt.Sprintf("%s:%s", strategy, selector))
+func (hx *HX) SwapOOBSelector(strategy swap.Strategy, extendedSelector string) *HX {
+	return hx.set(SwapOOB, fmt.Sprintf("%s:%s", strategy, extendedSelector))
 }
 
-// Target allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
+type TargetSelector string
+
+const (
+	TargetThis     TargetSelector = "this"     // indicates that the element that the hx-target attribute is on is the target.
+	TargetNext     TargetSelector = "next"     // resolves to element.nextElementSibling
+	TargetPrevious TargetSelector = "previous" // resolves to element.previousElementSibling
+)
+
+var TargetRelative = makeRelativeSelector[SelectorModifier, TargetSelector]()
+
+// Target allows you to target a different element for swapping than the one issuing the AJAX request.
 //
-//   - A CSS query selector of the element to target.
-//   - this which indicates that the element that the hx-target attribute is on is the target.
-//   - closest <CSS selector> which will find the closest ancestor element or itself, that matches the given CSS selector (e.g. closest tr will target the closest table row to the element).
-//   - find <CSS selector> which will find the first child descendant element that matches the given CSS selector.
-//   - next which resolves to element.nextElementSibling
-//   - next <CSS selector> which will scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
-//   - previous which resolves to element.previousElementSibling
-//   - previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
-//
-// For targeting a special target like `this`, see [HX.TargetNonStandardSelector()].
-//
-// For targeting finding the nearest element, see [HX.TargetRelative()].
+// You can pass an extended selector to this method, using [RelativeSelector].
 //
 // Here is an example that targets a div:
 //
@@ -532,90 +534,8 @@ func (hx *HX) SwapOOBSelector(strategy swap.Strategy, selector string) *HX {
 // HTMX Attribute: [hx-target]
 //
 // [hx-target]: https://htmx.org/attributes/hx-target
-func (hx *HX) Target(selector string) *HX {
-	return hx.set(Target, selector)
-}
-
-// A TargetNonStandardSelector is a special HTMX target for swapping.
-type TargetNonStandardSelector string
-
-const (
-	TargetThis     TargetNonStandardSelector = "this"     // indicates that the element that the hx-target attribute is on is the target.
-	TargetNext     TargetNonStandardSelector = "next"     // resolves to element.nextElementSibling
-	TargetPrevious TargetNonStandardSelector = "previous" // resolves to element.previousElementSibling
-)
-
-// TargetNonStandard allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
-//
-//   - this which indicates that the element that the hx-target attribute is on is the target.
-//   - next which resolves to element.nextElementSibling
-//   - previous which resolves to element.previousElementSibling
-//
-// For targeting with a general selector target, see [HX.Target()].
-//
-// For targeting finding the nearest element, see [HX.TargetRelative()].
-//
-// This example uses hx-target="this" to make a link that updates itself when clicked:
-//
-// <a hx-post="/new-link" hx-target="this" hx-swap="outerHTML">New link</a>
-//
-// # Notes
-//
-// hx-target is inherited and can be placed on a parent element
-//
-// HTMX Attribute: [hx-target]
-//
-// [hx-target]: https://htmx.org/attributes/hx-target
-func (hx *HX) TargetNonStandard(target TargetNonStandardSelector) *HX {
-	return hx.set(Target, string(target))
-}
-
-// A SelectorModifier is a relative modifier to a CSS selector. This is used for most "extended selectors".
-type SelectorModifier string
-
-const (
-	SelectorClosest  SelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
-	SelectorFind     SelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector
-	SelectorNext     SelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
-	SelectorPrevious SelectorModifier = "previous" // scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
-)
-
-// TargetRelative allows you to target a different element for swapping than the one issuing the AJAX request, and find the target relative to the current element. The value of this attribute can be:
-//
-//   - closest <CSS selector> which will find the closest ancestor element or itself, that matches the given CSS selector (e.g. closest tr will target the closest table row to the element).
-//   - find <CSS selector> which will find the first child descendant element that matches the given CSS selector.
-//   - next <CSS selector> which will scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
-//   - previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
-//
-// For targeting a special target like `this`, see [HX.TargetElement()].
-//
-// Here is an example that targets the previous div by ID:
-//
-//	<div>
-//		<div id="response-div">Not me</div>
-//		<div id="response-div"></div>
-//	 	<button {
-//			hx.New().
-//			Post("/register").
-//			TargetRelative(htmx.TargetSelectorPrevious, "#response-div").
-//			Swap(swap.BeforeEnd).
-//			Build()...}
-//			>
-//	 		Register!
-//	 	</button>
-//	</div>
-//
-// The response from the /register url will be appended to the first previous div with the id response-div.
-//
-// # Notes
-//
-// hx-target is inherited and can be placed on a parent element
-//
-// HTMX Attribute: [hx-target]
-//
-// [hx-target]: https://htmx.org/attributes/hx-target
-func (hx *HX) TargetRelative(modifier SelectorModifier, selector string) *HX {
-	return hx.set(Target, fmt.Sprintf("%s %s", modifier, selector))
+func (hx *HX) Target(extendedSelector TargetSelector) *HX {
+	return hx.set(Target, string(extendedSelector))
 }
 
 // Trigger allows you to specify what event triggers an AJAX request.
@@ -769,13 +689,23 @@ func (hx *HX) Disable() *HX {
 	return hx.set(Disable, true)
 }
 
+type DisabledEltModifier string
+
+const DisabledEltClosest DisabledEltModifier = "closest"
+
+type DisabledEltSelector string
+
+const DisabledEltThis DisabledEltSelector = "this"
+
+var DisabledEltRelative = makeRelativeSelector[DisabledEltModifier, DisabledEltSelector]()
+
 // DisabledElt allows you to specify elements that will have the disabled attribute added to them for the duration of the request.
 //
 // The value of this attribute is a CSS query selector of the element or elements to apply the class to, or the keyword closest, followed by a CSS selector, which will find the closest ancestor element or itself, that matches the given CSS selector (e.g. closest tr), or the keyword this
 //
 // Here is an example with a button that will disable itself during a request:
 //
-//	<button { hx.New().Post("/example").DisabledElt("this").Build()...} hx-post="/example" hx-disabled-elt="this">
+//	<button { hx.New().Post("/example").DisabledElt(hx.This).Build()...} >
 //		Post It!
 //	</button>
 //
@@ -784,8 +714,8 @@ func (hx *HX) Disable() *HX {
 // HTMX Attribute: [hx-disabled-elt]
 //
 // [hx-disabled-elt]: https://htmx.org/attributes/hx-disabled-elt
-func (hx *HX) DisabledElt(selector string) *HX {
-	return hx.set(DisabledElt, selector)
+func (hx *HX) DisabledElt(selector DisabledEltSelector) *HX {
+	return hx.set(DisabledElt, string(selector))
 }
 
 // Disinherit allows you to disable automatic attribute inheritance for one or multiple specified attributes.
@@ -1000,27 +930,38 @@ func (hx *HX) HistoryElt() *HX {
 	return hx.set(HistoryElt, true)
 }
 
-// include additional data in requests
-func (hx *HX) Include(selector string) *HX {
-	return hx.set(Include, selector)
+type IncludeSelector string
+
+const IncludeThis IncludeSelector = "this"
+
+var IncludeRelative = makeRelativeSelector[SelectorModifier, IncludeSelector]()
+
+// Include allows you to include additional element values in an AJAX request.
+//
+// HTMX Attribute: [hx-include]
+//
+// [hx-include]: https://htmx.org/attributes/hx-include/
+func (hx *HX) Include(selector IncludeSelector) *HX {
+	return hx.set(Include, string(selector))
 }
 
-// include additional data in requests
-func (hx *HX) IncludeThis() *HX {
-	return hx.set(Include, "this")
-}
+type IndicatorModifier string
 
-// include additional data in requests
-func (hx *HX) IncludeRelative(modifier SelectorModifier, selector string) *HX {
-	return hx.set(Include, fmt.Sprintf("%s %s", modifier, selector))
-}
+const IndicatorClosest IndicatorModifier = "closest"
 
-func (hx *HX) Indicator(selector string) *HX {
-	return hx.set(Indicator, selector)
-}
+type IndicatorSelector string
 
-func (hx *HX) IndicatorRelative(modifier SelectorModifier, selector string) *HX {
-	return hx.set(Indicator, fmt.Sprintf("%s %s", modifier, selector))
+var IndicatorRelative = makeRelativeSelector[IndicatorModifier, IndicatorSelector]()
+
+// The hx-indicator attribute allows you to specify the element that will have the htmx-request class added to it for the duration of the request. This can be used to show spinners or progress indicators while the request is in flight.
+//
+// The value of this attribute is a CSS query selector of the element or elements to apply the class to, or the keyword `closest` followed by a CSS selector, which will find the closest ancestor element or itself, that matches the given CSS selector (e.g. closest tr);
+//
+// HTMX Attribute: [hx-indicator]
+//
+// [hx-indicator]: https://htmx.org/attributes/hx-indicator/
+func (hx *HX) Indicator(extendedSelector IndicatorSelector) *HX {
+	return hx.set(Indicator, string(extendedSelector))
 }
 
 // ParamsAll allows you to include all parameters with an AJAX request (default).
@@ -1241,11 +1182,17 @@ const (
 	SyncQueueAll   SyncStrategy = "queue all"   // queue all requests that show up while a request is in flight
 )
 
+type SyncSelector string
+
+const SyncThis SyncSelector = "this"
+
+var SyncRelative = makeRelativeSelector[SelectorModifier, SyncSelector]()
+
 // SyncStrategy allows you to synchronize AJAX requests between multiple elements.
 //
 // The hx-sync attribute consists of a CSS selector to indicate the element to synchronize on. By default, this will use the [SyncDrop] strategy.
 //
-// You can pass "this" as a selector to synchronize requests from the current element.
+// You can pass [hx.SyncThis] as a selector to synchronize requests from the current element.
 //
 // # Notes
 //   - hx-sync is inherited and can be placed on a parent element
@@ -1253,15 +1200,15 @@ const (
 // HTMX Attribute: [hx-sync]
 //
 // [hx-sync]: https://htmx.org/attributes/hx-sync/
-func (hx *HX) Sync(selector string) *HX {
-	return hx.set(Sync, selector)
+func (hx *HX) Sync(extendedSelector SyncSelector) *HX {
+	return hx.set(Sync, string(extendedSelector))
 }
 
 // SyncStrategy allows you to synchronize AJAX requests between multiple elements.
 //
 // The hx-sync attribute consists of a CSS selector to indicate the element to synchronize on, followed optionally by a colon and then by an optional syncing strategy.
 //
-// You can pass "this" as a selector to synchronize requests from the current element.
+// You can pass "hx.This" as a selector to synchronize requests from the current element.
 //
 // # Notes
 //   - hx-sync is inherited and can be placed on a parent element
@@ -1269,24 +1216,8 @@ func (hx *HX) Sync(selector string) *HX {
 // HTMX Attribute: [hx-sync]
 //
 // [hx-sync]: https://htmx.org/attributes/hx-sync/
-func (hx *HX) SyncStrategy(selector string, strategy SyncStrategy) *HX {
-	return hx.set(Sync, fmt.Sprintf("%s:%s", selector, strategy))
-}
-
-// SyncStrategy allows you to synchronize AJAX requests between multiple elements.
-//
-// The hx-sync attribute consists of a CSS selector to indicate the element to synchronize on, followed optionally by a colon and then by an optional syncing strategy.
-//
-// You can pass "this" as a selector to synchronize requests from the current element.
-//
-// # Notes
-//   - hx-sync is inherited and can be placed on a parent element
-//
-// HTMX Attribute: [hx-sync]
-//
-// [hx-sync]: https://htmx.org/attributes/hx-sync/
-func (hx *HX) SyncStrategyRelative(modifier SelectorModifier, selector string, strategy SyncStrategy) *HX {
-	return hx.set(Sync, fmt.Sprintf("%s %s:%s", modifier, selector, strategy))
+func (hx *HX) SyncStrategy(extendedSelector SyncSelector, strategy SyncStrategy) *HX {
+	return hx.set(Sync, fmt.Sprintf("%s:%s", extendedSelector, strategy))
 }
 
 // Validate will cause an element to validate itself by way of the HTML5 Validation API before it submits a request.
@@ -1375,6 +1306,17 @@ const (
 	WS          Attribute = "hx-ws"
 )
 
+// A SelectorModifier is a relative modifier to a CSS selector. This is used for "extended selectors".
+// Some attributes only support a subset of these, but any Relative function that takes this type supports the full set..
+type SelectorModifier string
+
+const (
+	Closest  SelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
+	Find     SelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector
+	Next     SelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+	Previous SelectorModifier = "previous" // scan the DOM backwards fo
+)
+
 func boolToString(hx bool) string {
 	if hx {
 		return "true"
@@ -1406,4 +1348,19 @@ func quoteJSIdentifier(identifier string) string {
 		return identifier
 	}
 	return fmt.Sprintf(`"%s"`, identifier)
+}
+
+// joinStringLikes joins a slice of string-like values into a single string.
+func joinStringLikes[T ~string](elems []T, sep string) string {
+	var stringElems = make([]string, len(elems))
+	for i, x := range elems {
+		stringElems[i] = string(x)
+	}
+	return strings.Join(stringElems, sep)
+}
+
+func makeRelativeSelector[Modifier ~string, Selector ~string]() func(Modifier, string) Selector {
+	return func(modifier Modifier, selector string) Selector {
+		return Selector(fmt.Sprintf("%s %s", modifier, selector))
+	}
 }
