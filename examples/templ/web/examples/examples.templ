@@ -1,0 +1,59 @@
+package examples
+
+import (
+	"github.com/will-wow/typed-htmx-go/examples/templ/web/layout"
+)
+
+templ page() {
+	@layout.Base("") {
+		<h1>UI Examples</h1>
+		<p>
+			Below are a set of UX patterns implemented in htmx with minimal HTML and styling.
+		</p>
+		<p>
+			These are ported from the 
+			<a
+				href="https://htmx.org/examples/"
+				target="_blank"
+				rel="noopener"
+			>
+				htmx examples
+			</a>
+			and are intended showcase the use of <code>hx</code> when building HTMX applications.
+		</p>
+		<p>
+			You can copy and paste them and then adjust them for your needs.
+		</p>
+		<table>
+			<thead>
+				<tr>
+					<th>Pattern</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				@exampleRow(
+					"/examples/click-to-edit",
+					"Click To Edit",
+					"Demonstrates inline editing of a data object",
+				)
+				@exampleRow(
+					"/examples/bulk-update",
+					"Bulk Update",
+					"Demonstrates bulk updating of multiple rows of data",
+				)
+			</tbody>
+		</table>
+	}
+}
+
+templ exampleRow(link, name, description string) {
+	<tr>
+		<td>
+			<a href={ templ.SafeURL(link) }>{ name }</a>
+		</td>
+		<td>
+			{ description }
+		</td>
+	</tr>
+}

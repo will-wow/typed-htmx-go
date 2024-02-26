@@ -1,0 +1,13 @@
+/* /examples/bulk-update */
+
+.bulk-update #toast.htmx-settling {
+  opacity: 100;
+}
+
+.bulk-update #toast {
+  background: var(--pico-contrast-background);
+  color: var(--pico-contrast-inverse);
+  padding: 0.1rem 0.2rem;
+  opacity: 0;
+  transition: opacity 3s ease-out;
+}
