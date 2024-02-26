@@ -147,7 +147,7 @@ func page(form *form) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</pre><ul><li>The form issues a POST back to /edit, following the usual REST-ful pattern.</li><li>If there is an error, the form swaps the form with error messages in place of the edit form.</li></ul><h2>Demo</h2>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</pre><ul><li>The form issues a POST back to /edit, following the usual REST-ful pattern.</li><li>If there is an error, the form swaps the form with error messages in place of the edit form.</li></ul><p><a href=\"https://github.com/will-wow/typed-htmx-go/tree/main/examples/templ/web/clicktoedit\" target=\"_blank\" rel=\"noopener\">Source</a></p><h2>Demo</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -199,7 +199,7 @@ func viewForm(form *form) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(cmp.Or(form.FirstName, "None"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 133, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 142, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -212,7 +212,7 @@ func viewForm(form *form) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(cmp.Or(form.LastName, "None"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 135, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 144, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -225,7 +225,7 @@ func viewForm(form *form) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(cmp.Or(form.Email, "None"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 137, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 146, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -305,7 +305,7 @@ func editForm(form *form) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(form.GetError("FirstName"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 169, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 178, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -346,7 +346,7 @@ func editForm(form *form) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(form.GetError("LastName"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 185, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 194, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -387,7 +387,7 @@ func editForm(form *form) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(form.GetError("Email"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 201, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/clicktoedit/clicktoedit.templ`, Line: 210, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {

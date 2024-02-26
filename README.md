@@ -13,6 +13,10 @@ However, when using it I have to have the [docs](https://htmx.org/reference) ope
 
 Each function and option includes a Godoc comment copied from the extensive HTMX docs, so you can access that documentation right from the comfort of your editor.
 
+## Examples
+
+Templ usage examples are in [examples/templ](./examples/templ) (hosted at [typed-htmx-go.vercel.app](https://typed-htmx-go.vercel.app/))
+
 ## HTMX Version
 
 `hx` strives to keep up with HTMX releases. It currently supports HTMX `v1.9.10`.

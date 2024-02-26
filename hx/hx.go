@@ -1,4 +1,7 @@
 // package htmx provides well-documented Go functions for building HTMX attributes.
+// See [typed-htmx-go.vercel.app] for example usage.
+//
+// [typed-htmx-go.vercel.app]: https://typed-htmx-go.vercel.app/
 package hx
 
 import (

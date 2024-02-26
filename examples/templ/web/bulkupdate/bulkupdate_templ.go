@@ -141,7 +141,7 @@ func page(users []userModel) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</pre><p>The cool thing is that, because HTML form inputs already manage their own state, we don’t need to re-render any part of the users table. The active users are already checked and the inactive ones unchecked!</p><p>You can see a working example of this code below.</p><h2>Demo</h2>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</pre><p>The cool thing is that, because HTML form inputs already manage their own state, we don’t need to re-render any part of the users table. The active users are already checked and the inactive ones unchecked!</p><p>You can see a working example of this code below.</p><p><a href=\"https://github.com/will-wow/typed-htmx-go/tree/main/examples/templ/web/bulkupdate\" target=\"_blank\" rel=\"noopener\">Source</a></p><h2>Demo</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -204,7 +204,7 @@ func table(users []userModel) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(user.name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/bulkupdate.templ`, Line: 128, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/bulkupdate.templ`, Line: 137, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -217,7 +217,7 @@ func table(users []userModel) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(user.email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/bulkupdate.templ`, Line: 129, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/bulkupdate.templ`, Line: 138, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -295,7 +295,7 @@ func updateToast(toast string) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(toast)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/bulkupdate.templ`, Line: 155, Col: 9}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/bulkupdate.templ`, Line: 164, Col: 9}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
