@@ -55,6 +55,7 @@ tasks:
   fmt:go:
     desc: Run goimports
     cmds:
+      - go work sync
       - go mod tidy
       - go run golang.org/x/tools/cmd/goimports@v0.18.0 -w -local github.com/will-wow/typed-htmx-go .
 
@@ -69,9 +70,20 @@ tasks:
       - task: fmt
       - task: lint
       - task: test:cover:badge
+      - task: examples:ready
 
   tools:
     desc: Install tools
     cmds:
       # Install prettier for formatting non-go files
       - npm install
+
+  dev:
+    desc: Run the example server with a watch for templ, go, and static files
+    cmds:
+      - task: examples:dev
+
+includes:
+  examples:
+    taskfile: ./examples/Taskfile.yml
+    dir: ./examples

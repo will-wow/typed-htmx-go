@@ -1,0 +1,63 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the server binary
+    deps: [gen]
+    cmds:
+      - go build -v -o ./bin/server ./cmd/server/main.go
+
+  start:
+    desc: Run built server
+    cmds:
+      - ./bin/server
+
+  dev:
+    desc: Run the server with a watch for templ, go, and static files
+    cmds:
+      - "wgo -file=.go -file=.templ -xfile=_templ.go -file=static/.+.js -file=static/.+.css task gen :: go run cmd/server/main.go"
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2 run
+
+  fmt:
+    desc: Run goimports
+    cmds:
+      # - go mod tidy
+      - go run golang.org/x/tools/cmd/goimports@v0.18.0 -w -local github.com/will-wow/typed-htmx-go/examples .
+
+  test:
+    desc: Run test suite
+    cmds:
+      - go test -v {{.CLI_ARGS}} ./...
+
+  test-cover:
+    desc: Run test suite with coverage
+    cmds:
+      - go test -coverpkg ./... -coverprofile=coverage.txt ./...
+      - go tool cover -html=coverage.txt
+
+  gen:
+    desc: Generate templ components
+    cmds:
+      - templ generate
+      # Re-format generated code
+      - go run golang.org/x/tools/cmd/goimports@v0.18.0 -w -local github.com/will-wow/typed-htmx-go/examples ./
+    sources:
+      - "**/*.templ"
+    generates:
+      - "**/*_templ.go"
+
+  ready:
+    desc: Format, lint, and test code. If this passes, then the code is ready to be committed.
+    cmds:
+      - task: fmt
+      - task: lint
+      - task: test
+
+  tools:
+    desc: Install tools
+    cmds:
+      - go install github.com/a-h/templ/cmd/templ@latest

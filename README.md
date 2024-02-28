@@ -112,7 +112,7 @@ go get github.com/will-wow/typed-htmx-go
 ```go
 import (
 	"github.com/will-wow/typed-htmx-go/hx"
-	"github.com/will-wow/typed-htmx-go/hx/swap"
+	"github.com/will-wow/typed-htmx-go/htmx/swap"
 )
 
 templ SearchInput(search string) {
