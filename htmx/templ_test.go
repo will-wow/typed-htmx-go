@@ -12,6 +12,6 @@ func BenchmarkTempl(b *testing.B) {
 	attrs := make([]map[string]any, b.N)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		attrs[i] = hx.Boost(true)
+		attrs[i] = templHx.Boost(true)
 	}
 }

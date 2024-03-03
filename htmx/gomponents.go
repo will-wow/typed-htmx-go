@@ -2,6 +2,7 @@ package htmx
 
 import (
 	"io"
+	"strings"
 	"text/template"
 
 	g "github.com/maragudk/gomponents"
@@ -36,4 +37,16 @@ func (a GomponentsAttrs) Render(w io.Writer) error {
 		}
 	}
 	return nil
+}
+
+// Type satisfies nodeTypeDescriber.
+func (n GomponentsAttrs) Type() g.NodeType {
+	return g.AttributeType
+}
+
+// String satisfies fmt.Stringer.
+func (n GomponentsAttrs) String() string {
+	var b strings.Builder
+	_ = n.Render(&b)
+	return b.String()
 }
