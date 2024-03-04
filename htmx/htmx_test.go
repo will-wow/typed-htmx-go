@@ -5,6 +5,7 @@ import (
 	"time"
 
 	base "github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx/on"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 )
@@ -53,9 +54,9 @@ func ExampleHX_On() {
 	// Output: hx-on:click='alert("clicked")'
 }
 
-func ExampleHX_OnHTMX() {
-	fmt.Println(hx.OnHTMX("before-request", `alert("before")`))
-	// Output: hx-on::before-request='alert("before")'
+func ExampleHX_On_htmxEvent() {
+	fmt.Println(hx.On(on.BeforeRequest, `alert("before")`))
+	// Output: hx-on:htmx:before-request='alert("before")'
 }
 
 func ExampleHX_PushURL() {
@@ -136,6 +137,11 @@ func ExampleHX_Target_relativeSelector() {
 func ExampleHX_Trigger() {
 	fmt.Println(hx.Trigger("click"))
 	// Output: hx-trigger='click'
+}
+
+func ExampleHX_Trigger_nonStandard() {
+	fmt.Println(hx.Trigger(trigger.Load))
+	// Output: hx-trigger='load'
 }
 
 func ExampleHX_TriggerExtended() {

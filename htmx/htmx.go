@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/will-wow/typed-htmx-go/htmx/on"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 )
@@ -40,7 +41,7 @@ type StandardCSSSelector string
 //
 // For forms the request will be converted into a GET or POST, based on the method in the method attribute and will be triggered by a submit. Again, the target will be the body of the page, and the innerHTML swap will be used. The url will not be pushed, however, and no history entry will be created. (You can use the [HX.PushUrl] attribute if you want the url to be pushed.)
 //
-//	<div { hx.New().Boost(true).Build()...} >
+//	<div { hx.Boost(true)... } >
 //		<a href="/page1">Go To Page 1</a>
 //		<a href="/page2">Go To Page 2</a>
 //	</div>
@@ -49,7 +50,7 @@ type StandardCSSSelector string
 //
 // Here is an example of a boosted form:
 //
-//	<form {...hx.New().Boost(true).Build()...} action="/example" method="post">
+//	<form { hx.Boost(true)... } action="/example" method="post">
 //		<input name="email" type="email" placeholder="Enter email...">
 //		<button>Submit</button>
 //	</form>
@@ -78,7 +79,7 @@ func (hx *HX[T]) Boost(boost bool) T {
 
 // Get will cause an element to issue a GET to the specified URL and swap the HTML into the DOM using a swap strategy.
 //
-//	<div {hx.New().Get("/example").Build()...}>Get Some HTML</div>
+//	<div { hx.Get("/example")... }>Get Some HTML</div>
 //
 // This example will cause the div to issue a GET to /example and swap the returned HTML into the innerHTML of the div.
 //
@@ -100,7 +101,7 @@ func (hx *HX[T]) Get(url string) T {
 
 // Post will cause an element to issue a POST to the specified URL and swap the HTML into the DOM using a swap strategy.
 //
-//	<button {hx.New().Post("/accounts/enable").Target("body").Build()...}>
+//	<button { hx.Post("/accounts/enable").Target("body")... }>
 //	  Enable Your Account
 //	</button>
 //
@@ -123,44 +124,28 @@ func (hx *HX[T]) Post(url string) T {
 
 // On allows you to embed scripts inline to respond to events directly on an element; similar to the onevent properties found in HTML, such as onClick.
 //
-// The hx-on* attributes improve upon onevent by enabling the handling of any arbitrary JavaScript event, for enhanced Locality of Behaviour (LoB) even when dealing with non-standard DOM events. For example, these attributes allow you to handle htmx events.
+// The hx-on* attributes improve upon onevent by enabling the handling of any arbitrary JavaScript event, for enhanced Locality of Behaviour (LoB) even when dealing with non-standard DOM events. For example,
+// pass an [on.Event] to use [HTMX events].
 //
-// HX().On() attaches to standard DOM events. For htmx custom events, use [HX.OnHTMX].
+//	<div { hx.On("click", "alert('Clicked!')")... }>Click</div>
 //
-// If you wish to handle multiple different events, you can simply add multiple attributes to an element.
+// Note that, in addition to the standard DOM events, all htmx and other custom events can be captured, too!
 //
-// # Symbols
-//
-// Like onevent, two symbols are made available to event handler scripts:
-//
-//   - this - The element on which the hx-on attribute is defined
-//   - event - The event that triggered the handler
-//
-// # Notes
-//
-// hx-on is not inherited, however due to event bubbling, hx-on attributes on parent elements will typically be triggered by events on child elements.
-//
-// HTMX Attribute: [hx-on]
-//
-// [hx-on]: https://htmx.org/attributes/hx-on/
-func (hx *HX[T]) On(event string, action string) T {
-	return hx.attr(Attribute(fmt.Sprintf("hx-on:%s", event)), action)
-}
-
-// OnHTMX allows you to embed scripts inline to respond to HTMX events directly on an element; similar to the onevent properties found in HTML, such as onClick.
-//
-// The hx-on* attributes improve upon onevent by enabling the handling of any arbitrary JavaScript event, for enhanced Locality of Behaviour (LoB) even when dealing with non-standard DOM events. For example, these attributes allow you to handle htmx events.
-//
-// All htmx and other custom events can be captured, too! To respond to standard DOM events, use [HX.On] instead.
-//
-// One gotcha to note is that DOM attributes do not preserve case. This means, unfortunately, an attribute like hx-on:htmx:beforeRequest will not work, because the DOM lowercases the attribute names. Fortunately, htmx supports both camel case event names and also kebab-case event names, so you can use .OnHTMX("before-request") instead.
-//
-//	<button {hx.New().OnHTMX("before-request", "alert('making a request!')").Get("/info").Build()...}} >
-//	Get Info!
+//	<button
+//		{ hx.Get("/info")... }
+//		{ hx.On(on.BeforeRequest, "alert('Making a request!')")... }>
+//		Get Info!
 //	</button>
 //
 // If you wish to handle multiple different events, you can simply add multiple attributes to an element.
 //
+//	<button
+//		{ hx.Get("/info")... }
+//		{ hx.On(on.BeforeRequest, "alert('Making a request!')")... }
+//		{ hx.On(on.AfterRequest, "alert('Done making a request!')")... } >
+//		Get Info!
+//	</button>
+//
 // # Symbols
 //
 // Like onevent, two symbols are made available to event handler scripts:
@@ -170,13 +155,14 @@ func (hx *HX[T]) On(event string, action string) T {
 //
 // # Notes
 //
-// hx-on is not inherited, however due to event bubbling, hx-on attributes on parent elements will typically be triggered by events on child elements.
+//   - hx-on is not inherited, however due to event bubbling, hx-on attributes on parent elements will typically be triggered by events on child elements.
 //
 // HTMX Attribute: [hx-on]
 //
 // [hx-on]: https://htmx.org/attributes/hx-on/
-func (hx *HX[T]) OnHTMX(event string, action string) T {
-	return hx.attr(Attribute(fmt.Sprintf("hx-on::%s", event)), action)
+// [HTMX events]: https://htmx.org/docs/#events
+func (hx *HX[T]) On(event on.Event, action string) T {
+	return hx.attr(Attribute(fmt.Sprintf("hx-on:%s", event)), action)
 }
 
 // PushURL allows you to push a URL into the browser location history. This creates a new history entry, allowing navigation with the browser’s back and forward buttons. htmx snapshots the current DOM and saves it into its history cache, and restores from this cache on navigation.
@@ -189,7 +175,7 @@ func (hx *HX[T]) OnHTMX(event string, action string) T {
 //
 // # Example
 //
-//	<div {hx.New().Get("/account").PushURL(true).Build()...}>
+//	<div { hx.Get("/account")... } { hx.PushURL(true)... }>
 //		Go to My Account
 //	</div>
 //
@@ -214,7 +200,7 @@ func (hx *HX[T]) PushURL(on bool) T {
 //
 // # Example
 //
-//	<div {hx.New().Get("/account").PushURLPath("/account/home").Build()...}>
+//	<div { hx.Get("/account").PushURLPath("/account/home")... }>
 //		Go to My Account
 //	</div>
 //
@@ -236,7 +222,7 @@ func (hx *HX[T]) PushURLPath(url string) T {
 // Here is an example that selects a subset of the response content:
 //
 //	<div>
-//		<button { hx.New().Get("/info").Select("#info-details").Swap(swap.outerHTML).Build()... } >
+//		<button { hx.Get("/info").Select("#info-details").Swap(swap.outerHTML)... } >
 //			Get Info!
 //		</button>
 //	</div>
@@ -262,7 +248,7 @@ func (hx *HX[T]) Select(selector StandardCSSSelector) T {
 //	<div>
 //	   <div id="alert"></div>
 //	    <button
-//				{ hx.New().
+//				{ hx.
 //					Get("/info").
 //					Select("#info-details").
 //					Swap(swap.OuterHTML).
@@ -282,7 +268,7 @@ func (hx *HX[T]) Select(selector StandardCSSSelector) T {
 //	<div>
 //	   <div id="alert"></div>
 //	    <button
-//				{ hx.New().
+//				{ hx.
 //					Get("/info").
 //					Select("#info-details").
 //					Swap(swap.OuterHTML).
@@ -320,7 +306,7 @@ type SelectOOBStrategy struct {
 //	<div>
 //	   <div id="alert"></div>
 //	    <button
-//				{ hx.New().
+//				{ hx.
 //					Get("/info").
 //					Select("#info-details").
 //					Swap(swap.OuterHTML).
@@ -357,7 +343,7 @@ func (hx *HX[T]) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) T {
 //
 // So in this code:
 //
-//	<div {hx.New().Get("/example").Swap(swap.AfterEnd).Build()...} >
+//	<div { hx.Get("/example").Swap(swap.AfterEnd)... } >
 //		Get Some HTML & Append It
 //	</div>
 //
@@ -376,7 +362,7 @@ func (hx *HX[T]) Swap(strategy swap.Strategy) T {
 //
 // So in this code:
 //
-//	<div {hx.New().Get("/example").SwapExtended(swap.New().Strategy(swap.AfterEnd)).Build()...} >
+//	<div { hx.Get("/example").SwapExtended(swap.New().Strategy(swap.AfterEnd))... } >
 //		Get Some HTML & Append It
 //	</div>
 //
@@ -398,7 +384,7 @@ func (hx *HX[T]) SwapExtended(swap *swap.Builder) T {
 //	<div>
 //	...
 //	</div>
-//	<div id="alerts" {hx.New().SwapOOB().Build()...}>
+//	<div id="alerts" { hx.SwapOOB()... }>
 //		 Saved!
 //	</div>
 //
@@ -424,7 +410,7 @@ func (hx *HX[T]) SwapOOB() T {
 //	<div>
 //	...
 //	</div>
-//	<div id="alerts" {hx.New().SwapOOBWithStrategy(swap.AfterBegin).Build()...}>
+//	<div id="alerts" { hx.SwapOOBWithStrategy(swap.AfterBegin)... }>
 //		 Saved!
 //	</div>
 //
@@ -450,7 +436,7 @@ func (hx *HX[T]) SwapOOBWithStrategy(strategy swap.Strategy) T {
 //	<div>
 //	...
 //	</div>
-//	<div {hx.New().SwapOOBSelector(swap.OuterHTML, "#alerts").Build()...}>
+//	<div { hx.SwapOOBSelector(swap.OuterHTML, "#alerts")... }>
 //		 Saved!
 //	</div>
 //
@@ -487,12 +473,10 @@ var TargetRelative = makeRelativeSelector[SelectorModifier, TargetSelector]()
 //
 //	<div>
 //		<div id="response-div"></div>
-//	 	<button {
-//			hx.New().
-//			Post("/register").
-//			Target("#response-div").
-//			Swap(swap.BeforeEnd).
-//			Build()...}
+//	 	<button
+//			{ hx.Post("/register")... }
+//			{ hx.Target("#response-div")... }
+//			{ hx.Swap(swap.BeforeEnd)... }
 //			>
 //	 		Register!
 //	 	</button>
@@ -518,8 +502,8 @@ func (hx *HX[T]) Target(extendedSelector TargetSelector) T {
 // HTMX Attribute: [hx-trigger]
 //
 // [hx-trigger]: https://htmx.org/attributes/hx-trigger/
-func (hx *HX[T]) Trigger(event string) T {
-	return hx.attr(Trigger, event)
+func (hx *HX[T]) Trigger(event trigger.TriggerEvent) T {
+	return hx.attr(Trigger, string(event))
 }
 
 // TriggerExtended allows you to specify what triggers an AJAX request, with modifiers for changing the behavior of the trigger.
@@ -574,7 +558,7 @@ func (hx *HX[T]) Vals(vals any) T {
 //
 // When using evaluated code you can access the event object. This example includes the value of the last typed key within the input.
 //
-//	<div {hx.New().Get("/example").Trigger("keyup").ValsJS(map[string]string{"lastKey": "event.key"}).Build()...} >
+//	<div { hx.Get("/example").Trigger("keyup").ValsJS(map[string]string{"lastKey": "event.key"})... } >
 //		<input type="text" />
 //	</div>
 //
@@ -601,7 +585,7 @@ func (hx *HX[T]) ValsJS(vals map[string]string) T {
 //
 // Here is an example:
 //
-//	<button {hx.New().Delete("/account").Confirm("Are you sure you wish to delete you account?").Build()...}>
+//	<button { hx.Delete("/account").Confirm("Are you sure you wish to delete you account?")... }>
 //	  Delete My Account
 //	</button>
 //
@@ -628,7 +612,7 @@ func (hx *HX[T]) Confirm(msg string) T {
 
 // Delete will cause an element to issue a DELETE to the specified URL and swap the HTML into the DOM using a swap strategy:
 //
-//	<button {hx.New().Delete("/account").Target("body").Build()...} >
+//	<button { hx.Delete("/account").Target("body")... } >
 //		Delete Your Account
 //	</button>
 //
@@ -679,7 +663,7 @@ var DisabledEltRelative = makeRelativeSelector[DisabledEltModifier, DisabledEltS
 //
 // Here is an example with a button that will disable itself during a request:
 //
-//	<button { hx.New().Post("/example").DisabledElt(hx.This).Build()...} >
+//	<button { hx.Post("/example").DisabledElt(hx.This)... } >
 //		Post It!
 //	</button>
 //
@@ -698,17 +682,17 @@ func (hx *HX[T]) DisabledElt(selector DisabledEltSelector) T {
 //
 // An example scenario is to allow you to place an hx-boost on the body element of a page, but overriding that behavior in a specific part of the page to allow for more specific behaviors.
 //
-//	<div {hx.New().Boost(true).Select("#content").Target("#content").Disinherit(hx.Target).Build()...} >
+//	<div { hx.Boost(true).Select("#content").Target("#content").Disinherit(hx.Target)... } >
 //		<!-- hx-select is automatically set to parent value; hx-target is not inherited -->
-//	  <button {hx.New().Get("/test").Build()...}></button>
+//	  <button { hx.Get("/test")... }></button>
 //	</div>
 //
-//	<div {hx.New().Select("#content").Build()...} >
-//		<div {hx.New().Boost(true).Target("#content").Disinherit(hx.Select).Build()...}>
+//	<div { hx.Select("#content")... } >
+//		<div { hx.Boost(true).Target("#content").Disinherit(hx.Select)... }>
 //	  	<!-- hx-target is automatically inherited from parent value -->
 //	    <!-- hx-select is not inherited, because the direct parent does
 //	    disables inheritance, despite not specifying hx-select itself -->
-//	    <button {hx.New().Get("/test").Build()...}></button>
+//	    <button { hx.Get("/test")... }></button>
 //	  </div>
 //	</div>
 //
@@ -736,10 +720,10 @@ func (hx *HX[T]) Disinherit(attr ...Attribute) T {
 //
 // An example scenario is to allow you to place an hx-boost on the body element of a page, but overriding that behavior in a specific part of the page to allow for more specific behaviors.
 //
-//	<div { hx.New().Boost(true).Select("#content").Target("#content").DisinheritAll().Build()...} hx-boost="true" >
+//	<div { hx.Boost(true).Select("#content").Target("#content").DisinheritAll()... } hx-boost="true" >
 //		<a href="/page1">Go To Page 1</a> <!-- boosted with the attribute settings above -->
-//	  <a href="/page2" {hx.New().Unset(hx.Boost).Build()...} >Go To Page 1</a> <!-- not boosted -->
-//	  <button {hx.New().Get("/test").TargetNonStandard(hx.TargetThis).Build()... }></button> <!-- hx-select is not inherited -->
+//	  <a href="/page2" { hx.Unset(hx.Boost)... } >Go To Page 1</a> <!-- not boosted -->
+//	  <button { hx.Get("/test").TargetNonStandard(hx.TargetThis)... }></button> <!-- hx-select is not inherited -->
 //	</div>
 //
 // Notes
@@ -797,9 +781,9 @@ func (hx *HX[T]) Ext(ext ...string) T {
 
 // ExtIgnore ignores an [extension] that is defined by a parent node.
 //
-//	<div {hx.New().Ext("example").Build()...}>
+//	<div { hx.Ext("example")... }>
 //	  "Example" extension is used in this part of the tree...
-//	  <div {hx.New().ExtIgnore("example").Build()...}>
+//	  <div { hx.ExtIgnore("example")... }>
 //	    ... but it will not be used in this part.
 //	  </div>
 //	</div>
@@ -864,7 +848,7 @@ func (hx *HX[T]) HeadersJS(headers map[string]string) T {
 //
 //	<html>
 //	<body>
-//	<div {hx.New().History(false).Build()...}>
+//	<div { hx.History(false)... }>
 //	 ...
 //	</div>
 //	</body>
@@ -886,7 +870,7 @@ func (hx *HX[T]) History(on bool) T {
 //
 //	<html>
 //	<body>
-//	<div id="content" {hx.New().HistoryElt().Build()...}>
+//	<div id="content" { hx.HistoryElt()... }>
 //	 ...
 //	</div>
 //	</body>
@@ -940,7 +924,7 @@ func (hx *HX[T]) Indicator(extendedSelector IndicatorSelector) T {
 
 // ParamsAll allows you to include all parameters with an AJAX request (default).
 //
-//	<div {hx.New().Get("/example").ParamsAll().Build()...}>Get Some HTML, Including Params</div>
+//	<div { hx.Get("/example").ParamsAll()... }>Get Some HTML, Including Params</div>
 //
 // This div will include all the parameters that a POST would, but they will be URL encoded and included in the URL, as per usual with a GET.
 //
@@ -1032,7 +1016,7 @@ func (hx *HX[T]) Put(url string) T {
 //
 // Here is an example:
 //
-//	<div {hx.New().Get("/account").ReplaceURL(true).Build()...} >
+//	<div { hx.Get("/account").ReplaceURL(true)... } >
 //		Go to My Account
 //	</div>
 //
@@ -1054,7 +1038,7 @@ func (hx *HX[T]) ReplaceURL(on bool) T {
 // ReplaceURLWith allows you to replace the current url of the browser location history with
 // a URL to be replaced into the location bar. This may be relative or absolute, as per [history.replaceState()].
 //
-//	<div {hx.New().Get("/account").ReplaceURLWith("/account/home").Build()...} >
+//	<div { hx.Get("/account").ReplaceURLWith("/account/home")... } >
 //		Go to My Account
 //	</div>
 //

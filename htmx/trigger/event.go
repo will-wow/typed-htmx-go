@@ -26,15 +26,23 @@ const (
 	Threshold Modifier = "threshold" // a floating point number between 0.0 and 1.0, indicating what amount of intersection to fire the event on. Only used by the intersect event.
 )
 
+// A TriggerEvent is any of the possible hx-trigger events, including the two non-standard ones.
+type TriggerEvent string
+
+const (
+	Load     TriggerEvent = "load"     // triggered on load (useful for lazy-loading something)
+	Revealed TriggerEvent = "revealed" // triggered when an element is scrolled into the viewport (also useful for lazy-loading). If you are using overflow in css like overflow-y: scroll you should use intersect once instead of revealed.
+)
+
 // An Event is a builder to create a new user event hx-trigger.
 type Event struct {
-	event     string
+	event     TriggerEvent
 	filter    string
 	modifiers map[Modifier]string
 }
 
 // NewEvent starts a builder chain for creating a new hx-trigger for user events.
-func NewEvent(event string) *Event {
+func NewEvent(event TriggerEvent) *Event {
 	return &Event{
 		event:     event,
 		filter:    "",
@@ -51,7 +59,7 @@ func (e *Event) String() string {
 }
 
 // OverrideEvent overrides the initial event name. This is useful if you are forking a default trigger setup.
-func (e *Event) OverrideEvent(event string) *Event {
+func (e *Event) OverrideEvent(event TriggerEvent) *Event {
 	e.event = event
 	return e
 }
@@ -183,7 +191,7 @@ func (s *Event) Clear(modifier Modifier) *Event {
 // coreEvent returns the event name with the filter appended, if present.
 func (e *Event) coreEvent() string {
 	if e.filter == "" {
-		return e.event
+		return string(e.event)
 	}
 	return fmt.Sprintf("%s[%s]", e.event, e.filter)
 }
