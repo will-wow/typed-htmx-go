@@ -9,9 +9,7 @@ import (
 
 var ghx = htmx.NewGomponents()
 
-type Gomponents struct{}
-
-func (l Gomponents) Base(title string, children ...g.Node) g.Node {
+func Wrapper(title string, children ...g.Node) g.Node {
 	return Doctype(
 		HTML(
 			Lang("en"),
@@ -33,20 +31,24 @@ func (l Gomponents) Base(title string, children ...g.Node) g.Node {
 				Meta(Name("creator"), Content("Will Ockelmann-Wagner")),
 				Script(Src("https://unpkg.com/htmx.org@1.9.10")),
 				Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css")),
+				Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css")),
 				Link(Rel("stylesheet"), Href("/static/main.css")),
 			),
 			Body(
 				ghx.Boost(true),
 				Main(
-					l.nav(),
+					nav(),
 					g.Group(children),
 				),
+				Script(Src("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js")),
+				Script(Src("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/go.min.js")),
+				Script(Src("/static/main.js")),
 			),
 		),
 	)
 }
 
-func (l Gomponents) nav() g.Node {
+func nav() g.Node {
 	return Nav(
 		Ul(
 			Li(

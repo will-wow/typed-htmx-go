@@ -2,10 +2,10 @@ package examples
 
 import (
 	"net/http"
-)
 
-var tEx = newTemplExample()
-var gEx = newGomExample()
+	"github.com/will-wow/typed-htmx-go/examples/web/examples/exgom"
+	"github.com/will-wow/typed-htmx-go/examples/web/examples/extempl"
+)
 
 type Routes struct {
 	gom bool
@@ -17,18 +17,9 @@ func NewRoutes(gom bool) Routes {
 
 func (e Routes) NewIndexHandler(w http.ResponseWriter, r *http.Request) {
 	if e.gom {
-		gEx.page().Render(w)
+		exgom.Page().Render(w)
 	} else {
-		component := tEx.page()
+		component := extempl.Page()
 		_ = component.Render(r.Context(), w)
 	}
 }
-
-func (e Routes) NewNotFoundHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-
-	component := tEx.notFoundPage()
-	_ = component.Render(r.Context(), w)
-}
-
-var ServerErrorPage = tEx.serverErrorPage

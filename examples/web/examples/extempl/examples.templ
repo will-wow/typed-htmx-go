@@ -1,21 +1,11 @@
-package examples
+package extempl
 
 import (
-	"github.com/will-wow/typed-htmx-go/examples/web/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
 )
 
-type templExample struct {
-	layout layout.Templ
-}
-
-func newTemplExample() templExample {
-	return templExample{
-		layout: layout.Templ{},
-	}
-}
-
-templ (e templExample) page() {
-	@e.layout.Base("") {
+templ Page() {
+	@layout.Wrapper("") {
 		<h1>UI Templ Examples</h1>
 		<p>
 			Below are a set of UX patterns implemented in htmx with minimal HTML and styling.
@@ -42,12 +32,12 @@ templ (e templExample) page() {
 				</tr>
 			</thead>
 			<tbody>
-				@e.exampleRow(
+				@exampleRow(
 					"/examples/templ/click-to-edit",
 					"Click To Edit",
 					"Demonstrates inline editing of a data object",
 				)
-				@e.exampleRow(
+				@exampleRow(
 					"/examples/templ/bulk-update",
 					"Bulk Update",
 					"Demonstrates bulk updating of multiple rows of data",
@@ -57,7 +47,7 @@ templ (e templExample) page() {
 	}
 }
 
-templ (e templExample) exampleRow(link, name, description string) {
+templ exampleRow(link, name, description string) {
 	<tr>
 		<td>
 			<a href={ templ.SafeURL(link) }>{ name }</a>
@@ -66,18 +56,4 @@ templ (e templExample) exampleRow(link, name, description string) {
 			{ description }
 		</td>
 	</tr>
-}
-
-templ (e templExample) notFoundPage() {
-	@e.layout.Base("Not Found") {
-		<h1>Not Found</h1>
-		<p>The page you are looking for does not exist.</p>
-	}
-}
-
-templ (e templExample) serverErrorPage(err string) {
-	@e.layout.Base("Server Error") {
-		<h1>Something went wrong</h1>
-		<p>{ err }</p>
-	}
 }

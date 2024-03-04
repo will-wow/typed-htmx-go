@@ -36,7 +36,12 @@ func (h *Handler) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	// Catch-all
-	mux.HandleFunc("/", templIndexRoutes.NewNotFoundHandler)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+
+		component := notFoundPage()
+		_ = component.Render(r.Context(), w)
+	})
 
 	// Set up a in-memory file server for the embedded static files.
 	fileServer := http.FileServerFS(staticFiles)
@@ -81,7 +86,7 @@ func (h *Handler) recoverPanic(next http.Handler) http.Handler {
 			if err := recover(); err != nil {
 				// Set a "Connection: close" header on the response.
 				w.Header().Set("Connection", "close")
-				component := examples.ServerErrorPage(fmt.Sprintf("%s", err))
+				component := serverErrorPage(fmt.Sprintf("%s", err))
 				w.WriteHeader(http.StatusInternalServerError)
 				_ = component.Render(r.Context(), w)
 			}

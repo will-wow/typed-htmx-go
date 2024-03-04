@@ -1,108 +1,103 @@
-package bulkupdate
+package extempl
 
 import (
 	"time"
 
 	"github.com/lithammer/dedent"
 
-	"github.com/will-wow/typed-htmx-go/examples/web/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate/form"
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 )
 
-var thx = htmx.NewTempl()
+var hx = htmx.NewTempl()
 
-type templExample struct {
-	layout layout.Templ
-}
-
-func newTemplExample() templExample {
-	return templExample{
-		layout: layout.Templ{},
-	}
-}
-
-templ (e *templExample) page(users []userModel) {
-	@e.layout.Base("Bulk Update", "bulk-update") {
+templ Page(users []form.UserModel) {
+	@layout.Wrapper("Bulk Update", "bulk-update") {
 		<h1>Bulk Update</h1>
 		<p>
 			This demo shows how to implement a common pattern where rows are selected and then bulk updated. This is accomplished by putting a form around a table, with checkboxes in the table, and then including the checked values in the form submission <code>(POST request)</code>:
 		</p>
 		<pre>
-			{ dedent.Dedent(`
-				templ table(users []userModel) {
-					<form
-						id="checked-contacts"
-						{ hx.New().
-						Post("/examples/bulk-update/").
-						SwapExtended(
-							swap.New().Strategy(swap.OuterHTML).Settle(3 * time.Second),
-						).
-						Target("#toast").
-						Build()... }
-					>
-						<h3>Select Rows And Activate Or Deactivate Below</h3>
-						<table>
-							<thead>
-								<tr>
-									<th>Name</th>
-									<th>Email</th>
-									<th>Active</th>
-								</tr>
-							</thead>
-							<tbody id="tbody">
-								for _, user := range users {
+			<code class="language-go">
+				{ dedent.Dedent(`
+					templ table(users []form.UserModel) {
+						<form
+							id="checked-contacts"
+							{ hx.Post("/examples/templ/bulk-update/")... }
+							{ hx.SwapExtended(
+								swap.New().Strategy(swap.OuterHTML).Settle(3 * time.Second),
+							)... }
+							{ hx.Target("#toast")... }
+						>
+							<h3>Select Rows And Activate Or Deactivate Below</h3>
+							<table>
+								<thead>
 									<tr>
-										<td>{ user.name }</td>
-										<td>{ user.email }</td>
-										<td>
-											<input
-												type="checkbox"
-												name={ user.email }
-												if user.active {
-													checked
-												}
-											/>
-										</td>
+										<th>Name</th>
+										<th>Email</th>
+										<th>Active</th>
 									</tr>
-								}
-							</tbody>
-						</table>
-						<input type="submit" value="Bulk Update"/>
-						@updateToast("")
-					</form>
-				}
-			`) }
+								</thead>
+								<tbody id="tbody">
+									for _, user := range users {
+										<tr>
+											<td>{ user.Name }</td>
+											<td>{ user.Email }</td>
+											<td>
+												<input
+													type="checkbox"
+													name={ user.Email }
+													if user.Active {
+														checked
+													}
+												/>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+							<input type="submit" value="Bulk Update"/>
+							@UpdateToast("")
+						</form>
+					}
+				`) }
+			</code>
 		</pre>
 		<p>
 			The server will bulk-update the statuses based on the values of the checkboxes. We respond with a small toast message about the update to inform the user, and use ARIA to politely announce the update for accessibility.
 		</p>
 		<pre>
-			{ dedent.Dedent(`
-				#toast.htmx-settling {
-					opacity: 100;
-				}
+			<code class="language-css">
+				{ dedent.Dedent(`
+					#toast.htmx-settling {
+						opacity: 100;
+					}
 
-				#toast {
-					background: #E1F0DA;
-					opacity: 0;
-					transition: opacity 3s ease-out;
-				}
-			`) }
+					#toast {
+						background: #E1F0DA;
+						opacity: 0;
+						transition: opacity 3s ease-out;
+					}
+				`) }
+			</code>
 		</pre>
 		<pre>
-			{ dedent.Dedent(`
-				templ updateToast(toast string) {
-					<span
-						id="toast"
-						if toast != "" {
-							aria-live="polite"
-						}
-					>
-						{ toast }
-					</span>
-				}
-			`) }
+			<code class="language-go">
+				{ dedent.Dedent(`
+					templ UpdateToast(toast string) {
+						<span
+							id="toast"
+							if toast != "" {
+								aria-live="polite"
+							}
+						>
+							{ toast }
+						</span>
+					}
+				`) }
+			</code>
 		</pre>
 		<p>
 			The cool thing is that, because HTML form inputs already manage their own state, we don’t need to re-render any part of the users table. The active users are already checked and the inactive ones unchecked!
@@ -120,18 +115,18 @@ templ (e *templExample) page(users []userModel) {
 			</a>
 		</p>
 		<h2>Demo</h2>
-		@e.table(users)
+		@table(users)
 	}
 }
 
-templ (e *templExample) table(users []userModel) {
+templ table(users []form.UserModel) {
 	<form
 		id="checked-contacts"
-		{ thx.Post("/examples/templ/bulk-update/")... }
-		{ thx.SwapExtended(
+		{ hx.Post("/examples/templ/bulk-update/")... }
+		{ hx.SwapExtended(
 			swap.New().Strategy(swap.OuterHTML).Settle(3 * time.Second),
 		)... }
-		{ thx.Target("#toast")... }
+		{ hx.Target("#toast")... }
 	>
 		<h3>Select Rows And Activate Or Deactivate Below</h3>
 		<table>
@@ -161,11 +156,11 @@ templ (e *templExample) table(users []userModel) {
 			</tbody>
 		</table>
 		<input type="submit" value="Bulk Update"/>
-		@e.updateToast("")
+		@UpdateToast("")
 	</form>
 }
 
-templ (e *templExample) updateToast(toast string) {
+templ UpdateToast(toast string) {
 	<span
 		id="toast"
 		if toast != "" {

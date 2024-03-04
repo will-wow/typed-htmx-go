@@ -3,6 +3,10 @@ package bulkupdate
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate/exgom"
+	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate/extempl"
+	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate/form"
 )
 
 func NewHandler(gom bool) http.Handler {
@@ -16,15 +20,6 @@ func NewHandler(gom bool) http.Handler {
 	return mux
 }
 
-type userModel struct {
-	Name   string
-	Email  string
-	Active bool
-}
-
-var tEx = newTemplExample()
-var gEx = newGomExample()
-
 type example struct {
 	gom bool
 }
@@ -33,9 +28,9 @@ func (e example) demo(w http.ResponseWriter, r *http.Request) {
 	users := defaultUsers()
 
 	if e.gom {
-		_ = gEx.page(users).Render(w)
+		_ = exgom.Page(users).Render(w)
 	} else {
-		component := tEx.page(users)
+		component := extempl.Page(users)
 		_ = component.Render(r.Context(), w)
 	}
 }
@@ -63,15 +58,15 @@ func (e example) post(w http.ResponseWriter, r *http.Request) {
 	toast := fmt.Sprintf("Activated %d and deactivated %d users", additions, removals)
 
 	if e.gom {
-		_ = gEx.updateToast(toast).Render(w)
+		_ = exgom.UpdateToast(toast).Render(w)
 	} else {
-		component := tEx.updateToast(toast)
+		component := extempl.UpdateToast(toast)
 		_ = component.Render(r.Context(), w)
 	}
 }
 
-func defaultUsers() []userModel {
-	return []userModel{
+func defaultUsers() []form.UserModel {
+	return []form.UserModel{
 		{Name: "Joe Smith", Email: "joe@smith.org", Active: true},
 		{Name: "Angie MacDowell", Email: "angie@macdowell.org", Active: true},
 		{Name: "Fuqua Tarkenton", Email: "fuqua@tarkenton.org", Active: true},

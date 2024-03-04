@@ -1,24 +1,14 @@
-package examples
+package exgom
 
 import (
 	g "github.com/maragudk/gomponents"
 	. "github.com/maragudk/gomponents/html"
 
-	"github.com/will-wow/typed-htmx-go/examples/web/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/layout/gom/layout"
 )
 
-type gomExample struct {
-	layout layout.Gomponents
-}
-
-func newGomExample() gomExample {
-	return gomExample{
-		layout: layout.Gomponents{},
-	}
-}
-
-func (e gomExample) page() g.Node {
-	return e.layout.Base("",
+func Page() g.Node {
+	return layout.Wrapper("",
 		H1(g.Text("UI Gomponents Examples")),
 		P(g.Text("Below are a set of UX patterns implemented in htmx with minimal HTML and styling.")),
 		P(
@@ -39,12 +29,12 @@ func (e gomExample) page() g.Node {
 				),
 			),
 			TBody(
-				e.exampleRow(
+				exampleRow(
 					"/examples/gomponents/click-to-edit",
 					"Click To Edit",
 					"Demonstrates inline editing of a data object",
 				),
-				e.exampleRow(
+				exampleRow(
 					"/examples/gomponents/bulk-update",
 					"Bulk Update",
 					"Demonstrates bulk updating of multiple rows of data",
@@ -54,7 +44,7 @@ func (e gomExample) page() g.Node {
 	)
 }
 
-func (e gomExample) exampleRow(link, name, description string) g.Node {
+func exampleRow(link, name, description string) g.Node {
 	return Tr(
 		Td(A(Href(link), g.Text(name))),
 		Td(g.Text(description)),

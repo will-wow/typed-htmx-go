@@ -4,11 +4,9 @@ import (
 	"github.com/will-wow/typed-htmx-go/htmx"
 )
 
-var thx = htmx.NewTempl()
+var hx = htmx.NewTempl()
 
-type Templ struct{}
-
-templ (l Templ) Base(title string, className ...string) {
+templ Wrapper(title string, className ...string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -29,13 +27,16 @@ templ (l Templ) Base(title string, className ...string) {
 				rel="stylesheet"
 				href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css"
 			/>
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css"/>
 			<link rel="stylesheet" href="/static/main.css"/>
 		</head>
-		<body { thx.Boost(true)... }>
+		<body { hx.Boost(true)... }>
 			<main class={ className }>
 				@nav()
 				{ children... }
 			</main>
+			<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+			<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/go.min.js"></script>
 			<script src="/static/main.js"></script>
 		</body>
 	</html>

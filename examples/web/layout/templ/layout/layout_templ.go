@@ -11,15 +11,12 @@ import (
 	"io"
 
 	"github.com/a-h/templ"
-
 	"github.com/will-wow/typed-htmx-go/htmx"
 )
 
-var thx = htmx.NewTempl()
+var hx = htmx.NewTempl()
 
-type Templ struct{}
-
-func (l Templ) Base(title string, className ...string) templ.Component {
+func Wrapper(title string, className ...string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -49,7 +46,7 @@ func (l Templ) Base(title string, className ...string) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/layout/layout.templ`, Line: 19, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/layout/templ/layout/layout.templ`, Line: 17, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -60,11 +57,11 @@ func (l Templ) Base(title string, className ...string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<meta name=\"htmx-config\" content=\"{&#34;includeIndicatorStyles&#34;:false}\"><meta name=\"color-scheme\" content=\"light\"><meta name=\"description\" content=\"Examples of typed-htmx-go/hx\"><meta name=\"referrer\" content=\"origin-when-cross-origin\"><meta name=\"creator\" content=\"Will Ockelmann-Wagner\"><script src=\"https://unpkg.com/htmx.org@1.9.10\"></script><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css\"><link rel=\"stylesheet\" href=\"/static/main.css\"></head><body")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<meta name=\"htmx-config\" content=\"{&#34;includeIndicatorStyles&#34;:false}\"><meta name=\"color-scheme\" content=\"light\"><meta name=\"description\" content=\"Examples of typed-htmx-go/hx\"><meta name=\"referrer\" content=\"origin-when-cross-origin\"><meta name=\"creator\" content=\"Will Ockelmann-Wagner\"><script src=\"https://unpkg.com/htmx.org@1.9.10\"></script><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css\"><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css\"><link rel=\"stylesheet\" href=\"/static/main.css\"></head><body")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, thx.Boost(true))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Boost(true))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +94,7 @@ func (l Templ) Base(title string, className ...string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main><script src=\"/static/main.js\"></script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main><script src=\"https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js\"></script><script src=\"https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/go.min.js\"></script><script src=\"/static/main.js\"></script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
