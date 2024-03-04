@@ -45,8 +45,8 @@ func TestDemo(t *testing.T) {
 	if !ok {
 		t.Errorf("expected button to have hx-get attribute")
 	}
-	if link != "/examples/templ/click-to-edit/edit" {
-		t.Errorf("expected button to have hx-get attribute with value '/examples/click-to-edit/edit' got %s", link)
+	if link != "/examples/templ/click-to-edit/edit/" {
+		t.Errorf("expected button to have hx-get attribute with value '/examples/templ/click-to-edit/edit/' got %s", link)
 	}
 }
 
@@ -58,7 +58,7 @@ func TestEditPost(t *testing.T) {
 		form.Add("email", email)
 		body := strings.NewReader(form.Encode())
 
-		req := httptest.NewRequest("POST", "/edit", body)
+		req := httptest.NewRequest("POST", "/edit/", body)
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		w := httptest.NewRecorder()
@@ -88,8 +88,8 @@ func TestEditPost(t *testing.T) {
 		if !ok {
 			t.Errorf("expected button to have hx-get attribute")
 		}
-		if link != "/examples/templ/click-to-edit/edit" {
-			t.Errorf("expected button to have hx-get attribute with value '/examples/click-to-edit/templ/edit' got %s", link)
+		if link != "/examples/templ/click-to-edit/edit/" {
+			t.Errorf("expected button to have hx-get attribute with value '/examples/templ/click-to-edit/edit/' got %s", link)
 		}
 
 		// Should include form data in view response

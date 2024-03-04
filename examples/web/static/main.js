@@ -18,7 +18,7 @@ function main() {
 
   function highlight() {
     htmx.onLoad(function (el) {
-			// highlight any new code blocks
+      // highlight any new code blocks
       document.querySelectorAll("pre code:not(.hljs)").forEach((el) => {
         hljs.highlightElement(el);
       });
