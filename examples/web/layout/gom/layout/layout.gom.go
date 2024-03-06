@@ -5,9 +5,10 @@ import (
 	. "github.com/maragudk/gomponents/html"
 
 	"github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx/hxconfig"
 )
 
-var ghx = htmx.NewGomponents()
+var hx = htmx.NewGomponents()
 
 func Wrapper(title string, children ...g.Node) g.Node {
 	return Doctype(
@@ -29,13 +30,16 @@ func Wrapper(title string, children ...g.Node) g.Node {
 				Meta(Name("description"), Content("Examples of typed-htmx-go/hx")),
 				Meta(Name("referrer"), Content("origin-when-cross-origin")),
 				Meta(Name("creator"), Content("Will Ockelmann-Wagner")),
+				Meta(Name("htmx-config"), hx.Config(
+					hxconfig.New().IncludeIndicatorStyles(false),
+				)),
 				Script(Src("https://unpkg.com/htmx.org@1.9.10")),
 				Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css")),
 				Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css")),
 				Link(Rel("stylesheet"), Href("/static/main.css")),
 			),
 			Body(
-				ghx.Boost(true),
+				hx.Boost(true),
 				Main(
 					nav(),
 					g.Group(children),

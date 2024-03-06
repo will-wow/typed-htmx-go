@@ -68,7 +68,7 @@ func TestEditPost(t *testing.T) {
 		return w
 	}
 
-	t.Run("should go back to editing from good post", func(t *testing.T) {
+	t.Run("should go back to editing from a good post", func(t *testing.T) {
 		w := post("John", "Smith", "john@smith.com")
 
 		res := w.Result()

@@ -2,6 +2,8 @@ package layout
 
 import (
 	"github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx/hxconfig"
+	"time"
 )
 
 var hx = htmx.NewTempl()
@@ -22,6 +24,12 @@ templ Wrapper(title string, className ...string) {
 			<meta name="description" content="Examples of typed-htmx-go/hx"/>
 			<meta name="referrer" content="origin-when-cross-origin"/>
 			<meta name="creator" content="Will Ockelmann-Wagner"/>
+			<meta
+				name="htmx-config"
+				{ hx.Config(
+				hxconfig.New().Timeout(time.Second),
+				)... }
+			/>
 			<script src="https://unpkg.com/htmx.org@1.9.10"></script>
 			<link
 				rel="stylesheet"
