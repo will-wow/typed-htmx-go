@@ -53,6 +53,7 @@ tasks:
   ready:
     desc: Format, lint, and test code. If this passes, then the code is ready to be committed.
     cmds:
+      - task: gen
       - task: fmt
       - task: lint
       - task: test
