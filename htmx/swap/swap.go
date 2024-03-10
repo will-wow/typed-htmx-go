@@ -27,10 +27,12 @@ type Builder struct {
 	modifiers map[Modifier]string
 }
 
-// New starts a builder chain for creating a new hx-swap attribute.
+// New starts a builder chain for creating a new [hx-swap] attribute.
 // It contains methods to add and remove modifiers from the swap.
 // Subsequent calls can override previous modifiers of the same type - for instance, .Scroll(Top).Scroll(Bottom) will result in `hx-swap="scroll:bottom"`.
-// Call .End() to get the final hx-swap string.
+// Pass to [htmx.HX.SwapExtended] to set the swap attribute on an element.
+//
+// [hx-swap]: https://htmx.org/attributes/hx-swap/
 func New() *Builder {
 	return &Builder{
 		strategy:  InnerHTML,
@@ -118,16 +120,17 @@ func (s *Builder) Show(scrollDirection ScrollDirection) *Builder {
 	return s
 }
 
+// A ShowSelector is a CSS selector that identifies the element to show. Includes the non-standard "window" value to scroll the viewport to the top/bottom after a swap.
+type ShowSelector string
+
+const (
+	ShowWindow ShowSelector = "window"
+)
+
 // ShowElement will scroll the viewport to show the selected element after the swap.
 // The selector is a CSS selector that identifies the element to show.
-func (s *Builder) ShowElement(selector string, scrollDirection ScrollDirection) *Builder {
-	s.modifiers[Show] = fmt.Sprintf("%s:%s", selector, scrollDirection)
-	return s
-}
-
-// ShowWindow will scroll the viewport to the top/bottom after the swap.
-func (s *Builder) ShowWindow(scrollDirection ScrollDirection) *Builder {
-	s.modifiers[Show] = fmt.Sprintf("window:%s", scrollDirection)
+func (s *Builder) ShowElement(extendedSelector ShowSelector, scrollDirection ScrollDirection) *Builder {
+	s.modifiers[Show] = fmt.Sprintf("%s:%s", extendedSelector, scrollDirection)
 	return s
 }
 

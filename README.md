@@ -9,7 +9,7 @@ Well-documented Go functions for building [HTMX](https://htmx.org) attributes.
 
 However, when using it I have to have the [docs](https://htmx.org/reference) open, to look up the specifics of each modifier. I wanted the simplicity of HTMX, the editor support of Go, and beautiful integration with Templ, without sacrificing performance. I built typed-htmx-go.
 
-`hx.NewTempl()` provides an `hx` struct that exposes all documented [HTMX attributes](https://htmx.org/reference/) as Go functions, and returns either [templ.Attributes](https://templ.guide/syntax-and-usage/attributes) for to be spread into a Templ element, or an attribute `g.Node` for Gomponents. You can also support other templating libraries by simply passing a new attribute constructor to `HX{}`.
+`hx.NewTempl()` provides an `hx` struct that exposes all documented [HTMX attributes](https://htmx.org/reference/) as Go functions, and [templ.Attributes](https://templ.guide/syntax-and-usage/attributes) to be spread into a Templ element. `hx.NewGomponents()` returns an `hx` struct that exposes attributes as functions that return `g.Node` attributes instead.. You can also support other templating libraries by simply passing an `attr` function to `htmx.NewHX(attr)`.
 
 Each function and option includes a Godoc comment copied from the extensive HTMX docs, so you can access that documentation right from the comfort of your editor.
 
@@ -35,23 +35,46 @@ Many HTMX attributes (like `hx-swap` and `hx-trigger`) support a complex syntax 
 
 That's necessary for a tool that embeds in standard HTML attributes, but it requires a lot of studying the docs to get exactly right.
 
-`hx` strives to provide function signatures and typed options that ensure you're passing the right options to the right modifiers.
+`hx` strives to provide typed builders that ensure you're passing the right options to the right modifiers.
 
-Sometimes that means that `hx` will provide multiple functions for a single attribute. For instance, `hx` provides three methods for `hx-target`, stop you from doing `hx-target='this #element'` (which is invalid), and instead guide you towards valid options like:
+For instance, many attributes (like [hx-target](https://htmx.org/attributes/hx-target/) and [hx-include](https://htmx.org/attributes/hx-include/)) support "extended selectors", which is either a standard CSS selector, or some non-standard keyword like `this` or `closest`. But different attributes support different non-standard selectors, so they have their own types; `HX.Target()` takes an `htmx.TargetSelector` that supports only `this`, `next`, or `previous`, plus optionally any of the standard relative modifiers like `closest` or `find`, while `HX.Include()` takes an `htmx.IncludeSelector` that only allows the `closest` modifier, and no non-standard selectors. Since they also take any arbitrary CSS selector, you can pass in any string, but sticking to the provided types when available makes it easier to make sure you've got valid selectors.
 
-- `hx.Target("#element")` => `hx-target="#element'`
-- `hx.TargetNonStandard(hx.TargetThis)` => `hx-target='this'`
-- `hx.TargetRelative(hx.TargetSelectorNext, "#element")` => `hx-target='next #element'`
+Example:
 
-As a corollary to this goal, it should also be difficult to create an invalid attribute. So if modifier must be accompanied by a selector (like the `next` in `hx-target`), then it must be exposed through a two-argument function.
+```go
+hx.Target("#element")
+hx.Target(htmx.TargetRelative(htmx.Next, "#element"))
+hx.Target(htmx.TargetNext)
+
+hx.Include("#element")
+hx.Include(IncludeThis)
+hx.Include(htmx.IncludeRelative(htmx.Next, "#element"))
+hx.Include(htmx.TargetNext) // Invalid: cannot use TargetNext (constant "next" of type TargetSelector) as IncludeSelector value in argument to hx.Include
+```
 
 ### Full documentation in-editor
 
 The [HTMX References](https://htmx.org/reference/) are through and readable (otherwise this project wouldn't have been possible!) However, having those docs at your fingertips as you write, instead of in a separate tab, is even better.
 
-`hx` strives to have a Go-adjusted copy of every line of documentation from the HTMX References, including examples, included in the godocs of functions and options.
+`hx` strives to have a Go-adjusted copy of every line of documentation from the HTMX References, including examples, included in the godocs of functions and options, and an example test.
 
-Note: This work is on going. If you see something missing, please submit a PR!
+Note: Documentation is in progress. If you see something missing, please submit a PR!
+
+### Support many component libraries
+
+`hx` is built to support any Go HTML templating library that can take attributes as some data type. The two supported out of the box are Templ and Gomponents, but it should be easy work with other libraries. And if you do use `typed-htmx-go` with another library, please submit a PR to add official support!
+
+To handle the different types (Templ expects a `Templ.Attributes map[string]any`, and Gomponents wants a `g.Node` with a `Render` method), the `htmx.NewHX` constructor takes an `attr` function that takes an HTMX attribute and an `any` value, and returns some type T. That means you can construct an `hx` that returns `Templ.Attributes` from every attribute function, one that returns a `g.Node`, and another that returns whatever your library expects.
+
+For ease of use, you should create a private `var hx` in your template packages, like so:
+
+```go
+var hx = htmx.NewTempl()
+
+templ MyDiv() {
+  <button { hx.Get("/some/path")... } />
+}
+```
 
 ### Transferable HTMX skills
 
@@ -106,7 +129,27 @@ Form(
 
 ### Fully tested
 
-Every attribute function should have a test to make sure it's printing valid HTMX. These are also a good opportunity to try out the API and make sure it's ergonomic in practice.
+Every attribute function should have a test to make sure it's printing valid HTMX. And every function and option should include an example test, to make it easy to see usage in the godocs. These are also a good opportunity to try out the API and make sure it's ergonomic in practice.
+
+## Notable attributes
+
+Most of the attributes in HTMX are pretty straightforward to use - you just pass in CSS selector that the attribute should apply to, or nothing at all. A few are more complicated though, and are listed here:
+
+### Config
+
+TODO
+
+### On
+
+TODO
+
+### Swap
+
+TODO
+
+### Trigger
+
+TODO
 
 ## Install
 

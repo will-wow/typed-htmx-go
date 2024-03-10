@@ -71,10 +71,7 @@ type StandardCSSSelector string
 // [hx-boost]: https://htmx.org/attributes/hx-boost/
 // [nice fallback]: https://en.wikipedia.org/wiki/Progressive_enhancement
 func (hx *HX[T]) Boost(boost bool) T {
-	if boost {
-		return hx.attr("hx-boost", "true")
-	}
-	return hx.attr("hx-boost", "false")
+	return hx.attr("hx-boost", boolToString(boost))
 }
 
 // Get will cause an element to issue a GET to the specified URL and swap the HTML into the DOM using a swap strategy.
@@ -451,8 +448,8 @@ func (hx *HX[T]) SwapOOBWithStrategy(strategy swap.Strategy) T {
 // HTMX Attribute: [hx-swap-oob]
 //
 // [hx-swap-oob]: https://htmx.org/attributes/hx-swap-oob
-func (hx *HX[T]) SwapOOBSelector(strategy swap.Strategy, extendedSelector string) T {
-	return hx.attr(SwapOOB, fmt.Sprintf("%s:%s", strategy, extendedSelector))
+func (hx *HX[T]) SwapOOBSelector(strategy swap.Strategy, cssSelector string) T {
+	return hx.attr(SwapOOB, fmt.Sprintf("%s:%s", strategy, cssSelector))
 }
 
 type TargetSelector string
@@ -463,7 +460,7 @@ const (
 	TargetPrevious TargetSelector = "previous" // resolves to element.previousElementSibling
 )
 
-var TargetRelative = makeRelativeSelector[SelectorModifier, TargetSelector]()
+var TargetRelative = makeRelativeSelector[RelativeModifier, TargetSelector]()
 
 // Target allows you to target a different element for swapping than the one issuing the AJAX request.
 //
@@ -672,8 +669,8 @@ var DisabledEltRelative = makeRelativeSelector[DisabledEltModifier, DisabledEltS
 // HTMX Attribute: [hx-disabled-elt]
 //
 // [hx-disabled-elt]: https://htmx.org/attributes/hx-disabled-elt
-func (hx *HX[T]) DisabledElt(selector DisabledEltSelector) T {
-	return hx.attr(DisabledElt, string(selector))
+func (hx *HX[T]) DisabledElt(extendedSelector DisabledEltSelector) T {
+	return hx.attr(DisabledElt, string(extendedSelector))
 }
 
 // Disinherit allows you to disable automatic attribute inheritance for one or multiple specified attributes.
@@ -892,15 +889,15 @@ type IncludeSelector string
 
 const IncludeThis IncludeSelector = "this"
 
-var IncludeRelative = makeRelativeSelector[SelectorModifier, IncludeSelector]()
+var IncludeRelative = makeRelativeSelector[RelativeModifier, IncludeSelector]()
 
 // Include allows you to include additional element values in an AJAX request.
 //
 // HTMX Attribute: [hx-include]
 //
 // [hx-include]: https://htmx.org/attributes/hx-include/
-func (hx *HX[T]) Include(selector IncludeSelector) T {
-	return hx.attr(Include, string(selector))
+func (hx *HX[T]) Include(extendedSelector IncludeSelector) T {
+	return hx.attr(Include, string(extendedSelector))
 }
 
 type IndicatorModifier string
@@ -1127,24 +1124,11 @@ func (hx *HX[T]) RequestJS(request RequestConfigJS) T {
 	return hx.attr(Request, request.String())
 }
 
-type SyncStrategy string
-
-const (
-	SyncDefault    SyncStrategy = ""
-	SyncDrop       SyncStrategy = "drop"        // drop (ignore) this request if an existing request is in flight (the default)
-	SyncAbort      SyncStrategy = "abort"       // drop (ignore) this request if an existing request is in flight, and, if that is not the case, abort this request if another request occurs while it is still in flight
-	SyncReplace    SyncStrategy = "replace"     // abort the current request, if any, and replace it with this request
-	SyncQueue      SyncStrategy = "queue"       // place this request in the request queue associated with the given element
-	SyncQueueFirst SyncStrategy = "queue first" // queue the first request to show up while a request is in flight
-	SyncQueueLast  SyncStrategy = "queue last"  // queue the last request to show up while a request is in flight
-	SyncQueueAll   SyncStrategy = "queue all"   // queue all requests that show up while a request is in flight
-)
-
 type SyncSelector string
 
 const SyncThis SyncSelector = "this"
 
-var SyncRelative = makeRelativeSelector[SelectorModifier, SyncSelector]()
+var SyncRelative = makeRelativeSelector[RelativeModifier, SyncSelector]()
 
 // SyncStrategy allows you to synchronize AJAX requests between multiple elements.
 //
@@ -1161,6 +1145,19 @@ var SyncRelative = makeRelativeSelector[SelectorModifier, SyncSelector]()
 func (hx *HX[T]) Sync(extendedSelector SyncSelector) T {
 	return hx.attr(Sync, string(extendedSelector))
 }
+
+type SyncStrategy string
+
+const (
+	SyncDefault    SyncStrategy = ""
+	SyncDrop       SyncStrategy = "drop"        // drop (ignore) this request if an existing request is in flight (the default)
+	SyncAbort      SyncStrategy = "abort"       // drop (ignore) this request if an existing request is in flight, and, if that is not the case, abort this request if another request occurs while it is still in flight
+	SyncReplace    SyncStrategy = "replace"     // abort the current request, if any, and replace it with this request
+	SyncQueue      SyncStrategy = "queue"       // place this request in the request queue associated with the given element
+	SyncQueueFirst SyncStrategy = "queue first" // queue the first request to show up while a request is in flight
+	SyncQueueLast  SyncStrategy = "queue last"  // queue the last request to show up while a request is in flight
+	SyncQueueAll   SyncStrategy = "queue all"   // queue all requests that show up while a request is in flight
+)
 
 // SyncStrategy allows you to synchronize AJAX requests between multiple elements.
 //
@@ -1247,19 +1244,19 @@ const (
 	Validate    Attribute = "hx-validate"
 )
 
-// A SelectorModifier is a relative modifier to a CSS selector. This is used for "extended selectors".
+// A RelativeModifier is a relative modifier to a CSS selector. This is used for "extended selectors".
 // Some attributes only support a subset of these, but any Relative function that takes this type supports the full set..
-type SelectorModifier string
+type RelativeModifier string
 
 const (
-	Closest  SelectorModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
-	Find     SelectorModifier = "find"     // find the first child descendant element that matches the given CSS selector
-	Next     SelectorModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
-	Previous SelectorModifier = "previous" // scan the DOM backwards fo
+	Closest  RelativeModifier = "closest"  // find the closest ancestor element or itself, that matches the given CSS selector
+	Find     RelativeModifier = "find"     // find the first child descendant element that matches the given CSS selector
+	Next     RelativeModifier = "next"     // scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+	Previous RelativeModifier = "previous" // scan the DOM backwards fo
 )
 
-func boolToString(hx bool) string {
-	if hx {
+func boolToString(b bool) string {
+	if b {
 		return "true"
 	}
 	return "false"

@@ -26,7 +26,7 @@ const (
 	Threshold Modifier = "threshold" // a floating point number between 0.0 and 1.0, indicating what amount of intersection to fire the event on. Only used by the intersect event.
 )
 
-// A TriggerEvent is any of the possible hx-trigger events, including the two non-standard ones.
+// A TriggerEvent is any standard DOM event like `click` or `input`, a custom event name, plus two non-standard ones (`load` and `revealed`.).
 type TriggerEvent string
 
 const (
