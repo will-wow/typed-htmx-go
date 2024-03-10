@@ -34,17 +34,17 @@ const (
 	Revealed TriggerEvent = "revealed" // triggered when an element is scrolled into the viewport (also useful for lazy-loading). If you are using overflow in css like overflow-y: scroll you should use intersect once instead of revealed.
 )
 
-// An Event is a builder to create a new user event hx-trigger.
+// An Event is a builder to create a new user Event hx-trigger.
 type Event struct {
 	event     TriggerEvent
 	filter    string
 	modifiers map[Modifier]string
 }
 
-// NewEvent starts a builder chain for creating a new hx-trigger for user events.
-func NewEvent(event TriggerEvent) *Event {
+// On starts a builder chain for creating a new hx-trigger for user events.
+func On(eventName TriggerEvent) *Event {
 	return &Event{
-		event:     event,
+		event:     eventName,
 		filter:    "",
 		modifiers: map[Modifier]string{},
 	}
@@ -201,8 +201,8 @@ type IntersectEvent struct {
 	Event
 }
 
-// NewIntersectEvent configures a trigger that fires once when an element first intersects the viewport. This supports additional options to a normal trigger, [IntersectEvent.Root] and [IntersectEvent.Threshold].
-func NewIntersectEvent() *IntersectEvent {
+// Intersect configures a trigger that fires once when an element first intersects the viewport. This supports additional options to a normal trigger, [IntersectEvent.Root] and [IntersectEvent.Threshold].
+func Intersect() *IntersectEvent {
 	return &IntersectEvent{
 		Event{
 			event:     "intersect",

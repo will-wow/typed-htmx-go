@@ -146,9 +146,9 @@ func ExampleHX_Trigger_nonStandard() {
 
 func ExampleHX_TriggerExtended() {
 	fmt.Println(hx.TriggerExtended(
-		trigger.NewEvent("click").Filter("ctrlKey").Target("#element"),
-		trigger.NewPoll(time.Second),
-		trigger.NewIntersectEvent().Root("#element").Threshold(0.2),
+		trigger.On("click").Filter("ctrlKey").Target("#element"),
+		trigger.Every(time.Second),
+		trigger.Intersect().Root("#element").Threshold(0.2),
 	))
 	// Output: hx-trigger='click[ctrlKey] target:#element, every 1s, intersect root:#element threshold:0.2'
 }

@@ -1,150 +1,152 @@
 package trigger_test
 
 import (
-	"testing"
+	"fmt"
 	"time"
 
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 )
 
-func TestNewEvent(t *testing.T) {
-	tests := []struct {
-		name    string
-		trigger trigger.Trigger
-		want    string
-	}{
-		{
-			name:    "simple Event",
-			trigger: trigger.NewEvent("click"),
-			want:    "click",
-		},
-		{
-			name:    "Filter",
-			trigger: trigger.NewEvent("click").Filter("checkGlobalState()"),
-			want:    "click[checkGlobalState()]",
-		},
-		{
-			name:    "Once",
-			trigger: trigger.NewEvent("click").Once(),
-			want:    "click once",
-		},
-		{
-			name:    "Changed",
-			trigger: trigger.NewEvent("click").Changed(),
-			want:    "click changed",
-		},
-		{
-			name:    "Delay",
-			trigger: trigger.NewEvent("click").Delay(time.Second),
-			want:    "click delay:1s",
-		},
-		{
-			name:    "Throttle",
-			trigger: trigger.NewEvent("click").Throttle(500 * time.Millisecond),
-			want:    "click throttle:500ms",
-		},
-		{
-			name:    "From",
-			trigger: trigger.NewEvent("click").From("#element"),
-			want:    "click from:(#element)",
-		},
-		{
-			name:    "From with spaces",
-			trigger: trigger.NewEvent("click").From("parent > child"),
-			want:    "click from:(parent > child)",
-		},
-		{
-			name:    "From non-standard",
-			trigger: trigger.NewEvent("click").From(trigger.FromDocument),
-			want:    "click from:(document)",
-		},
-		{
-			name: "From relative",
-			trigger: trigger.NewEvent("click").From(
-				trigger.FromRelative(trigger.Next, "#alert"),
-			),
-			want: "click from:next (#alert)",
-		},
-		{
-			name: "From relative with whitespace",
-			trigger: trigger.NewEvent("click").From(
-				trigger.FromRelative(trigger.Next, "#alert > button"),
-			),
-			want: "click from:next (#alert > button)",
-		},
-		{
-			name:    "Target",
-			trigger: trigger.NewEvent("click").Target("#element"),
-			want:    "click target:#element",
-		},
-		{
-			name:    "Target with spaces",
-			trigger: trigger.NewEvent("click").Target("parent > child"),
-			want:    "click target:(parent > child)",
-		},
-		{
-			name:    "Consume",
-			trigger: trigger.NewEvent("click").Consume(),
-			want:    "click consume",
-		},
-		{
-			name:    "Queue",
-			trigger: trigger.NewEvent("click").Queue(trigger.First),
-			want:    "click queue:first",
-		},
-		{
-			name:    "Clear",
-			trigger: trigger.NewEvent("click").Consume().Clear(trigger.Consume),
-			want:    "click",
-		},
-		{
-			name:    "Ordering multiple",
-			trigger: trigger.NewEvent("click").Filter("isActive").Queue(trigger.First).Consume().Target("#element").From("#parent > #child"),
-			want:    "click[isActive] consume from:(#parent > #child) queue:first target:#element",
-		},
-		{
-			name:    "Intersect",
-			trigger: trigger.NewIntersectEvent(),
-			want:    "intersect",
-		},
-		{
-			name:    "Intersect.Root",
-			trigger: trigger.NewIntersectEvent().Root("#element"),
-			want:    "intersect root:#element",
-		},
-		{
-			name:    "Intersect.Root with spaces",
-			trigger: trigger.NewIntersectEvent().Root("#parent > #child"),
-			want:    "intersect root:(#parent > #child)",
-		},
-		{
-			name:    "Intersect.Threshold",
-			trigger: trigger.NewIntersectEvent().Threshold(0.2),
-			want:    "intersect threshold:0.2",
-		},
-		{
-			name:    "Intersect supports other options",
-			trigger: trigger.NewIntersectEvent().Root("#element").Delay(time.Second),
-			want:    "intersect delay:1s root:#element",
-		},
-		{
-			name:    "Poll",
-			trigger: trigger.NewPoll(5 * time.Second),
-			want:    "every 5s",
-		},
-		{
-			name:    "FilteredPoll",
-			trigger: trigger.NewFilteredPoll(5*time.Second, "isActive"),
-			want:    "every 5s [isActive]",
-		},
-	}
+func ExampleOn() {
+	trig := trigger.On("click")
+	fmt.Println(trig.String())
+	// Output: click
+}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.trigger.String()
-			if got != tt.want {
-				t.Errorf("got %s, want %s", got, tt.want)
-			}
-		})
-	}
+func ExampleEvent_Filter() {
+	trig := trigger.On("click").Filter("checkGlobalState()")
+	fmt.Println(trig.String())
+	// Output: click[checkGlobalState()]
+}
+
+func ExampleEvent_Once() {
+	trig := trigger.On("click").Once()
+	fmt.Println(trig.String())
+	// Output: click once
+}
+
+func ExampleEvent_Changed() {
+	trig := trigger.On("click").Changed()
+	fmt.Println(trig.String())
+	// Output: click changed
+}
+
+func ExampleEvent_Delay() {
+	trig := trigger.On("click").Delay(time.Second)
+	fmt.Println(trig.String())
+	// Output: click delay:1s
+}
+
+func ExampleEvent_Throttle() {
+	trig := trigger.On("click").Throttle(500 * time.Millisecond)
+	fmt.Println(trig.String())
+	// Output: click throttle:500ms
+}
+
+func ExampleEvent_From() {
+	trig := trigger.On("click").From("#element")
+	fmt.Println(trig.String())
+	// Output: click from:(#element)
+}
+
+func ExampleEvent_From_withSpaces() {
+	trig := trigger.On("click").From("parent > child")
+	fmt.Println(trig.String())
+	// Output: click from:(parent > child)
+}
+
+func ExampleEvent_From_nonStandard() {
+	trig := trigger.On("click").From(trigger.FromDocument)
+	fmt.Println(trig.String())
+	// Output: click from:(document)
+}
+
+func ExampleFromRelative() {
+	trig := trigger.On("click").From(trigger.FromRelative(trigger.Next, "#alert"))
+	fmt.Println(trig.String())
+	// Output: click from:next (#alert)
+}
+
+func ExampleFromRelative_withWhitespace() {
+	trig := trigger.On("click").From(trigger.FromRelative(trigger.Next, "#alert > button"))
+	fmt.Println(trig.String())
+	// Output: click from:next (#alert > button)
+}
+
+func ExampleEvent_Target() {
+	trig := trigger.On("click").Target("#element")
+	fmt.Println(trig.String())
+	// Output: click target:#element
+}
+
+func ExampleEvent_Target_withSpaces() {
+	trig := trigger.On("click").Target("parent > child")
+	fmt.Println(trig.String())
+	// Output: click target:(parent > child)
+}
+
+func ExampleEvent_Consume() {
+	trig := trigger.On("click").Consume()
+	fmt.Println(trig.String())
+	// Output: click consume
+}
+
+func ExampleEvent_Queue() {
+	trig := trigger.On("click").Queue(trigger.First)
+	fmt.Println(trig.String())
+	// Output: click queue:first
+}
+
+func ExampleEvent_Clear() {
+	trig := trigger.On("click").Consume().Clear(trigger.Consume)
+	fmt.Println(trig.String())
+	// Output: click
+}
+
+func ExampleOn_ordering_multiple() {
+	trig := trigger.On("click").Filter("isActive").Queue(trigger.First).Consume().Target("#element").From("#parent > #child")
+	fmt.Println(trig.String())
+	// Output: click[isActive] consume from:(#parent > #child) queue:first target:#element
+}
+
+func ExampleIntersect() {
+	trig := trigger.Intersect()
+	fmt.Println(trig.String())
+	// Output: intersect
+}
+
+func ExampleIntersectEvent_Root() {
+	trig := trigger.Intersect().Root("#element")
+	fmt.Println(trig.String())
+	// Output: intersect root:#element
+}
+
+func ExampleIntersectEvent_Root_withSpaces() {
+	trig := trigger.Intersect().Root("#parent > #child")
+	fmt.Println(trig.String())
+	// Output: intersect root:(#parent > #child)
+}
+
+func ExampleIntersectEvent_Threshold() {
+	trig := trigger.Intersect().Threshold(0.2)
+	fmt.Println(trig.String())
+	// Output: intersect threshold:0.2
+}
+
+func ExampleIntersect_supportsOtherOptions() {
+	trig := trigger.Intersect().Root("#element").Delay(time.Second)
+	fmt.Println(trig.String())
+	// Output: intersect delay:1s root:#element
+}
+
+func ExampleEvery() {
+	trig := trigger.Every(5 * time.Second)
+	fmt.Println(trig.String())
+	// Output: every 5s
+}
+
+func ExamplePoll_Filter() {
+	trig := trigger.Every(5 * time.Second).Filter("isActive")
+	fmt.Println(trig.String())
+	// Output: every 5s [isActive]
 }

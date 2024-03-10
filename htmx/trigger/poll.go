@@ -6,7 +6,16 @@ import (
 )
 
 type Poll struct {
-	string string
+	timing time.Duration
+	filter string
+}
+
+// Every creates a new polling trigger.
+func Every(timing time.Duration) *Poll {
+	return &Poll{
+		timing: timing,
+		filter: "",
+	}
 }
 
 // trigger is a no-op method to satisfy the Trigger interface.
@@ -14,19 +23,15 @@ func (p *Poll) trigger() {}
 
 // String returns the final hx-trigger string.
 func (p *Poll) String() string {
-	return p.string
+	if p.filter != "" {
+		return fmt.Sprintf("every %s [%s]", p.timing.String(), p.filter)
+	}
+
+	return fmt.Sprintf("every %s", p.timing.String())
 }
 
-// NewPoll creates a new polling trigger.
-func NewPoll(timing time.Duration) *Poll {
-	return &Poll{
-		string: fmt.Sprintf("every %s", timing.String()),
-	}
-}
-
-// NewPoll creates a new polling trigger with a javascript expression as a filter. When the timer goes off, the trigger will only occur if the expression evaluates to true.
-func NewFilteredPoll(timing time.Duration, filter string) *Poll {
-	return &Poll{
-		string: fmt.Sprintf("every %s [%s]", timing.String(), filter),
-	}
+// Filter adds a filter to the polling trigger, so that when the timer goes off, the trigger will only occur if the expression evaluates to true.
+func (p *Poll) Filter(filter string) *Poll {
+	p.filter = filter
+	return p
 }
