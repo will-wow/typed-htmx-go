@@ -69,7 +69,7 @@ func nav() g.Node {
 		Ul(
 			Li(
 				A(
-					Href("https://pkg.go.dev/github.com/will-wow/typed-htmx-go/hx"),
+					Href("https://pkg.go.dev/github.com/will-wow/typed-htmx-go/htmx"),
 					Target("_blank"),
 					Rel("noopener"),
 					g.Text("Docs"),
