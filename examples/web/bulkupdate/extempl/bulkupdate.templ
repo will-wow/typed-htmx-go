@@ -2,6 +2,7 @@ package extempl
 
 import (
 	"time"
+	"embed"
 
 	"github.com/lithammer/dedent"
 
@@ -9,9 +10,14 @@ import (
 	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate/form"
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
 )
 
 var hx = htmx.NewTempl()
+
+//go:embed bulkupdate.templ
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
 
 templ Page(users []form.UserModel) {
 	@layout.Wrapper("Bulk Update", "bulk-update") {
@@ -21,48 +27,7 @@ templ Page(users []form.UserModel) {
 		</p>
 		<pre>
 			<code class="language-go">
-				{ dedent.Dedent(`
-					templ table(users []form.UserModel) {
-						<form
-							id="checked-contacts"
-							{ hx.Post("/examples/templ/bulk-update/")... }
-							{ hx.SwapExtended(
-								swap.New().Strategy(swap.OuterHTML).Settle(3 * time.Second),
-							)... }
-							{ hx.Target("#toast")... }
-						>
-							<h3>Select Rows And Activate Or Deactivate Below</h3>
-							<table>
-								<thead>
-									<tr>
-										<th>Name</th>
-										<th>Email</th>
-										<th>Active</th>
-									</tr>
-								</thead>
-								<tbody id="tbody">
-									for _, user := range users {
-										<tr>
-											<td>{ user.Name }</td>
-											<td>{ user.Email }</td>
-											<td>
-												<input
-													type="checkbox"
-													name={ user.Email }
-													if user.Active {
-														checked
-													}
-												/>
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-							<input type="submit" value="Bulk Update"/>
-							@UpdateToast("")
-						</form>
-					}
-				`) }
+				{ ex.PrintOrErr("bulkupdate.templ", "table") }
 			</code>
 		</pre>
 		<p>
@@ -85,18 +50,7 @@ templ Page(users []form.UserModel) {
 		</pre>
 		<pre>
 			<code class="language-go">
-				{ dedent.Dedent(`
-					templ UpdateToast(toast string) {
-						<span
-							id="toast"
-							if toast != "" {
-								aria-live="polite"
-							}
-						>
-							{ toast }
-						</span>
-					}
-				`) }
+				{ ex.PrintOrErr("bulkupdate.templ", "UpdateToast") }
 			</code>
 		</pre>
 		<p>
@@ -120,6 +74,7 @@ templ Page(users []form.UserModel) {
 }
 
 templ table(users []form.UserModel) {
+	//ex:start:table
 	<form
 		id="checked-contacts"
 		{ hx.Post("/examples/templ/bulk-update/")... }
@@ -158,8 +113,10 @@ templ table(users []form.UserModel) {
 		<input type="submit" value="Bulk Update"/>
 		@UpdateToast("")
 	</form>
+	//ex:end:table
 }
 
+//ex:start:UpdateToast
 templ UpdateToast(toast string) {
 	<span
 		id="toast"
@@ -170,3 +127,5 @@ templ UpdateToast(toast string) {
 		{ toast }
 	</span>
 }
+
+//ex:end:UpdateToast

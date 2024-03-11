@@ -8,19 +8,26 @@ package extempl
 import (
 	"bytes"
 	"context"
+	"embed"
 	"io"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/lithammer/dedent"
+
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate/form"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
 )
 
 var hx = htmx.NewTempl()
+
+//go:embed bulkupdate.templ
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
 
 func Page(users []form.UserModel) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -46,50 +53,9 @@ func Page(users []form.UserModel) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(dedent.Dedent(`
-					templ table(users []form.UserModel) {
-						<form
-							id="checked-contacts"
-							{ hx.Post("/examples/templ/bulk-update/")... }
-							{ hx.SwapExtended(
-								swap.New().Strategy(swap.OuterHTML).Settle(3 * time.Second),
-							)... }
-							{ hx.Target("#toast")... }
-						>
-							<h3>Select Rows And Activate Or Deactivate Below</h3>
-							<table>
-								<thead>
-									<tr>
-										<th>Name</th>
-										<th>Email</th>
-										<th>Active</th>
-									</tr>
-								</thead>
-								<tbody id="tbody">
-									for _, user := range users {
-										<tr>
-											<td>{ user.Name }</td>
-											<td>{ user.Email }</td>
-											<td>
-												<input
-													type="checkbox"
-													name={ user.Email }
-													if user.Active {
-														checked
-													}
-												/>
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-							<input type="submit" value="Bulk Update"/>
-							@UpdateToast("")
-						</form>
-					}
-				`))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("bulkupdate.templ", "table"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 64, Col: 6}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 29, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -112,7 +78,7 @@ func Page(users []form.UserModel) templ.Component {
 					}
 				`))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 82, Col: 6}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 47, Col: 6}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -123,20 +89,9 @@ func Page(users []form.UserModel) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(dedent.Dedent(`
-					templ UpdateToast(toast string) {
-						<span
-							id="toast"
-							if toast != "" {
-								aria-live="polite"
-							}
-						>
-							{ toast }
-						</span>
-					}
-				`))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("bulkupdate.templ", "UpdateToast"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 98, Col: 6}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 52, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -209,7 +164,7 @@ func table(users []form.UserModel) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 142, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 97, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -222,7 +177,7 @@ func table(users []form.UserModel) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 143, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 98, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -270,6 +225,7 @@ func table(users []form.UserModel) templ.Component {
 	})
 }
 
+//ex:start:UpdateToast
 func UpdateToast(toast string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -300,7 +256,7 @@ func UpdateToast(toast string) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(toast)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 169, Col: 9}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/bulkupdate/extempl/bulkupdate.templ`, Line: 126, Col: 9}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -316,3 +272,5 @@ func UpdateToast(toast string) templ.Component {
 		return templ_7745c5c3_Err
 	})
 }
+
+//ex:end:UpdateToast

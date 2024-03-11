@@ -1,6 +1,7 @@
 package exgom
 
 import (
+	"embed"
 	"time"
 
 	"github.com/lithammer/dedent"
@@ -11,11 +12,15 @@ import (
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate/form"
-
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/gom/layout"
 )
 
 var hx = htmx.NewGomponents()
+
+//go:embed bulkupdate.gom.go
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
 
 func Page(users []form.UserModel) g.Node {
 	return layout.Wrapper(
@@ -30,57 +35,7 @@ func Page(users []form.UserModel) g.Node {
 		Pre(
 			Code(
 				Class("language-go"),
-				g.Text(dedent.Dedent(`
-					func table(users []form.UserModel) g.Node {
-						return FormEl(
-							ID("checked-contacts"),
-							hx.Post("/examples/gomponents/bulk-update/"),
-							hx.SwapExtended(
-								swap.New().Strategy(swap.OuterHTML).Settle(3*time.Second),
-							),
-							hx.Target(
-								"#toast",
-							),
-
-							H3(g.Text("Select Rows And Activate Or Deactivate Below")),
-							Table(
-								THead(
-									Tr(
-										Td(g.Text("Name")),
-										Td(g.Text("Email")),
-										Td(g.Text("Activate")),
-									),
-								),
-								TBody(
-									ID("tbody"),
-									g.Group(
-										g.Map(users, func(u form.UserModel) g.Node {
-											return Tr(
-												Td(g.Text(u.Name)),
-												Td(g.Text(u.Email)),
-												Td(
-													Input(
-														Type("checkbox"),
-														Name(u.Email),
-														g.If(u.Active,
-															Checked(),
-														),
-													),
-												),
-											)
-
-										}),
-									),
-								),
-							),
-							Input(
-								Type("submit"),
-								Value("Submit"),
-							),
-							UpdateToast(""),
-						)
-					}
-				`)),
+				g.Text(ex.PrintOrErr("bulkupdate.gom.go", "table")),
 			),
 		),
 		P(
@@ -105,17 +60,7 @@ func Page(users []form.UserModel) g.Node {
 		Pre(
 			Code(
 				Class("language-go"),
-				g.Text(dedent.Dedent(`
-					func UpdateToast(toast string) g.Node {
-						return Span(
-							ID("toast"),
-							g.If(toast != "",
-								g.Attr("aria-live", "polite"),
-							),
-							g.Text(toast),
-						)
-					}
-				`)),
+				g.Text(ex.PrintOrErr("bulkupdate.gom.go", "UpdateToast")),
 			),
 		),
 		P(
@@ -138,6 +83,7 @@ func Page(users []form.UserModel) g.Node {
 }
 
 func table(users []form.UserModel) g.Node {
+	//ex:start:table
 	return FormEl(
 		ID("checked-contacts"),
 		hx.Post("/examples/gomponents/bulk-update/"),
@@ -185,8 +131,10 @@ func table(users []form.UserModel) g.Node {
 		),
 		UpdateToast(""),
 	)
+	//ex:end:table
 }
 
+//ex:start:UpdateToast
 func UpdateToast(toast string) g.Node {
 	return Span(
 		ID("toast"),
@@ -196,3 +144,5 @@ func UpdateToast(toast string) g.Node {
 		g.Text(toast),
 	)
 }
+
+//ex:end:UpdateToast

@@ -1,16 +1,20 @@
 package extempl
 
 import (
-	"cmp"
-	"github.com/lithammer/dedent"
+	"embed"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/examples/web/clicktoedit/form"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
 )
 
 var hx = htmx.NewTempl()
+
+//go:embed clicktoedit.templ
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
 
 templ Page(form *form.Form) {
 	@layout.Wrapper("Click to edit") {
@@ -25,28 +29,7 @@ templ Page(form *form.Form) {
 		</ul>
 		<pre>
 			<code class="language-go">
-				{ dedent.Dedent(`
-					templ ViewForm(form *form.Form) {
-						<div
-							{ hx.Target(htmx.TargetThis)... }
-							{ hx.Swap(swap.OuterHTML)... }
-						>
-							<dl>
-								<dt>First Name</dt>
-								<dd>{ cmp.Or(form.FirstName, "None") }</dd>
-								<dt>Last Name</dt>
-								<dd>{ cmp.Or(form.LastName, "None") }</dd>
-								<dt>Email</dt>
-								<dd>{ cmp.Or(form.Email, "None") }</dd>
-								<div role="group">
-									<button { hx.Get("/examples/templ/click-to-edit/edit/")... }>
-										Click To Edit
-									</button>
-								</div>
-							</dl>
-						</div>
-					}
-				`) }
+				{ ex.PrintOrErr("clicktoedit.templ", "ViewForm") }
 			</code>
 		</pre>
 		<ul>
@@ -56,76 +39,7 @@ templ Page(form *form.Form) {
 		</ul>
 		<pre>
 			<code class="language-go">
-				{ dedent.Dedent(`
-					templ EditForm(form *form.Form) {
-						<form
-							method="POST"
-							action="/examples/templ/click-to-edit/edit/"
-							{ hx.Post("/examples/templ/click-to-edit/edit/")... }
-							{ hx.Target(htmx.TargetThis)... }
-							{ hx.Swap(swap.OuterHTML)... }
-						>
-							<label>
-								First Name
-								<input
-									type="text"
-									name="firstName"
-									value={ form.FirstName }
-									if form.HasError("FirstName") {
-										aria-invalid="true"
-									}
-								/>
-								if form.HasError("FirstName") {
-									<small>
-										{ form.GetError("FirstName") }
-									</small>
-								}
-							</label>
-							<label>
-								Last Name
-								<input
-									type="text"
-									name="lastName"
-									value={ form.LastName }
-									if form.HasError("LastName") {
-										aria-invalid="true"
-									}
-								/>
-								if form.HasError("LastName") {
-									<small>
-										{ form.GetError("LastName") }
-									</small>
-								}
-							</label>
-							<label>
-								Email Address
-								<input
-									type="text"
-									name="email"
-									value={ form.Email }
-									if form.HasError("Email") {
-										aria-invalid="true"
-									}
-								/>
-								if form.HasError("Email") {
-									<small>
-										{ form.GetError("Email") }
-									</small>
-								}
-							</label>
-							<div role="group">
-								<button type="submit">Submit</button>
-								<a
-									href="/examples/templ/click-to-edit/"
-									role="button"
-									{ hx.Get("/examples/templ/click-to-edit/view/")... }
-								>
-									Cancel
-								</a>
-							</div>
-						</form>
-					}
-				`) }
+				{ ex.PrintOrErr("clicktoedit.templ", "EditForm") }
 			</code>
 		</pre>
 		<ul>
@@ -151,17 +65,18 @@ templ Page(form *form.Form) {
 }
 
 templ ViewForm(form *form.Form) {
+	//ex:start:ViewForm
 	<div
 		{ hx.Target(htmx.TargetThis)... }
 		{ hx.Swap(swap.OuterHTML)... }
 	>
 		<dl>
 			<dt>First Name</dt>
-			<dd>{ cmp.Or(form.FirstName, "None") }</dd>
+			<dd>{ form.FirstName }</dd>
 			<dt>Last Name</dt>
-			<dd>{ cmp.Or(form.LastName, "None") }</dd>
+			<dd>{ form.LastName }</dd>
 			<dt>Email</dt>
-			<dd>{ cmp.Or(form.Email, "None") }</dd>
+			<dd>{ form.Email }</dd>
 			<div role="group">
 				<button { hx.Get("/examples/templ/click-to-edit/edit/")... }>
 					Click To Edit
@@ -169,9 +84,11 @@ templ ViewForm(form *form.Form) {
 			</div>
 		</dl>
 	</div>
+	//ex:end:ViewForm
 }
 
 templ EditForm(form *form.Form) {
+	//ex:start:EditForm
 	<form
 		method="POST"
 		action="/examples/templ/click-to-edit/edit/"
@@ -238,4 +155,5 @@ templ EditForm(form *form.Form) {
 			</a>
 		</div>
 	</form>
+	//ex:end:EditForm
 }

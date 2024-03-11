@@ -1,9 +1,8 @@
 package exgom
 
 import (
-	"cmp"
+	"embed"
 
-	"github.com/lithammer/dedent"
 	g "github.com/maragudk/gomponents"
 	. "github.com/maragudk/gomponents/html"
 
@@ -11,10 +10,15 @@ import (
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/clicktoedit/form"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/gom/layout"
 )
 
 var hx = htmx.NewGomponents()
+
+//go:embed clicktoedit.gom.go
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
 
 func Page(form *form.Form) g.Node {
 	return layout.Wrapper("Click to edit",
@@ -28,28 +32,7 @@ func Page(form *form.Form) g.Node {
 		Pre(
 			Code(
 				Class("language-go"),
-				g.Text(dedent.Dedent(`
-					func ViewForm(form *form.Form) g.Node {
-						return Div(
-							hx.Target(htmx.TargetThis),
-							hx.Swap(swap.OuterHTML),
-							Dl(
-								Dt(g.Text("First Name")),
-								Dd(g.Text(cmp.Or(form.FirstName, "None"))),
-								Dt(g.Text("Last Name")),
-								Dd(g.Text(cmp.Or(form.LastName, "None"))),
-								Dt(g.Text("Email")),
-								Dd(g.Text(cmp.Or(form.Email, "None"))),
-								Div(Role("group"),
-									Button(
-										hx.Get("/examples/gomponents/click-to-edit/edit/"),
-										g.Text("Click to edit"),
-									),
-								),
-							),
-						)
-					}
-				`)),
+				g.Text(ex.PrintOrErr("clicktoedit.gom.go", "ViewForm")),
 			),
 		),
 		Ul(
@@ -58,78 +41,10 @@ func Page(form *form.Form) g.Node {
 			),
 		),
 		Pre(
-			g.Text(dedent.Dedent(`
-				func EditForm(form *form.Form) g.Node {
-					return FormEl(
-						Method("POST"),
-						Action("/examples/gomponents/click-to-edit/edit/"),
-						hx.Post("/examples/gomponents/click-to-edit/edit/"),
-						hx.Target(htmx.TargetThis),
-						hx.Swap(swap.OuterHTML),
-						Label(
-							g.Text("First Name"),
-							Input(
-								Type("text"),
-								Name("firstName"),
-								Value(form.FirstName),
-								g.If(
-									form.HasError("FirstName"),
-									g.Attr("aria-invalid", "true"),
-								),
-							),
-							g.If(
-								form.HasError("FirstName"),
-								Small(g.Text(form.GetError("FirstName"))),
-							),
-						),
-						Label(
-							g.Text("Last Name"),
-							Input(
-								Type("text"),
-								Name("lastName"),
-								Value(form.LastName),
-								g.If(
-									form.HasError("LastName"),
-									g.Attr("aria-invalid", "true"),
-								),
-							),
-							g.If(
-								form.HasError("LastName"),
-								Small(g.Text(form.GetError("LastName"))),
-							),
-						),
-						Label(
-							g.Text("Email"),
-							Input(
-								Type("text"),
-								Name("email"),
-								Value(form.Email),
-								g.If(
-									form.HasError("Email"),
-									g.Attr("aria-invalid", "true"),
-								),
-							),
-							g.If(
-								form.HasError("Email"),
-								Small(g.Text(form.GetError("Email"))),
-							),
-						),
-						Div(
-							Role("group"),
-							Button(
-								Type("submit"),
-								g.Text("Submit"),
-							),
-							A(
-								Href("/examples/gomponents/click-to-edit/"),
-								Role("button"),
-								hx.Get("/examples/gomponents/click-to-edit/view/"),
-								g.Text("Cancel"),
-							),
-						),
-					)
-				}
-			`)),
+			Code(
+				Class("language-go"),
+				g.Text(ex.PrintOrErr("clicktoedit.gom.go", "EditForm")),
+			),
 		),
 		Ul(
 			Li(
@@ -153,16 +68,17 @@ func Page(form *form.Form) g.Node {
 }
 
 func ViewForm(form *form.Form) g.Node {
+	//ex:start:ViewForm
 	return Div(
 		hx.Target(htmx.TargetThis),
 		hx.Swap(swap.OuterHTML),
 		Dl(
 			Dt(g.Text("First Name")),
-			Dd(g.Text(cmp.Or(form.FirstName, "None"))),
+			Dd(g.Text(form.FirstName)),
 			Dt(g.Text("Last Name")),
-			Dd(g.Text(cmp.Or(form.LastName, "None"))),
+			Dd(g.Text(form.LastName)),
 			Dt(g.Text("Email")),
-			Dd(g.Text(cmp.Or(form.Email, "None"))),
+			Dd(g.Text(form.Email)),
 			Div(Role("group"),
 				Button(
 					hx.Get("/examples/gomponents/click-to-edit/edit/"),
@@ -171,9 +87,11 @@ func ViewForm(form *form.Form) g.Node {
 			),
 		),
 	)
+	//ex:end:ViewForm
 }
 
 func EditForm(form *form.Form) g.Node {
+	//ex:start:EditForm
 	return FormEl(
 		Method("POST"),
 		Action("/examples/gomponents/click-to-edit/edit/"),
@@ -242,4 +160,5 @@ func EditForm(form *form.Form) g.Node {
 			),
 		),
 	)
+	//ex:end:EditForm
 }

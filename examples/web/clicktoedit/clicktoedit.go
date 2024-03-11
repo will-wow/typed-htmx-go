@@ -26,8 +26,16 @@ func NewHandler(gom bool) http.Handler {
 	return mux
 }
 
-func (e example) demo(w http.ResponseWriter, r *http.Request) {
+func emptyForm() *form.Form {
 	form := form.New()
+	form.FirstName = "None"
+	form.LastName = "None"
+	form.Email = "None"
+	return form
+}
+
+func (e example) demo(w http.ResponseWriter, r *http.Request) {
+	form := emptyForm()
 
 	if e.gom {
 		_ = exgom.Page(form).Render(w)
@@ -38,7 +46,7 @@ func (e example) demo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e example) view(w http.ResponseWriter, r *http.Request) {
-	form := form.New()
+	form := emptyForm()
 
 	if e.gom {
 		_ = exgom.ViewForm(form).Render(w)
@@ -49,12 +57,6 @@ func (e example) view(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e example) edit(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	form := form.New()
 
 	if e.gom {
