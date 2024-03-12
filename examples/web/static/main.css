@@ -11,3 +11,11 @@
   opacity: 0;
   transition: opacity 3s ease-out;
 }
+
+.active-search.htmx-indicator {
+  opacity: 0;
+}
+
+.active-search.htmx-indicator.htmx-request {
+  opacity: 1;
+}

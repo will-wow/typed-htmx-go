@@ -13,6 +13,52 @@ However, when using it I have to have the [docs](https://htmx.org/reference) ope
 
 Each function and option includes a Godoc comment copied from the extensive HTMX docs, so you can access that documentation right from the comfort of your editor.
 
+## Usage
+
+```go
+import (
+	"time"
+
+	"github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx/trigger"
+	"github.com/will-wow/typed-htmx-go/htmx/swap"
+)
+
+var hx = htmx.NewTempl()
+
+templ search() {
+	<h3>
+		Search Contacts
+		<span class="htmx-indicator">
+			<img src="/static/img/bars.svg"/> Searching...
+		</span>
+	</h3>
+	<input
+		type="search"
+		name="search"
+		placeholder="Begin Typing To Search Users..."
+		{ hx.Post("/examples/templ/active-search/search/")... }
+		{ hx.TriggerExtended(
+			trigger.On("input").Changed().Delay(time.Millisecond * 500),
+			trigger.On("search"),
+		)... }
+		{ hx.Target("#search-results")... }
+		{ hx.Swap(swap.OuterHTML)... }
+		{ hx.Indicator(".htmx-indicator")... }
+	/>
+	<table>
+		<thead>
+			<tr>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
+			</tr>
+		</thead>
+		<tbody id="search-results"></tbody>
+	</table>
+}
+```
+
 ## Examples
 
 Usage examples are in [examples](./examples) (hosted at [typed-htmx-go.vercel.app](https://typed-htmx-go.vercel.app/))
@@ -155,46 +201,6 @@ TODO
 
 ```bash
 go get github.com/will-wow/typed-htmx-go
-```
-
-## Usage
-
-```go
-import (
-	"github.com/will-wow/typed-htmx-go/htmx"
-	"github.com/will-wow/typed-htmx-go/htmx/swap"
-)
-
-var hx = htmx.NewTempl()
-
-templ SearchInput(search string) {
-	<form
-		method="GET"
-		action="/page"
-		class="relative mb-2"
-		{ hx.Get(currentPage)...}
-		{ hx.Target("body")...}
-		{ hx.ReplaceURL(true)...}
-		{ hx.Swap(swap.New().ScrollElement("#search-results", swap.Top))...}
-	>
-		@ui.Input(
-			htmx.TemplAttrs(
-				hx.Get(currentPage),
-				hx.Trigger("input changed delay:500ms"),
-				templ.Attributes{
-					"id":          "search",
-					"placeholder": "Search (/)",
-					"type":        "search",
-					"name":        "search",
-					"value":       search,
-				},
-			),
-			"peer")
-		<div class="absolute bottom-0 right-2 top-0 flex items-center leading-none peer-focus:hidden">
-			@icon.Search()
-		</div>
-	</form>
-}
 ```
 
 ## Contributing

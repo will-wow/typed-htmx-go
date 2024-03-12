@@ -39,6 +39,11 @@ func Page() g.Node {
 					"Bulk Update",
 					"Demonstrates bulk updating of multiple rows of data",
 				),
+				exampleRow(
+					"/examples/gomponents/active-search",
+					"Active Search",
+					"Demonstrates the active search box pattern",
+				),
 			),
 		),
 	)

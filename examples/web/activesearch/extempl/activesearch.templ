@@ -1,0 +1,94 @@
+package extempl
+
+import (
+	"embed"
+
+	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/activesearch/shared"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
+	"github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx/trigger"
+	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"time"
+)
+
+var hx = htmx.NewTempl()
+
+//go:embed activesearch.templ
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
+
+templ Page() {
+	@layout.Wrapper("Active Search", "active-search") {
+		<h1>Active Search</h1>
+		<p>
+			This example actively searches a contacts database as the user enters text.
+		</p>
+		<p>
+			We start with a search input and an empty table:
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("activesearch.templ", "search") }
+			</code>
+		</pre>
+		<p>
+			The input issues a <code>POST</code> to <code>/search</code> on the input event and sets the body of the table to be the resulting content. Note that the keyup event could be used as well, but would not fire if the user pasted text with their mouse (or any other non-keyboard method).
+		</p>
+		<p>
+			We add the <code>delay:500ms</code> modifier to the trigger to delay sending the query until the user stops typing. Additionally, we add the <code>changed</code> modifier to the trigger to ensure we don’t send new queries when the user doesn’t change the value of the input (e.g. they hit an arrow key, or pasted the same value).
+		</p>
+		<p>
+			Since we use a search type input we will get an x in the input field to clear the input. To make this trigger a new POST we have to specify another trigger. We specify another trigger by using a comma to separate them. The <code>search</code> trigger will be run when the field is cleared but it also makes it possible to override the 500 ms input event delay by just pressing enter.
+		</p>
+		<p>
+			Finally, we show an indicator when the search is in flight with the <code>hx-indicator</code> attribute.
+		</p>
+		<h2>Demo</h2>
+		@search()
+	}
+}
+
+templ search() {
+	//ex:start:search
+	<h3>
+		Search Contacts 
+		<span class="htmx-indicator">
+			<img src="/static/img/bars.svg"/> Searching... 
+		</span>
+	</h3>
+	<input
+		type="search"
+		name="search"
+		placeholder="Begin Typing To Search Users..."
+		{ hx.Post("/examples/templ/active-search/search/")... }
+		{ hx.TriggerExtended(
+			trigger.On("input").Changed().Delay(time.Millisecond * 500),
+			trigger.On("search"),
+		)... }
+		{ hx.Target("#search-results")... }
+		{ hx.Swap(swap.OuterHTML)... }
+		{ hx.Indicator(".htmx-indicator")... }
+	/>
+	<table>
+		<thead>
+			<tr>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
+			</tr>
+		</thead>
+		<tbody id="search-results"></tbody>
+	</table>
+	//ex:end:search
+}
+
+templ SearchResults(users []shared.User) {
+	for _, user := range users {
+		<tr>
+			<td>{ user.FirstName }</td>
+			<td>{ user.LastName }</td>
+			<td>{ user.Email }</td>
+		</tr>
+	}
+}

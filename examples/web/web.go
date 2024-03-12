@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/will-wow/typed-htmx-go/examples/web/activesearch"
 	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate"
 	"github.com/will-wow/typed-htmx-go/examples/web/clicktoedit"
 	"github.com/will-wow/typed-htmx-go/examples/web/examples"
@@ -50,9 +51,12 @@ func (h *Handler) routes() http.Handler {
 	mux.HandleFunc("/{$}", templIndexRoutes.NewIndexHandler)
 	mux.HandleFunc("/examples/gomponents/{$}", gomIndexRoutes.NewIndexHandler)
 	delegateExample(mux, "/examples/templ/click-to-edit", clicktoedit.NewHandler(false))
-	delegateExample(mux, "/examples/gomponents/click-to-edit", clicktoedit.NewHandler(true))
 	delegateExample(mux, "/examples/templ/bulk-update", bulkupdate.NewHandler(false))
+	delegateExample(mux, "/examples/templ/active-search", activesearch.NewHandler(false))
+
+	delegateExample(mux, "/examples/gomponents/click-to-edit", clicktoedit.NewHandler(true))
 	delegateExample(mux, "/examples/gomponents/bulk-update", bulkupdate.NewHandler(true))
+	delegateExample(mux, "/examples/gomponents/active-search", activesearch.NewHandler(true))
 
 	return h.recoverPanic(h.logRequest(mux))
 }
