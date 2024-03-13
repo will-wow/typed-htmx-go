@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
+
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 

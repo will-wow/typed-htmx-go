@@ -8,7 +8,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/lithammer/dedent v1.1.0
 	github.com/maragudk/gomponents v0.20.2
-	github.com/will-wow/typed-htmx-go v0.0.7
+	github.com/will-wow/typed-htmx-go v0.1.0
 )
 
 require (
