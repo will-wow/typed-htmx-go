@@ -13,6 +13,12 @@ However, when using it I have to have the [docs](https://htmx.org/reference) ope
 
 Each function and option includes a Godoc comment copied from the extensive HTMX docs, so you can access that documentation right from the comfort of your editor.
 
+## Installation
+
+```bash
+go get github.com/will-wow/typed-htmx-go
+```
+
 ## Usage
 
 ```go
@@ -196,12 +202,6 @@ TODO
 ### Trigger
 
 TODO
-
-## Install
-
-```bash
-go get github.com/will-wow/typed-htmx-go
-```
 
 ## Contributing
 
