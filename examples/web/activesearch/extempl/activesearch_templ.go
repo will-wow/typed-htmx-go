@@ -14,7 +14,6 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/will-wow/typed-htmx-go/htmx"
-	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/activesearch/shared"
@@ -54,7 +53,7 @@ func Page() templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("activesearch.templ", "search"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 31, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 30, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -116,10 +115,6 @@ func search() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Swap(swap.OuterHTML))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Indicator(".htmx-indicator"))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -156,7 +151,7 @@ func SearchResults(users []shared.User) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(user.FirstName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 88, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 86, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -169,7 +164,7 @@ func SearchResults(users []shared.User) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(user.LastName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 89, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 87, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -182,7 +177,7 @@ func SearchResults(users []shared.User) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 90, Col: 19}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/activesearch/extempl/activesearch.templ`, Line: 88, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {

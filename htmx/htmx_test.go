@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	base "github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/on"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
@@ -29,11 +29,11 @@ func (a Attrs) String() string {
 	return ""
 }
 
-var hx = base.NewHX(func(key base.Attribute, value any) Attrs {
+var hx = htmx.NewHX(func(key htmx.Attribute, value any) Attrs {
 	return Attrs{string(key): value}
 })
 
-type HX = base.HX[Attrs]
+type HX = htmx.HX[Attrs]
 
 func ExampleHX_Boost() {
 	fmt.Println(hx.Boost(true))
@@ -81,8 +81,8 @@ func ExampleHX_SelectOOB() {
 
 func ExampleHX_SelectOOBWithStrategy() {
 	fmt.Println(hx.SelectOOBWithStrategy(
-		base.SelectOOBStrategy{Selector: "#info-details", Strategy: swap.AfterBegin},
-		base.SelectOOBStrategy{Selector: "#other-details", Strategy: ""},
+		htmx.SelectOOBStrategy{Selector: "#info-details", Strategy: swap.AfterBegin},
+		htmx.SelectOOBStrategy{Selector: "#other-details", Strategy: ""},
 	))
 	// Output: hx-select-oob='#info-details:afterbegin,#other-details'
 }
@@ -123,13 +123,13 @@ func ExampleHX_Target() {
 }
 
 func ExampleHX_Target_nonStandard() {
-	fmt.Println(hx.Target(base.TargetThis))
+	fmt.Println(hx.Target(htmx.TargetThis))
 	// Output: hx-target='this'
 }
 
 func ExampleHX_Target_relativeSelector() {
 	fmt.Println(hx.Target(
-		base.TargetRelative(base.Closest, "#example"),
+		htmx.TargetRelative(htmx.Closest, "#example"),
 	))
 	// Output: hx-target='closest #example'
 }
@@ -156,6 +156,17 @@ func ExampleHX_TriggerExtended() {
 func ExampleHX_Vals() {
 	fmt.Println(hx.Vals(map[string]int{"one": 1, "two": 2}))
 	// Output: hx-vals='{"one":1,"two":2}'
+}
+
+func ExampleHX_Vals_error() {
+	fmt.Println(hx.Vals(func() {}))
+	// Output: hx-vals='{}'
+}
+
+func ExampleHX_Vals_invalid() {
+	// You would expect this to be an error, but `Vals` doesn't check the type of the value for performance reasons.
+	fmt.Println(hx.Vals(0))
+	// Output: hx-vals='0'
 }
 
 func ExampleHX_ValsJS() {
@@ -190,18 +201,18 @@ func ExampleHX_DisabledElt() {
 
 func ExampleHX_DisabledElt_relative() {
 	fmt.Println(hx.DisabledElt(
-		base.DisabledEltRelative(base.DisabledEltClosest, "#example"),
+		htmx.DisabledEltRelative(htmx.DisabledEltClosest, "#example"),
 	))
 	// Output: hx-disabled-elt='closest #example'
 }
 
 func ExampleHX_DisabledElt_this() {
-	fmt.Println(hx.DisabledElt(base.DisabledEltThis))
+	fmt.Println(hx.DisabledElt(htmx.DisabledEltThis))
 	// Output: hx-disabled-elt='this'
 }
 
 func ExampleHX_Disinherit() {
-	fmt.Println(hx.Disinherit(base.Get, base.Boost))
+	fmt.Println(hx.Disinherit(htmx.Get, htmx.Boost))
 	// Output: hx-disinherit='hx-get hx-boost'
 }
 
@@ -211,7 +222,7 @@ func ExampleHX_DisinheritAll() {
 }
 
 func ExampleHX_Encoding() {
-	fmt.Println(hx.Encoding(base.EncodingMultipart))
+	fmt.Println(hx.Encoding(htmx.EncodingMultipart))
 	// Output: hx-encoding='multipart/form-data'
 }
 
@@ -228,6 +239,11 @@ func ExampleHX_ExtIgnore() {
 func ExampleHX_Headers() {
 	fmt.Println(hx.Headers(map[string]string{"Content-Type": "application/json"}))
 	// Output: hx-headers='{"Content-Type":"application/json"}'
+}
+
+func ExampleHX_Headers_error() {
+	fmt.Println(hx.Headers(func() {}))
+	// Output: hx-headers='{}'
 }
 
 func ExampleHX_HeadersJS() {
@@ -256,13 +272,13 @@ func ExampleHX_Include() {
 }
 
 func ExampleHX_Include_this() {
-	fmt.Println(hx.Include(base.IncludeThis))
+	fmt.Println(hx.Include(htmx.IncludeThis))
 	// Output: hx-include='this'
 }
 
 func ExampleHX_Include_relative() {
 	fmt.Println(hx.Include(
-		base.IncludeRelative(base.Closest, "#example"),
+		htmx.IncludeRelative(htmx.Closest, "#example"),
 	))
 	// Output: hx-include='closest #example'
 }
@@ -274,7 +290,7 @@ func ExampleHX_Indicator() {
 
 func ExampleHX_Indicator_relative() {
 	fmt.Println(hx.Indicator(
-		base.IndicatorRelative(base.IndicatorClosest, "#example"),
+		htmx.IndicatorRelative(htmx.IndicatorClosest, "#example"),
 	))
 	// Output: hx-indicator='closest #example'
 }
@@ -329,20 +345,38 @@ func ExampleHX_ReplaceURLWith() {
 	// Output: hx-replace-url='/example'
 }
 
+func ExampleHX_Request() {
+	fmt.Println(hx.Request(htmx.RequestConfig{
+		Timeout:     time.Second,
+		Credentials: true,
+		NoHeaders:   true,
+	}))
+	// Output: hx-request='"timeout":1000,"credentials":true,"noHeaders":true'
+}
+
+func ExampleHX_RequestJS() {
+	fmt.Println(hx.RequestJS(htmx.RequestConfigJS{
+		Timeout:     "getTimeoutSetting()",
+		Credentials: "true",
+		NoHeaders:   "noHeaders()",
+	}))
+	// Output: hx-request='js: timeout:getTimeoutSetting(),credentials:true,noHeaders:noHeaders()'
+}
+
 func ExampleHX_Sync() {
-	fmt.Println(hx.Sync(base.SyncThis))
+	fmt.Println(hx.Sync(htmx.SyncThis))
 	// Output: hx-sync='this'
 }
 
 func ExampleHX_SyncStrategy() {
-	fmt.Println(hx.SyncStrategy(base.SyncThis, base.SyncDrop))
+	fmt.Println(hx.SyncStrategy(htmx.SyncThis, htmx.SyncDrop))
 	// Output: hx-sync='this:drop'
 }
 
 func ExampleHX_SyncStrategy_relative() {
 	fmt.Println(hx.SyncStrategy(
-		base.SyncRelative(base.Closest, "#example"),
-		base.SyncDrop,
+		htmx.SyncRelative(htmx.Closest, "#example"),
+		htmx.SyncDrop,
 	))
 	// Output: hx-sync='closest #example:drop'
 }
@@ -353,6 +387,6 @@ func ExampleHX_Validate() {
 }
 
 func ExampleHX_Unset() {
-	fmt.Println(hx.Unset(base.Boost))
+	fmt.Println(hx.Unset(htmx.Boost))
 	// Output: hx-boost='unset'
 }

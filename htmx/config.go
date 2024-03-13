@@ -22,8 +22,7 @@ func (hx *HX[T]) Config(config *hxconfig.Builder) T {
 	c := config.Build()
 	bytes, err := json.Marshal(c)
 	if err != nil {
-		var empty T
-		return empty
+		return hx.attr("content", "{}")
 	}
 	return hx.attr("content", string(bytes))
 }

@@ -85,6 +85,12 @@ func ExampleBuilder_FocusScroll() {
 	// Output: innerHTML focus-scroll:true
 }
 
+func ExampleBuilder_FocusScroll_disable() {
+	builder := swap.New().FocusScroll(false)
+	fmt.Println(builder.String())
+	// Output: innerHTML focus-scroll:false
+}
+
 func ExampleBuilder_Clear() {
 	builder := swap.New().Transition().Clear(swap.Transition)
 	fmt.Println(builder.String())

@@ -150,3 +150,9 @@ func ExamplePoll_Filter() {
 	fmt.Println(trig.String())
 	// Output: every 5s [isActive]
 }
+
+func ExampleEvent_OverrideEvent() {
+	trig := trigger.On("keyup").Delay(time.Second).OverrideEvent("input")
+	fmt.Println(trig.String())
+	// Output: input delay:1s
+}

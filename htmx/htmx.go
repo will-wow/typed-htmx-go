@@ -543,8 +543,7 @@ func (hx *HX[T]) Vals(vals any) T {
 	json, err := json.Marshal(vals)
 	if err != nil {
 		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
-		var empty T
-		return empty
+		return hx.attr(Vals, "{}")
 	}
 	return hx.attr(Vals, string(json))
 }
@@ -810,9 +809,8 @@ func (hx *HX[T]) ExtIgnore(ext string) T {
 func (hx *HX[T]) Headers(headers any) T {
 	json, err := json.Marshal(headers)
 	if err != nil {
-		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing templ attributes.
-		var empty T
-		return empty
+		// Silently ignore the value if there is an error, because there's not a good way to report an error when constructing attributes.
+		return hx.attr(Headers, "{}")
 	}
 	return hx.attr(Headers, string(json))
 }
@@ -1070,10 +1068,10 @@ func (r RequestConfig) String() string {
 		opts = append(opts, fmt.Sprintf(`"timeout":%d`, r.Timeout.Milliseconds()))
 	}
 	if r.Credentials {
-		opts = append(opts, `"credentials": true`)
+		opts = append(opts, `"credentials":true`)
 	}
 	if r.NoHeaders {
-		opts = append(opts, `"noHeaders": true`)
+		opts = append(opts, `"noHeaders":true`)
 	}
 
 	return strings.Join(opts, ",")
@@ -1101,13 +1099,13 @@ func (r RequestConfigJS) String() string {
 	opts := []string{}
 
 	if r.Timeout != "" {
-		opts = append(opts, fmt.Sprintf(`"timeout":%s`, r.Timeout))
+		opts = append(opts, fmt.Sprintf(`timeout:%s`, r.Timeout))
 	}
 	if r.Credentials != "" {
-		opts = append(opts, fmt.Sprintf(`"credentials": %s`, r.Credentials))
+		opts = append(opts, fmt.Sprintf(`credentials:%s`, r.Credentials))
 	}
 	if r.NoHeaders != "" {
-		opts = append(opts, fmt.Sprintf(`"noHeaders": %s`, r.NoHeaders))
+		opts = append(opts, fmt.Sprintf(`noHeaders:%s`, r.NoHeaders))
 	}
 
 	value := strings.Join(opts, ",")

@@ -2,6 +2,7 @@ package htmx_test
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	g "github.com/maragudk/gomponents"
@@ -40,4 +41,49 @@ func ExampleNewGomponents() {
 
 	_ = component.Render(os.Stdout)
 	// Output: <form hx-boost="true" hx-post="/submit" hx-swap="outerHTML" id="form"><input name="firstName"><button type="submit">Submit</button></form>
+}
+
+func TestRender(t *testing.T) {
+	tests := []struct {
+		name string
+		node htmx.GomponentsAttrs
+		want string
+	}{
+		{
+			name: "string value",
+			node: gomHx.Boost(true),
+			want: ` hx-boost="true"`,
+		},
+		{
+			name: "bool value",
+			node: gomHx.Preserve(),
+			want: ` hx-preserve`,
+		},
+		{
+			name: "invalid value",
+			node: htmx.GomponentsAttrs{},
+			want: ``,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Check that render renders the expected value to a writer.
+			builder := strings.Builder{}
+			err := tt.node.Render(&builder)
+			if err != nil {
+				t.Errorf("got error %v, want %s", err, tt.want)
+			}
+			got := builder.String()
+			if got != tt.want {
+				t.Errorf("got %s, want %s", got, tt.want)
+			}
+			// Check that .String() returns the same expected value.
+			string := tt.node.String()
+			if string != tt.want {
+				t.Errorf("for String got %s, want %s", string, tt.want)
+			}
+		})
+	}
+
 }
