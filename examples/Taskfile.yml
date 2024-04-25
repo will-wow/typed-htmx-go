@@ -20,7 +20,7 @@ tasks:
   lint:
     desc: Run golangci-lint
     cmds:
-      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2 run
+      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2 run
 
   fmt:
     desc: Run goimports
@@ -44,7 +44,7 @@ tasks:
     cmds:
       - templ generate
       # Re-format generated code
-      - go run golang.org/x/tools/cmd/goimports@v0.18.0 -w -local github.com/will-wow/typed-htmx-go/examples ./
+      - go run golang.org/x/tools/cmd/goimports@v0.20.0 -w -local github.com/will-wow/typed-htmx-go/examples ./
     sources:
       - "**/*.templ"
     generates:

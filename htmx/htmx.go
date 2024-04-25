@@ -98,7 +98,7 @@ func (hx *HX[T]) Get(url string) T {
 
 // Post will cause an element to issue a POST to the specified URL and swap the HTML into the DOM using a swap strategy.
 //
-//	<button { hx.Post("/accounts/enable").Target("body")... }>
+//	<button { hx.Post("/accounts/enable")... } { hx.Target("body")... }>
 //	  Enable Your Account
 //	</button>
 //
@@ -197,7 +197,7 @@ func (hx *HX[T]) PushURL(on bool) T {
 //
 // # Example
 //
-//	<div { hx.Get("/account").PushURLPath("/account/home")... }>
+//	<div { hx.Get("/account")...} { hx.PushURLPath("/account/home")... }>
 //		Go to My Account
 //	</div>
 //
@@ -219,7 +219,11 @@ func (hx *HX[T]) PushURLPath(url string) T {
 // Here is an example that selects a subset of the response content:
 //
 //	<div>
-//		<button { hx.Get("/info").Select("#info-details").Swap(swap.outerHTML)... } >
+//		<button
+//			{ hx.Get("/info")... }
+//			{ hx.Select("#info-details")... }
+//			{ hx.Swap(swap.OuterHTML)... }
+//		>
 //			Get Info!
 //		</button>
 //	</div>
@@ -243,16 +247,14 @@ func (hx *HX[T]) Select(selector StandardCSSSelector) T {
 // Here is an example that selects a subset of the response content:
 //
 //	<div>
-//	   <div id="alert"></div>
-//	    <button
-//				{ hx.
-//					Get("/info").
-//					Select("#info-details").
-//					Swap(swap.OuterHTML).
-//					SelectOOB("#alert").
-//					Build()... }
+//		<div id="alert"></div>
+//	  	<button
+//				{ hx.Get("/info")... }
+//				{ hx.Select("#info-details")... }
+//				{ hx.Swap(swap.OuterHTML)... }
+//				{ hx.SelectOOB("#alert")... }
 //			>
-//	        Get Info!
+//	    	Get Info!
 //	    </button>
 //	</div>
 //
@@ -263,14 +265,12 @@ func (hx *HX[T]) Select(selector StandardCSSSelector) T {
 // For example, to prepend the alert content instead of replacing it:
 //
 //	<div>
-//	   <div id="alert"></div>
-//	    <button
-//				{ hx.
-//					Get("/info").
-//					Select("#info-details").
-//					Swap(swap.OuterHTML).
-//					SelectOOB("#alert:afterbegin").
-//					Build()... }
+//	<div id="alert"></div>
+//	   <button
+//				{ hx.Get("/info")... }
+//				{ hx.Select("#info-details")... }
+//				{ hx.Swap(swap.OuterHTML)... }
+//				{ hx.SelectOOB("#alert:afterbegin")... }
 //			>
 //	        Get Info!
 //	    </button>
@@ -303,14 +303,12 @@ type SelectOOBStrategy struct {
 //	<div>
 //	   <div id="alert"></div>
 //	    <button
-//				{ hx.
-//					Get("/info").
-//					Select("#info-details").
-//					Swap(swap.OuterHTML).
-//					SelectOOBWithStrategy(
+//				{ hx.Get("/info")... }
+//					{ hx.Select("#info-details")... }
+//					{ hx.Swap(swap.OuterHTML)... }
+//					{ hx.SelectOOBWithStrategy(
 //						htmx.SelectOOBStrategy{Selector:"#alert", Strategy: swap.AfterBegin},
-//					).
-//					Build()... }
+//					)... }
 //			>
 //	        Get Info!
 //	    </button>
@@ -340,7 +338,7 @@ func (hx *HX[T]) SelectOOBWithStrategy(selectors ...SelectOOBStrategy) T {
 //
 // So in this code:
 //
-//	<div { hx.Get("/example").Swap(swap.AfterEnd)... } >
+//	<div { hx.Get("/example")... } { hx.Swap(swap.AfterEnd)... } >
 //		Get Some HTML & Append It
 //	</div>
 //
@@ -359,7 +357,10 @@ func (hx *HX[T]) Swap(strategy swap.Strategy) T {
 //
 // So in this code:
 //
-//	<div { hx.Get("/example").SwapExtended(swap.New().Strategy(swap.AfterEnd))... } >
+//	<div
+//		{ hx.Get("/example")... }
+//		{ hx.SwapExtended(swap.New().Strategy(swap.AfterEnd))... }
+//	>
 //		Get Some HTML & Append It
 //	</div>
 //
@@ -452,6 +453,7 @@ func (hx *HX[T]) SwapOOBSelector(strategy swap.Strategy, cssSelector string) T {
 	return hx.attr(SwapOOB, fmt.Sprintf("%s:%s", strategy, cssSelector))
 }
 
+// A TargetSelector is a CSS selector, or a non-standard selector for the [HX.Target()] attribute.
 type TargetSelector string
 
 const (
@@ -460,6 +462,7 @@ const (
 	TargetPrevious TargetSelector = "previous" // resolves to element.previousElementSibling
 )
 
+// TargetRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Target()] attribute.
 var TargetRelative = makeRelativeSelector[RelativeModifier, TargetSelector]()
 
 // Target allows you to target a different element for swapping than the one issuing the AJAX request.
@@ -554,7 +557,11 @@ func (hx *HX[T]) Vals(vals any) T {
 //
 // When using evaluated code you can access the event object. This example includes the value of the last typed key within the input.
 //
-//	<div { hx.Get("/example").Trigger("keyup").ValsJS(map[string]string{"lastKey": "event.key"})... } >
+//	<div
+//		{ hx.Get("/example")... }
+//		{ hx.Trigger("keyup")... }
+//		{ hx.ValsJS(map[string]string{"lastKey": "event.key"})... }
+//	>
 //		<input type="text" />
 //	</div>
 //
@@ -581,7 +588,7 @@ func (hx *HX[T]) ValsJS(vals map[string]string) T {
 //
 // Here is an example:
 //
-//	<button { hx.Delete("/account").Confirm("Are you sure you wish to delete you account?")... }>
+//	<button { hx.Delete("/account")... } {hx.Confirm("Are you sure you wish to delete you account?")... }>
 //	  Delete My Account
 //	</button>
 //
@@ -608,7 +615,7 @@ func (hx *HX[T]) Confirm(msg string) T {
 
 // Delete will cause an element to issue a DELETE to the specified URL and swap the HTML into the DOM using a swap strategy:
 //
-//	<button { hx.Delete("/account").Target("body")... } >
+//	<button { hx.Delete("/account")... } { hx.Target("body")... } >
 //		Delete Your Account
 //	</button>
 //
@@ -643,14 +650,17 @@ func (hx *HX[T]) Disable() T {
 	return hx.attr(Disable, true)
 }
 
+// A DisabledEltModifier is a valid relative modifier for the [HX.DisabledElt] attribute.
 type DisabledEltModifier string
 
-const DisabledEltClosest DisabledEltModifier = "closest"
+const DisabledEltClosest DisabledEltModifier = "closest" // find the closest ancestor element or itself, that matches the given CSS selector
 
+// A DisabledEltSelector is a CSS selector, or a non-standard selector for the [HX.DisabledElt()] attribute.
 type DisabledEltSelector string
 
-const DisabledEltThis DisabledEltSelector = "this"
+const DisabledEltThis DisabledEltSelector = "this" // indicates that this element should disable itself during the request.
 
+// DisabledEltRelative allows you to narrow a CSS selector with the allowed relative modifier `closest`, and pass it to the [HX.DisabledElt] attribute.
 var DisabledEltRelative = makeRelativeSelector[DisabledEltModifier, DisabledEltSelector]()
 
 // DisabledElt allows you to specify elements that will have the disabled attribute added to them for the duration of the request.
@@ -659,7 +669,7 @@ var DisabledEltRelative = makeRelativeSelector[DisabledEltModifier, DisabledEltS
 //
 // Here is an example with a button that will disable itself during a request:
 //
-//	<button { hx.Post("/example").DisabledElt(hx.This)... } >
+//	<button { hx.Post("/example")... } { hx.DisabledElt(hx.This)... } >
 //		Post It!
 //	</button>
 //
@@ -678,13 +688,22 @@ func (hx *HX[T]) DisabledElt(extendedSelector DisabledEltSelector) T {
 //
 // An example scenario is to allow you to place an hx-boost on the body element of a page, but overriding that behavior in a specific part of the page to allow for more specific behaviors.
 //
-//	<div { hx.Boost(true).Select("#content").Target("#content").Disinherit(hx.Target)... } >
+//	<div
+//		{ hx.Boost(true).. }
+//		{ hx.Select("#content").. }
+//		{ hx.Target("#content").. }
+//		{ hx.Disinherit(hx.Target)... }
+//	>
 //		<!-- hx-select is automatically set to parent value; hx-target is not inherited -->
 //	  <button { hx.Get("/test")... }></button>
 //	</div>
 //
 //	<div { hx.Select("#content")... } >
-//		<div { hx.Boost(true).Target("#content").Disinherit(hx.Select)... }>
+//		<div
+//			{ hx.Boost(true)... }
+//			{ hx.Target("#content")... }
+//			{ hx.Disinherit(hx.Select)... }
+//		>
 //	  	<!-- hx-target is automatically inherited from parent value -->
 //	    <!-- hx-select is not inherited, because the direct parent does
 //	    disables inheritance, despite not specifying hx-select itself -->
@@ -716,10 +735,15 @@ func (hx *HX[T]) Disinherit(attr ...Attribute) T {
 //
 // An example scenario is to allow you to place an hx-boost on the body element of a page, but overriding that behavior in a specific part of the page to allow for more specific behaviors.
 //
-//	<div { hx.Boost(true).Select("#content").Target("#content").DisinheritAll()... } hx-boost="true" >
+//	<div
+//		{ hx.Boost(true)... }
+//		{ hx.Select("#content")... }
+//		{ hx.Target("#content")... }
+//		{ hx.DisinheritAll()... }
+//	>
 //		<a href="/page1">Go To Page 1</a> <!-- boosted with the attribute settings above -->
-//	  <a href="/page2" { hx.Unset(hx.Boost)... } >Go To Page 1</a> <!-- not boosted -->
-//	  <button { hx.Get("/test").TargetNonStandard(hx.TargetThis)... }></button> <!-- hx-select is not inherited -->
+//		<a href="/page2" { hx.Unset(hx.Boost)... } >Go To Page 1</a> <!-- not boosted -->
+//		<button { hx.Get("/test")... } { hx.TargetNonStandard(hx.TargetThis)... }></button> <!-- hx-select is not inherited -->
 //	</div>
 //
 // Notes
@@ -737,7 +761,7 @@ func (hx *HX[T]) DisinheritAll() T {
 // An EncodingContentType is a valid encoding override for an [HX.Encoding()].
 type EncodingContentType string
 
-// support file uploads in an ajax request
+// An EncodingMultipart supports file uploads in an ajax request with [HX.Encoding()].
 const EncodingMultipart EncodingContentType = "multipart/form-data"
 
 // Encoding allows you to switch the request encoding from the usual application/x-www-form-urlencoded encoding to multipart/form-data, usually to support file uploads in an ajax request.
@@ -887,6 +911,7 @@ type IncludeSelector string
 
 const IncludeThis IncludeSelector = "this"
 
+// IncludeRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Include()] attribute.
 var IncludeRelative = makeRelativeSelector[RelativeModifier, IncludeSelector]()
 
 // Include allows you to include additional element values in an AJAX request.
@@ -904,6 +929,7 @@ const IndicatorClosest IndicatorModifier = "closest"
 
 type IndicatorSelector string
 
+// IndicatorRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Indicator()] attribute.
 var IndicatorRelative = makeRelativeSelector[IndicatorModifier, IndicatorSelector]()
 
 // The hx-indicator attribute allows you to specify the element that will have the htmx-request class added to it for the duration of the request. This can be used to show spinners or progress indicators while the request is in flight.
@@ -919,7 +945,7 @@ func (hx *HX[T]) Indicator(extendedSelector IndicatorSelector) T {
 
 // ParamsAll allows you to include all parameters with an AJAX request (default).
 //
-//	<div { hx.Get("/example").ParamsAll()... }>Get Some HTML, Including Params</div>
+//	<div { hx.Get("/example")... } { hx.ParamsAll()... }>Get Some HTML, Including Params</div>
 //
 // This div will include all the parameters that a POST would, but they will be URL encoded and included in the URL, as per usual with a GET.
 //
@@ -974,6 +1000,26 @@ func (hx *HX[T]) ParamsNot(paramNames ...string) T {
 	return hx.attr(Params, fmt.Sprintf("not %s", strings.Join(paramNames, ",")))
 }
 
+// Patch will cause an element to issue a PATCH to the specified URL and swap the HTML into the DOM using a swap strategy.
+//
+//	<button { hx.Patch("/account")... } { hx.Target("body")...} >
+//	  Patch Your Account
+//	</button>
+//
+// This example will cause the button to issue a PATCH to /account and swap the returned HTML into the innerHTML of the body.
+//
+// # Notes
+//
+//   - hx-patch is not inherited
+//   - You can control the target of the swap using the [HX.Target()] attribute
+//   - You can control the swap strategy by using the [HX.Swap()] attribute
+//   - You can control what event triggers the request with the [HX.Trigger()] attribute
+//   - You can control the data submitted with the request in various ways, documented here: [Parameters]
+//
+// HTMX Attribute: [hx-patch]
+//
+// [Parameters]: https://htmx.org/docs/#parameters
+// [hx-patch]: https://htmx.org/attributes/hx-patch/
 func (hx *HX[T]) Patch(url string) T {
 	return hx.attr(Patch, url)
 }
@@ -984,7 +1030,7 @@ func (hx *HX[T]) Patch(url string) T {
 //
 // # Notes
 //
-// hx-preserve is not inherited
+//   - hx-preserve is not inherited
 //
 // HTMX Attribute: [hx-preserve]
 //
@@ -994,10 +1040,44 @@ func (hx *HX[T]) Preserve() T {
 	return hx.attr(Preserve, true)
 }
 
+// Prompt allows you to show a prompt before issuing a request. The value of the prompt will be included in the request in the HX-Prompt header.
+// Here is an example:
+//
+//	<button { hx.Delete("/account")... } { hx.Prompt("Enter your account name to confirm deletion")... }>
+//	  Delete My Account
+//	</button>
+//
+// # Notes
+//
+//   - hx-prompt is inherited and can be placed on a parent element
+//
+// HTMX Attribute: [hx-prompt]
+//
+// [hx-prompt]: https://htmx.org/attributes/hx-prompt/
 func (hx *HX[T]) Prompt(msg string) T {
 	return hx.attr(Prompt, msg)
 }
 
+// Put will cause an element to issue a PUT to the specified URL and swap the HTML into the DOM using a swap strategy.
+//
+//	<button { hx.Patch("/account")... } { hx.Target("body")...} >
+//		Put Money In Your Account
+//	</button>
+//
+// This example will cause the button to issue a PUT to /account and swap the returned HTML into the innerHTML of the body.
+//
+// # Notes
+//
+//   - hx-put is not inherited
+//   - You can control the target of the swap using the [HX.Target()] attribute
+//   - You can control the swap strategy by using the [HX.Swap()] attribute
+//   - You can control what event triggers the request with the [HX.Trigger()] attribute
+//   - You can control the data submitted with the request in various ways, documented here: [Parameters]
+//
+// HTMX Attribute: [hx-put]
+//
+// [Parameters]: https://htmx.org/docs/#parameters
+// [hx-put]: https://htmx.org/attributes/hx-put/
 func (hx *HX[T]) Put(url string) T {
 	return hx.attr(Put, url)
 }
@@ -1011,7 +1091,7 @@ func (hx *HX[T]) Put(url string) T {
 //
 // Here is an example:
 //
-//	<div { hx.Get("/account").ReplaceURL(true)... } >
+//	<div { hx.Get("/account")... } { hx.ReplaceURL(true)... } >
 //		Go to My Account
 //	</div>
 //
@@ -1033,7 +1113,7 @@ func (hx *HX[T]) ReplaceURL(on bool) T {
 // ReplaceURLWith allows you to replace the current url of the browser location history with
 // a URL to be replaced into the location bar. This may be relative or absolute, as per [history.replaceState()].
 //
-//	<div { hx.Get("/account").ReplaceURLWith("/account/home")... } >
+//	<div { hx.Get("/account")... } { hx.ReplaceURLWith("/account/home")... } >
 //		Go to My Account
 //	</div>
 //
@@ -1053,7 +1133,7 @@ func (hx *HX[T]) ReplaceURLWith(url string) T {
 	return hx.attr(ReplaceURL, url)
 }
 
-// RequestConfig describes static hx-request attributes
+// RequestConfig describes static [HX.Request()] attributes
 // See https://htmx.org/attributes/hx-request/
 type RequestConfig struct {
 	Timeout     time.Duration // the timeout for the request
@@ -1061,6 +1141,7 @@ type RequestConfig struct {
 	NoHeaders   bool          // strips all headers from the request
 }
 
+// String returns the string representation of the RequestConfig, used internally by [HX.Request()].
 func (r RequestConfig) String() string {
 	opts := []string{}
 
@@ -1077,8 +1158,18 @@ func (r RequestConfig) String() string {
 	return strings.Join(opts, ",")
 }
 
-// Request allows you to configure various aspects of the request.
-// These attributes are set using a JSON-like syntax.
+// Request allows you to configure various aspects of the request via attributes.
+// See [RequestConfig] for the available options.
+//
+// These attributes are set using a JSON-like syntax:
+//
+//	<div
+//		{ hx.Request(htmx.RequestConfig{
+//			Timeout:     time.Second,
+//			Credentials: true,
+//			NoHeaders:   true,
+//		})... }
+//	>...</div>
 //
 // HTMX Attribute: [hx-request]
 //
@@ -1087,14 +1178,18 @@ func (hx *HX[T]) Request(request RequestConfig) T {
 	return hx.attr(Request, request.String())
 }
 
-// RequestConfigJS describes runtime hx-request attributes
-// See https://htmx.org/attributes/hx-request/
+// A RequestConfigJS describes runtime [HX.RequestJS()] attributes.
+//
+// To pass a literal string, use wrap it in quotes like "'string'".
+//
+// See https://htmx.org/attributes/hx-request/ for more details
 type RequestConfigJS struct {
 	Timeout     string // the timeout for the request in milliseconds
 	Credentials string // if the request will send credentials
 	NoHeaders   string // strips all headers from the request
 }
 
+// String returns the string representation of the RequestConfig, used internally by [HX.RequestJS()].
 func (r RequestConfigJS) String() string {
 	opts := []string{}
 
@@ -1113,7 +1208,15 @@ func (r RequestConfigJS) String() string {
 }
 
 // RequestJS allows you to configure various aspects of the request, with each value being a valid JavaScript expression.
-// To pass a literal string, use wrap it in quotes like "'string'".
+// See [RequestConfigJS] for the available options.
+//
+//	<div
+//		{ hx.RequestJS(htmx.RequestConfigJS{
+//			Timeout:     "getTimeoutSetting()",
+//			Credentials: "true",
+//			NoHeaders:   "noHeaders()",
+//		})... }
+//	>...</div>
 //
 // HTMX Attribute: [hx-request]
 //
@@ -1122,17 +1225,19 @@ func (hx *HX[T]) RequestJS(request RequestConfigJS) T {
 	return hx.attr(Request, request.String())
 }
 
+// A SyncSelector is a CSS selector, or a non-standard selector for the [HX.Sync()] attribute.
 type SyncSelector string
 
-const SyncThis SyncSelector = "this"
+const SyncThis SyncSelector = "this" // synchronize requests from the current element.
 
+// SyncRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Sync()] attribute.
 var SyncRelative = makeRelativeSelector[RelativeModifier, SyncSelector]()
 
-// SyncStrategy allows you to synchronize AJAX requests between multiple elements.
+// Sync allows you to synchronize AJAX requests between multiple elements, using a CSS selector to indicate the element to synchronize on.
 //
 // The hx-sync attribute consists of a CSS selector to indicate the element to synchronize on. By default, this will use the [SyncDrop] strategy.
 //
-// You can pass [hx.SyncThis] as a selector to synchronize requests from the current element.
+// You can pass [SyncThis] as a selector to synchronize requests from the current element.
 //
 // # Notes
 //   - hx-sync is inherited and can be placed on a parent element
@@ -1144,10 +1249,10 @@ func (hx *HX[T]) Sync(extendedSelector SyncSelector) T {
 	return hx.attr(Sync, string(extendedSelector))
 }
 
+// A SyncStrategy describes how to synchronize AJAX requests with [HX.SyncStrategy()].
 type SyncStrategy string
 
 const (
-	SyncDefault    SyncStrategy = ""
 	SyncDrop       SyncStrategy = "drop"        // drop (ignore) this request if an existing request is in flight (the default)
 	SyncAbort      SyncStrategy = "abort"       // drop (ignore) this request if an existing request is in flight, and, if that is not the case, abort this request if another request occurs while it is still in flight
 	SyncReplace    SyncStrategy = "replace"     // abort the current request, if any, and replace it with this request
@@ -1193,16 +1298,6 @@ func (hx *HX[T]) Validate(validate bool) T {
 func (hx *HX[T]) Unset(attr Attribute) T {
 	return hx.attr(attr, "unset")
 }
-
-// // set sets a valid attribute to a value.
-// func (hx *HX[T]) set(key Attribute, value any) T {
-// 	return T{string(key): value}
-// }
-
-// // set sets a non-standard attribute to a value.
-// func (hx *HX[T]) setOther(key string, value any) T {
-// 	return T{key: value}
-// }
 
 // An Attribute is a valid HTMX attribute name. Used for general type changes like `unset` and `disinherit`.
 type Attribute string
@@ -1295,6 +1390,7 @@ func joinStringLikes[T ~string](elems []T, sep string) string {
 	return strings.Join(stringElems, sep)
 }
 
+// makeRelativeSelector creates a function that combines an allowed relative modifier with a CSS selector and returns a typed result.
 func makeRelativeSelector[Modifier ~string, Selector ~string]() func(Modifier, string) Selector {
 	return func(modifier Modifier, selector string) Selector {
 		return Selector(fmt.Sprintf("%s %s", modifier, selector))

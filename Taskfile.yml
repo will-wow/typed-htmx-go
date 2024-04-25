@@ -39,7 +39,7 @@ tasks:
   lint:go:
     desc: Run golangci-lint
     cmds:
-      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2 run
+      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2 run
 
   publish:
     desc: Publish a version
@@ -57,7 +57,7 @@ tasks:
     cmds:
       - go work sync
       - go mod tidy
-      - go run golang.org/x/tools/cmd/goimports@v0.18.0 -w -local github.com/will-wow/typed-htmx-go .
+      - go run golang.org/x/tools/cmd/goimports@v0.20.0 -w -local github.com/will-wow/typed-htmx-go .
 
   fmt:prettier:
     desc: Run prettier on non-go files
