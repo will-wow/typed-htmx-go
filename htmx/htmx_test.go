@@ -10,30 +10,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 )
 
-type Attrs map[string]any
-
-func (a Attrs) String() string {
-	for k, v := range a {
-		switch v := v.(type) {
-		// For strings, print the key='value' pair.
-		case string:
-			return fmt.Sprintf(`%s='%v'`, k, v)
-		// For booleans, print just the key if true.
-		case bool:
-			if v {
-				return k
-			}
-		}
-	}
-
-	return ""
-}
-
-var hx = htmx.NewHX(func(key htmx.Attribute, value any) Attrs {
-	return Attrs{string(key): value}
-})
-
-type HX = htmx.HX[Attrs]
+var hx = htmx.NewStringAttrs()
 
 func ExampleHX_Boost() {
 	fmt.Println(hx.Boost(true))

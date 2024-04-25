@@ -44,7 +44,7 @@ func ExampleHX_Config() {
 		TriggerSpecsCache("cacheObject"), // Default is nil, this is an example
 	)
 
-	fmt.Println(config.String())
+	fmt.Println(config)
 
 	// output: content='{"addedClass":"htmx-added","allowEval":true,"allowScriptTags":true,"attributesToSettle":["foo"],"defaultFocusScroll":false,"defaultSettleDelay":20,"defaultSwapDelay":0,"defaultSwapStyle":"innerHTML","disableSelector":"[hx-disable], [data-hx-disable]","getCacheBusterParam":false,"globalViewTransitions":false,"historyCacheSize":10,"historyEnabled":true,"ignoreTitle":false,"includeIndicatorStyles":true,"indicatorClass":"htmx-indicator","inlineScriptNonce":"nonce","methodsThatUseUrlParams":["get"],"refreshOnHistoryMiss":false,"requestClass":"htmx-request","scrollBehavior":"smooth","scrollIntoViewOnBoost":true,"selfRequestsOnly":false,"settlingClass":"htmx-settling","swappingClass":"htmx-swapping","timeout":1000,"triggerSpecsCache":"cacheObject","useTemplateFragments":false,"withCredentials":false,"wsBinaryType":"blob","wsReconnectDelay":"full-jitter"}'
 }

@@ -4,95 +4,113 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 )
 
+var hx = htmx.NewStringAttrs()
+
 func ExampleNew_default() {
-	builder := swap.New()
-	fmt.Println(builder.String())
-	// Output: innerHTML
+	fmt.Println(
+		hx.SwapExtended(swap.New()),
+	)
+	// output: hx-swap='innerHTML'
 }
 
 func ExampleBuilder_Strategy() {
-	builder := swap.New().Strategy(swap.OuterHTML)
-	fmt.Println(builder.String())
-	// Output: outerHTML
+	fmt.Println(
+		hx.SwapExtended(swap.New().Strategy(swap.OuterHTML)),
+	)
+	// output: hx-swap='outerHTML'
 }
 
 func ExampleBuilder_Transition() {
-	builder := swap.New().Transition()
-	fmt.Println(builder.String())
-	// Output: innerHTML transition:true
+	fmt.Println(
+		hx.SwapExtended(swap.New().Transition()),
+	)
+	// output: hx-swap='innerHTML transition:true'
 }
 
 func ExampleBuilder_Swap_timing() {
-	builder := swap.New().Swap(500 * time.Millisecond)
-	fmt.Println(builder.String())
-	// Output: innerHTML swap:500ms
+	fmt.Println(
+		hx.SwapExtended(swap.New().Swap(500 * time.Millisecond)),
+	)
+	// output: hx-swap='innerHTML swap:500ms'
 }
 
 func ExampleBuilder_Settle_timing() {
-	builder := swap.New().Settle(500 * time.Millisecond)
-	fmt.Println(builder.String())
-	// Output: innerHTML settle:500ms
+	fmt.Println(
+		hx.SwapExtended(swap.New().Settle(500 * time.Millisecond)),
+	)
+	// output: hx-swap='innerHTML settle:500ms'
 }
 
 func ExampleBuilder_IgnoreTitle() {
-	builder := swap.New().IgnoreTitle()
-	fmt.Println(builder.String())
-	// Output: innerHTML ignoreTitle:true
+	fmt.Println(
+		hx.SwapExtended(swap.New().IgnoreTitle()),
+	)
+	// output: hx-swap='innerHTML ignoreTitle:true'
 }
 
 func ExampleBuilder_Scroll() {
-	builder := swap.New().Scroll(swap.Top)
-	fmt.Println(builder.String())
-	// Output: innerHTML scroll:top
+	fmt.Println(
+		hx.SwapExtended(swap.New().Scroll(swap.Top)),
+	)
+	// output: hx-swap='innerHTML scroll:top'
 }
 
 func ExampleBuilder_ScrollElement() {
-	builder := swap.New().ScrollElement("#example", swap.Top)
-	fmt.Println(builder.String())
-	// Output: innerHTML scroll:#example:top
+	fmt.Println(
+		hx.SwapExtended(swap.New().ScrollElement("#example", swap.Top)),
+	)
+	// output: hx-swap='innerHTML scroll:#example:top'
 }
 
 func ExampleBuilder_Show() {
-	builder := swap.New().Show(swap.Bottom)
-	fmt.Println(builder.String())
-	// Output: innerHTML show:bottom
+	fmt.Println(
+		hx.SwapExtended(swap.New().Show(swap.Bottom)),
+	)
+	// output: hx-swap='innerHTML show:bottom'
 }
 
 func ExampleBuilder_ShowElement() {
-	builder := swap.New().ShowElement("#example", swap.Bottom)
-	fmt.Println(builder.String())
-	// Output: innerHTML show:#example:bottom
+	fmt.Println(
+		hx.SwapExtended(swap.New().ShowElement("#example", swap.Bottom)),
+	)
+	// output: hx-swap='innerHTML show:#example:bottom'
 }
 
 func ExampleBuilder_Show_window() {
-	builder := swap.New().ShowElement(swap.ShowWindow, swap.Top)
-	fmt.Println(builder.String())
-	// Output: innerHTML show:window:top
+	fmt.Println(
+		hx.SwapExtended(swap.New().ShowElement(swap.ShowWindow, swap.Top)),
+	)
+	// output: hx-swap='innerHTML show:window:top'
 }
 
 func ExampleBuilder_ShowNone() {
-	builder := swap.New().ShowNone()
-	fmt.Println(builder.String())
-	// Output: innerHTML show:none
+	fmt.Println(
+		hx.SwapExtended(swap.New().ShowNone()),
+	)
+	// output: hx-swap='innerHTML show:none'
 }
 
 func ExampleBuilder_FocusScroll() {
-	builder := swap.New().FocusScroll(true)
-	fmt.Println(builder.String())
-	// Output: innerHTML focus-scroll:true
+	fmt.Println(
+		hx.SwapExtended(swap.New().FocusScroll(true)),
+	)
+	// output: hx-swap='innerHTML focus-scroll:true'
 }
 
 func ExampleBuilder_FocusScroll_disable() {
-	builder := swap.New().FocusScroll(false)
-	fmt.Println(builder.String())
-	// Output: innerHTML focus-scroll:false
+	fmt.Println(
+		hx.SwapExtended(swap.New().FocusScroll(false)),
+	)
+	// output: hx-swap='innerHTML focus-scroll:false'
 }
 
 func ExampleBuilder_Clear() {
-	builder := swap.New().Transition().Clear(swap.Transition)
-	fmt.Println(builder.String())
-	// Output: innerHTML
+	fmt.Println(
+		hx.SwapExtended(swap.New().Transition().Clear(swap.Transition)),
+	)
+	// output: hx-swap='innerHTML'
 }
