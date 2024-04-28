@@ -44,6 +44,11 @@ func Page() g.Node {
 					"Active Search",
 					"Demonstrates the active search box pattern",
 				),
+				exampleRow(
+					"/examples/gomponents/progress-bar",
+					"Progress Bar",
+					"Demonstrates a job-runner like progress bar",
+				),
 			),
 		),
 	)

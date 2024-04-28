@@ -10,7 +10,7 @@ type Poll struct {
 	filter string
 }
 
-// Every creates a new polling trigger.
+// Every creates a new polling trigger for [htmx.HX.TriggerExtended].
 func Every(timing time.Duration) *Poll {
 	return &Poll{
 		timing: timing,
