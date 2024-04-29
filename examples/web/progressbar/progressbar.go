@@ -80,7 +80,7 @@ func (ex *example) progress(w http.ResponseWriter, r *http.Request) {
 
 	if ex.gom {
 		res.MustWrite(w)
-		_ = exgom.Page().Render(w)
+		_ = exgom.ProgressBar(progress).Render(w)
 	} else {
 		res.MustRenderTempl(r.Context(), w, extempl.ProgressBar(progress))
 	}
@@ -106,7 +106,7 @@ func (ex *example) job(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ex.gom {
-		_ = exgom.Page().Render(w)
+		_ = exgom.Job(id, progress).Render(w)
 	} else {
 		_ = extempl.Job(id, progress).Render(r.Context(), w)
 	}

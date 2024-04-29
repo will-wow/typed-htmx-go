@@ -45,3 +45,10 @@
   transition: width 0.6s ease;
 }
 /*ex:end:progress-bar-style*/
+.progress-bar-demo #restart-btn {
+  opacity: 0;
+}
+.progress-bar-demo #restart-btn.show {
+  opacity: 1;
+  transition: opacity 100ms ease-in;
+}

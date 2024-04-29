@@ -11,6 +11,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/examples/web/static"
 	"github.com/will-wow/typed-htmx-go/examples/web/progressbar/shared"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"github.com/will-wow/typed-htmx-go/htmx/ext/classtools"
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 )
@@ -68,7 +69,9 @@ templ Page() {
 			</code>
 		</pre>
 		<h2>Demo</h2>
-		@demo()
+		<div { hx.Ext(classtools.Extension)... }>
+			@demo()
+		</div>
 	}
 }
 
@@ -79,7 +82,7 @@ templ demo() {
 		{ hx.Swap(swap.OuterHTML)... }
 	>
 		<h3>Start Progress</h3>
-		<button class="btn" { hx.Post("/examples/templ/progress-bar/job/")... }>
+		<button { hx.Post("/examples/templ/progress-bar/job/")... }>
 			Start Job
 		</button>
 	</div>
@@ -89,6 +92,7 @@ templ demo() {
 templ JobRunning(jobID int64, progress int) {
 	//ex:start:running
 	<div
+		{ hx.Swap(swap.OuterHTML)... }
 		{ hx.Trigger(shared.TriggerDone)... }
 		{ hx.Get("/examples/templ/progress-bar/job/%d/", jobID)... }
 		{ hx.Swap(swap.OuterHTML)... }
@@ -114,9 +118,10 @@ templ Job(jobID int64, progress int) {
 		@ProgressBar(progress)
 		<button
 			id="restart-btn"
-			class="btn"
 			{ hx.Post("/examples/templ/progress-bar/job/")... }
-			classes="add show:600ms"
+			{ classtools.Classes(hx, []classtools.Run{{
+				classtools.Add("show", time.Millisecond*600),
+			}})... }
 		>
 			Restart Job
 		</button>

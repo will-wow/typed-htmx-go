@@ -795,6 +795,8 @@ func (hx *HX[T]) Encoding(encoding EncodingContentType) T {
 	return hx.attr(Encoding, string(encoding))
 }
 
+type Extension string
+
 // Ext enables an htmx [extension] for an element and all its children.
 //
 // The value can be one or more extension names to apply.
@@ -809,8 +811,12 @@ func (hx *HX[T]) Encoding(encoding EncodingContentType) T {
 //
 // [hx-ext]: https://htmx.org/attributes/hx-ext
 // [extension]: https://htmx.org/extensions
-func (hx *HX[T]) Ext(ext ...string) T {
-	return hx.attr(Ext, strings.Join(ext, ","))
+func (hx *HX[T]) Ext(ext ...Extension) T {
+	exts := make([]string, len(ext))
+	for i, e := range ext {
+		exts[i] = string(e)
+	}
+	return hx.attr(Ext, strings.Join(exts, ","))
 }
 
 // ExtIgnore ignores an [extension] that is defined by a parent node.
@@ -1322,6 +1328,15 @@ func (hx *HX[T]) Validate(validate bool) T {
 // Unset sets the value of the selected attributes as "unset"  to clear a property that would normally be inherited (e.g. hx-confirm).
 func (hx *HX[T]) Unset(attr Attribute) T {
 	return hx.attr(attr, "unset")
+}
+
+type ExtAttribute struct {
+	Attribute string
+	Value     any
+}
+
+func (hx *HX[T]) Attr(attribute Attribute, value any) T {
+	return hx.attr(attribute, value)
 }
 
 // An Attribute is a valid HTMX attribute name. Used for general type changes like `unset` and `disinherit`.

@@ -9,6 +9,7 @@ import (
 	g "github.com/maragudk/gomponents"
 	. "github.com/maragudk/gomponents/html"
 
+	"github.com/will-wow/typed-htmx-go/htmx/ext/classtools"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 
@@ -83,7 +84,10 @@ func Page() g.Node {
 			),
 		),
 		H2(g.Text("Demo")),
-		demo(),
+		Div(
+			hx.Ext(classtools.Extension),
+			demo(),
+		),
 	)
 }
 
@@ -94,8 +98,7 @@ func demo() g.Node {
 		hx.Swap(swap.OuterHTML),
 		H3(g.Text("Start Progress")),
 		Button(
-			Class("btn"),
-			hx.Post("/examples/templ/progress-bar/job/"),
+			hx.Post("/examples/gomponents/progress-bar/job/"),
 			g.Text("Start Job"),
 		),
 	)
@@ -106,7 +109,7 @@ func JobRunning(jobID int64, progress int) g.Node {
 	//ex:start:running
 	return Div(
 		hx.Trigger(shared.TriggerDone),
-		hx.Get("/examples/templ/progress-bar/job/%d/", jobID),
+		hx.Get("/examples/gomponents/progress-bar/job/%d/", jobID),
 		hx.Swap(swap.OuterHTML),
 		hx.Target(htmx.TargetThis),
 		H3(Role("status"), ID("pblabel"), TabIndex("-1"), AutoFocus(),
@@ -128,9 +131,10 @@ func Job(jobID int64, progress int) g.Node {
 		ProgressBar(progress),
 		Button(
 			ID("restart-btn"),
-			Class("btn"),
-			hx.Post("/examples/templ/progress-bar/job/"),
-			g.Attr("classes", "add show:600ms"),
+			hx.Post("/examples/gomponents/progress-bar/job/"),
+			classtools.Classes(hx, []classtools.Run{{
+				classtools.Add("show", time.Millisecond*600),
+			}}),
 			g.Text("Restart Job"),
 		),
 	)
@@ -140,7 +144,7 @@ func Job(jobID int64, progress int) g.Node {
 //ex:start:progress
 func ProgressFetcher(jobID int64, progress int) g.Node {
 	return Div(
-		hx.Get("/examples/templ/progress-bar/job/%d/progress/", jobID),
+		hx.Get("/examples/gomponents/progress-bar/job/%d/progress/", jobID),
 		hx.TriggerExtended(trigger.Every(time.Millisecond*600)),
 		hx.Target(htmx.TargetThis),
 		hx.Swap(swap.InnerHTML),
@@ -160,7 +164,7 @@ func ProgressBar(progress int) g.Node {
 		Div(
 			ID("pb"),
 			Class("progress-bar"),
-			// { progressWidth(progress)... }
+			StyleAttr(fmt.Sprintf(`width: %d%%`, progress)),
 		),
 	)
 }
