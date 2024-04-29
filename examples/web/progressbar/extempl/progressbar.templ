@@ -8,6 +8,7 @@ import (
 
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
 	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
+	"github.com/will-wow/typed-htmx-go/examples/web/static"
 	"github.com/will-wow/typed-htmx-go/examples/web/progressbar/shared"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/htmx"
@@ -21,7 +22,7 @@ var fs embed.FS
 var ex = exprint.New(fs, "//", "")
 
 templ Page() {
-	@layout.Wrapper("Progress Bar", "progress-bar") {
+	@layout.Wrapper("Progress Bar", "progress-bar-demo") {
 		<h1>Progress Bar</h1>
 		<p>
 			This example shows how to implement a smoothly scrolling progress bar.
@@ -31,7 +32,7 @@ templ Page() {
 		</p>
 		<pre>
 			<code class="language-go">
-				{ ex.PrintOrErr("progressbar.templ", "start") }
+				{ ex.PrintOrErr("progressbar.templ", "demo") }
 			</code>
 		</pre>
 		<p>
@@ -48,10 +49,10 @@ templ Page() {
 			</code>
 		</pre>
 		<p>
-			This progress bar is updated every 600 milliseconds, with the “width” style attribute and <code>aria-valuenow</code> attributed set to current progress value. Because there is an id on the progress bar div, htmx will smoothly transition between requests by settling the style attribute into its new value. This, when coupled with CSS transitions, makes the visual transition continuous rather than jumpy.
+			This progress bar is updated every 600 milliseconds, with the <code>width</code> style attribute and <code>aria-valuenow</code> attribute set to current progress value. Because there is an id on the progress bar div, htmx will smoothly transition between requests by settling the style attribute into its new value. This, when coupled with CSS transitions, makes the visual transition continuous rather than jumpy.
 		</p>
 		<p>
-			Finally, when the process is complete, a server returns <code>HX-Trigger: done</code> header, which triggers an update of the UI to “Complete” state with a restart button added to the UI (we are using the <code>class-tools</code> extension in this example to add fade-in effect on the button):
+			Finally, when the process is complete, a server returns a <code>HX-Trigger: done</code> header, which triggers an update of the UI to “Complete” state with a restart button added to the UI (we are using the <code>class-tools</code> extension in this example to add fade-in effect on the button):
 		</p>
 		<pre>
 			<code class="language-go">
@@ -63,16 +64,16 @@ templ Page() {
 		</p>
 		<pre>
 			<code class="language-css">
-				{ styleExample }
+				{ static.ExCSS.PrintOrErr("main.css", "progress-bar-style") }
 			</code>
 		</pre>
 		<h2>Demo</h2>
-		@Start()
+		@demo()
 	}
 }
 
-templ Start() {
-	//ex:start:start
+templ demo() {
+	//ex:start:demo
 	<div
 		{ hx.Target(htmx.TargetThis)... }
 		{ hx.Swap(swap.OuterHTML)... }
@@ -82,14 +83,14 @@ templ Start() {
 			Start Job
 		</button>
 	</div>
-	//ex:end:start
+	//ex:end:demo
 }
 
 templ JobRunning(jobID int64, progress int) {
 	//ex:start:running
 	<div
 		{ hx.Trigger(shared.TriggerDone)... }
-		{ hx.Get(fmt.Sprintf("/examples/templ/progress-bar/job/%d/", jobID))... }
+		{ hx.Get("/examples/templ/progress-bar/job/%d/", jobID)... }
 		{ hx.Swap(swap.OuterHTML)... }
 		{ hx.Target(htmx.TargetThis)... }
 	>
@@ -126,7 +127,7 @@ templ Job(jobID int64, progress int) {
 //ex:start:progress
 templ ProgressFetcher(jobID int64, progress int) {
 	<div
-		{ hx.Get(fmt.Sprintf("/examples/templ/progress-bar/job/%d/progress/", jobID))... }
+		{ hx.Get("/examples/templ/progress-bar/job/%d/progress/", jobID)... }
 		{ hx.TriggerExtended(trigger.Every(time.Millisecond * 600))... }
 		{ hx.Target(htmx.TargetThis)... }
 		{ hx.Swap(swap.InnerHTML)... }
@@ -159,29 +160,3 @@ func progressWidth(percent int) templ.Attributes {
 }
 
 //ex:end:progress
-
-var styleExample = `
-.progress {
-    height: 20px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
-}
-.progress-bar {
-    float: left;
-    width: 0%;
-    height: 100%;
-    font-size: 12px;
-    line-height: 20px;
-    color: #fff;
-    text-align: center;
-    background-color: #337ab7;
-    -webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
-    -webkit-transition: width .6s ease;
-    -o-transition: width .6s ease;
-    transition: width .6s ease;
-}
-`
