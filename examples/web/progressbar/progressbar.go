@@ -39,15 +39,18 @@ func (ex *example) demo(w http.ResponseWriter, r *http.Request) {
 	if ex.gom {
 		_ = exgom.Page().Render(w)
 	} else {
-		component := extempl.Page()
-		_ = component.Render(r.Context(), w)
+		_ = extempl.Page().Render(r.Context(), w)
 	}
 }
 
 func (ex *example) start(w http.ResponseWriter, r *http.Request) {
 	id := ex.jobs.add()
-	component := extempl.JobRunning(id, 0)
-	_ = component.Render(r.Context(), w)
+
+	if ex.gom {
+		_ = exgom.JobRunning(id, 0).Render(w)
+	} else {
+		_ = extempl.JobRunning(id, 0).Render(r.Context(), w)
+	}
 }
 
 func (ex *example) progress(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +78,12 @@ func (ex *example) progress(w http.ResponseWriter, r *http.Request) {
 		res = res.AddTrigger(htmx.Trigger(shared.TriggerDone))
 	}
 
-	res.MustRenderTempl(r.Context(), w, extempl.ProgressBar(progress))
+	if ex.gom {
+		res.MustWrite(w)
+		_ = exgom.Page().Render(w)
+	} else {
+		res.MustRenderTempl(r.Context(), w, extempl.ProgressBar(progress))
+	}
 }
 
 func (ex *example) job(w http.ResponseWriter, r *http.Request) {
@@ -97,8 +105,11 @@ func (ex *example) job(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := htmx.NewResponse()
-	res.MustRenderTempl(r.Context(), w, extempl.Job(id, progress))
+	if ex.gom {
+		_ = exgom.Page().Render(w)
+	} else {
+		_ = extempl.Job(id, progress).Render(r.Context(), w)
+	}
 }
 
 type job struct {
