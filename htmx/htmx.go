@@ -92,7 +92,10 @@ func (hx *HX[T]) Boost(boost bool) T {
 //
 // [hx-get]: https://htmx.org/attributes/hx-get/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (hx *HX[T]) Get(url string) T {
+func (hx *HX[T]) Get(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
 	return hx.attr(Get, url)
 }
 
@@ -115,7 +118,10 @@ func (hx *HX[T]) Get(url string) T {
 //
 // [hx-post]: https://htmx.org/attributes/hx-post/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (hx *HX[T]) Post(url string) T {
+func (hx *HX[T]) Post(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
 	return hx.attr(Post, url)
 }
 
@@ -210,7 +216,11 @@ func (hx *HX[T]) PushURL(on bool) T {
 // HTMX Attribute: [hx-push-url]
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
-func (hx *HX[T]) PushURLPath(url string) T {
+func (hx *HX[T]) PushURLPath(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(PushURL, url)
 }
 
@@ -635,7 +645,11 @@ func (hx *HX[T]) Confirm(msg string) T {
 // [hx-delete]: https://htmx.org/attributes/hx-delete
 // [Parameters]: https://htmx.org/docs/#parameters
 // [Requests & Responses]: https://htmx.org/docs/#requests
-func (hx *HX[T]) Delete(url string) T {
+func (hx *HX[T]) Delete(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(Delete, url)
 }
 
@@ -1020,7 +1034,11 @@ func (hx *HX[T]) ParamsNot(paramNames ...string) T {
 //
 // [Parameters]: https://htmx.org/docs/#parameters
 // [hx-patch]: https://htmx.org/attributes/hx-patch/
-func (hx *HX[T]) Patch(url string) T {
+func (hx *HX[T]) Patch(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(Patch, url)
 }
 
@@ -1078,7 +1096,10 @@ func (hx *HX[T]) Prompt(msg string) T {
 //
 // [Parameters]: https://htmx.org/docs/#parameters
 // [hx-put]: https://htmx.org/attributes/hx-put/
-func (hx *HX[T]) Put(url string) T {
+func (hx *HX[T]) Put(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
 	return hx.attr(Put, url)
 }
 
@@ -1129,7 +1150,11 @@ func (hx *HX[T]) ReplaceURL(on bool) T {
 //
 // [hx-replace]: https://htmx.org/attributes/hx-replace/
 // [history.replaceState()]: https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
-func (hx *HX[T]) ReplaceURLWith(url string) T {
+func (hx *HX[T]) ReplaceURLWith(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(ReplaceURL, url)
 }
 
