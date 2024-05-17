@@ -9,6 +9,7 @@ import (
 
 	"github.com/will-wow/typed-htmx-go/examples/web/activesearch"
 	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate"
+	"github.com/will-wow/typed-htmx-go/examples/web/classtools_ex"
 	"github.com/will-wow/typed-htmx-go/examples/web/clicktoedit"
 	"github.com/will-wow/typed-htmx-go/examples/web/examples"
 	"github.com/will-wow/typed-htmx-go/examples/web/progressbar"
@@ -55,6 +56,7 @@ func (h *Handler) routes() http.Handler {
 	delegateExample(mux, "bulk-update", bulkupdate.NewHandler)
 	delegateExample(mux, "active-search", activesearch.NewHandler)
 	delegateExample(mux, "progress-bar", progressbar.NewHandler)
+	delegateExample(mux, "class-tools", classtools_ex.NewHandler)
 
 	return h.recoverPanic(h.logRequest(mux))
 }

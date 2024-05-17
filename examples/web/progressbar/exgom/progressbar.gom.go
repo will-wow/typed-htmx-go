@@ -132,9 +132,9 @@ func Job(jobID int64, progress int) g.Node {
 		Button(
 			ID("restart-btn"),
 			hx.Post("/examples/gomponents/progress-bar/job/"),
-			classtools.Classes(hx, []classtools.Run{{
+			classtools.Classes(hx,
 				classtools.Add("show", time.Millisecond*600),
-			}}),
+			),
 			g.Text("Restart Job"),
 		),
 	)

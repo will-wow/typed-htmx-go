@@ -40,14 +40,19 @@ func Page() g.Node {
 					"Demonstrates bulk updating of multiple rows of data",
 				),
 				exampleRow(
-					"/examples/gomponents/active-search",
+					"/examples/gomponents/active-search/",
 					"Active Search",
 					"Demonstrates the active search box pattern",
 				),
 				exampleRow(
-					"/examples/gomponents/progress-bar",
+					"/examples/gomponents/progress-bar/",
 					"Progress Bar",
 					"Demonstrates a job-runner like progress bar",
+				),
+				exampleRow(
+					"/examples/gomponents/class-tools/",
+					"Class Tools",
+					"Demo of class-tools options",
 				),
 			),
 		),

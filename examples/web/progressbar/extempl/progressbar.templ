@@ -119,9 +119,7 @@ templ Job(jobID int64, progress int) {
 		<button
 			id="restart-btn"
 			{ hx.Post("/examples/templ/progress-bar/job/")... }
-			{ classtools.Classes(hx, []classtools.Run{{
-				classtools.Add("show", time.Millisecond*600),
-			}})... }
+			{ classtools.Classes(hx, classtools.Add("show", time.Millisecond*600))... }
 		>
 			Restart Job
 		</button>

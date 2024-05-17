@@ -11,15 +11,31 @@ import (
 var hx = htmx.NewStringAttrs()
 
 func ExampleClasses() {
-	attr := classtools.Classes(hx, []classtools.Run{
+	attr := classtools.Classes(hx,
+		// Add foo after 500ms
+		classtools.Add("foo", 500*time.Millisecond),
+		// Remove bar immediately after
+		classtools.Remove("bar", 0),
+		// Then, start toggling baz every second
+		classtools.Toggle("baz", time.Second),
+	)
+	fmt.Println(attr)
+	// Output: classes='add foo:500ms, remove bar:0s, toggle baz:1s'
+}
+
+func ExampleClassesParallel() {
+	attr := classtools.ClassesParallel(hx, []classtools.Run{
 		{
-			classtools.Add("foo"),
-			classtools.Remove("bar", time.Millisecond*500),
+			// Add foo after 500ms
+			classtools.Add("foo", 500*time.Millisecond),
+			// Remove bar immediately after
+			classtools.Remove("bar", 0),
 		},
 		{
+			// Also, toggle baz every second
 			classtools.Toggle("baz", time.Second),
 		},
 	})
 	fmt.Println(attr)
-	// Output: classes='add foo, remove bar:500ms & toggle baz:1s'
+	// Output: classes='add foo:500ms, remove bar:0s & toggle baz:1s'
 }

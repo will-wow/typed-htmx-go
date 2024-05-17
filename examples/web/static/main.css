@@ -52,3 +52,11 @@
   opacity: 1;
   transition: opacity 100ms ease-in;
 }
+
+.class-tools-ex .color {
+  color: purple;
+}
+
+.class-tools-ex .bold {
+  font-weight: bold;
+}

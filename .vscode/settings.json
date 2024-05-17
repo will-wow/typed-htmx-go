@@ -1,5 +1,8 @@
 {
   "go.lintTool": "golangci-lint",
   "go.lintFlags": ["--fast"],
-  "cSpell.words": ["gomponents"]
+  "cSpell.words": [
+		"classtools",
+		"gomponents"
+	]
 }
