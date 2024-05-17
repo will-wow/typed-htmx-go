@@ -1,0 +1,72 @@
+package extempl
+
+import (
+	"embed"
+	"time"
+
+	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
+	"github.com/will-wow/typed-htmx-go/htmx/ext/classtools"
+	"github.com/will-wow/typed-htmx-go/htmx"
+)
+
+var hx = htmx.NewTempl()
+
+//go:embed classtools_ex.templ
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
+
+templ Page() {
+	@layout.Wrapper("Class Tools", "class-tools-ex") {
+		<h1>Class Tools</h1>
+		<p>
+			Demonstrates different uses of class-tools
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("classtools_ex.templ", "demo") }
+			</code>
+		</pre>
+		<h2>Demo</h2>
+		@demo()
+	}
+}
+
+templ demo() {
+	//ex:start:demo
+	<div { hx.Ext(classtools.Extension)... }>
+		<p
+			{ classtools.Classes(hx,
+				classtools.Add("bold", time.Second),
+				classtools.Remove("bold", time.Second),
+				classtools.Toggle("color", time.Second),
+			)... }
+		>
+			Add then remove bold after 1 second, then toggle color every second
+		</p>
+		<p
+			{ classtools.ClassesParallel(hx, []classtools.Run{
+				{
+					classtools.Add("bold", time.Second),
+					classtools.Remove("bold", time.Second),
+				},
+				{
+					classtools.Toggle("color", time.Second),
+				},
+			})... }
+		>
+			Add then remove bold after 1 second, while toggling color every second		
+		</p>
+		<p
+			{ classtools.Classes(hx, classtools.Add("color", 0))... }
+		>
+			Add with no delay		
+		</p>
+		<p
+			{ classtools.Classes(hx, classtools.Toggle("color", 0))... }
+		>
+			Toggle with 0 delay		
+		</p>
+	</div>
+	//ex:end:demo
+}

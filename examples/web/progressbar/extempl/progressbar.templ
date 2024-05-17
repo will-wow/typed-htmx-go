@@ -1,0 +1,165 @@
+package extempl
+
+import (
+	"fmt"
+	"embed"
+	"strconv"
+	"time"
+
+	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
+	"github.com/will-wow/typed-htmx-go/examples/web/static"
+	"github.com/will-wow/typed-htmx-go/examples/web/progressbar/shared"
+	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"github.com/will-wow/typed-htmx-go/htmx/ext/classtools"
+	"github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx/trigger"
+)
+
+var hx = htmx.NewTempl()
+
+//go:embed progressbar.templ
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
+
+templ Page() {
+	@layout.Wrapper("Progress Bar", "progress-bar-demo") {
+		<h1>Progress Bar</h1>
+		<p>
+			This example shows how to implement a smoothly scrolling progress bar.
+		</p>
+		<p>
+			We start with an initial state with a button that issues a POST to /start to begin the job:
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("progressbar.templ", "demo") }
+			</code>
+		</pre>
+		<p>
+			This div is then replaced with a new div containing status and a progress bar that reloads itself every 600ms:
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("progressbar.templ", "running") }
+			</code>
+		</pre>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("progressbar.templ", "progress") }
+			</code>
+		</pre>
+		<p>
+			This progress bar is updated every 600 milliseconds, with the <code>width</code> style attribute and <code>aria-valuenow</code> attribute set to current progress value. Because there is an id on the progress bar div, htmx will smoothly transition between requests by settling the style attribute into its new value. This, when coupled with CSS transitions, makes the visual transition continuous rather than jumpy.
+		</p>
+		<p>
+			Finally, when the process is complete, a server returns a <code>HX-Trigger: done</code> header, which triggers an update of the UI to “Complete” state with a restart button added to the UI (we are using the <code>class-tools</code> extension in this example to add fade-in effect on the button):
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("progressbar.templ", "done") }
+			</code>
+		</pre>
+		<p>
+			This example uses styling cribbed from the bootstrap progress bar:
+		</p>
+		<pre>
+			<code class="language-css">
+				{ static.ExCSS.PrintOrErr("main.css", "progress-bar-style") }
+			</code>
+		</pre>
+		<h2>Demo</h2>
+		<div { hx.Ext(classtools.Extension)... }>
+			@demo()
+		</div>
+	}
+}
+
+templ demo() {
+	//ex:start:demo
+	<div
+		{ hx.Target(htmx.TargetThis)... }
+		{ hx.Swap(swap.OuterHTML)... }
+	>
+		<h3>Start Progress</h3>
+		<button { hx.Post("/examples/templ/progress-bar/job/")... }>
+			Start Job
+		</button>
+	</div>
+	//ex:end:demo
+}
+
+templ JobRunning(jobID int64, progress int) {
+	//ex:start:running
+	<div
+		{ hx.Swap(swap.OuterHTML)... }
+		{ hx.Trigger(shared.TriggerDone)... }
+		{ hx.Get("/examples/templ/progress-bar/job/%d/", jobID)... }
+		{ hx.Swap(swap.OuterHTML)... }
+		{ hx.Target(htmx.TargetThis)... }
+	>
+		<h3 role="status" id="pblabel" tabindex="-1" autofocus>
+			Job { strconv.FormatInt(jobID, 10) } Running
+		</h3>
+		@ProgressFetcher(jobID, progress)
+	</div>
+	//ex:end:running
+}
+
+templ Job(jobID int64, progress int) {
+	//ex:start:done
+	<div
+		{ hx.Target(htmx.TargetThis)... }
+		{ hx.Swap(swap.OuterHTML)... }
+	>
+		<h3 role="status" id="pblabel" tabindex="-1" autofocus>
+			Job { strconv.FormatInt(jobID, 10) } Complete
+		</h3>
+		@ProgressBar(progress)
+		<button
+			id="restart-btn"
+			{ hx.Post("/examples/templ/progress-bar/job/")... }
+			{ classtools.Classes(hx, classtools.Add("show", time.Millisecond*600))... }
+		>
+			Restart Job
+		</button>
+	</div>
+	//ex:end:done
+}
+
+//ex:start:progress
+templ ProgressFetcher(jobID int64, progress int) {
+	<div
+		{ hx.Get("/examples/templ/progress-bar/job/%d/progress/", jobID)... }
+		{ hx.TriggerExtended(trigger.Every(time.Millisecond * 600))... }
+		{ hx.Target(htmx.TargetThis)... }
+		{ hx.Swap(swap.InnerHTML)... }
+	>
+		@ProgressBar(progress)
+	</div>
+}
+
+templ ProgressBar(progress int) {
+	<div
+		class="progress"
+		role="progressbar"
+		aria-valuemin="0"
+		aria-valuemax="100"
+		aria-valuenow={ strconv.Itoa(progress) }
+		aria-labelledby="pblabel"
+	>
+		<div
+			id="pb"
+			class="progress-bar"
+			{ progressWidth(progress)... }
+		></div>
+	</div>
+}
+
+func progressWidth(percent int) templ.Attributes {
+	return templ.Attributes{
+		"style": fmt.Sprintf("width: %d%%", percent),
+	}
+}
+
+//ex:end:progress

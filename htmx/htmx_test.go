@@ -22,10 +22,21 @@ func ExampleHX_Get() {
 	// Output: hx-get='/example'
 }
 
+func ExampleHX_Get_format() {
+	fmt.Println(hx.Get("/example/%d", 1))
+	// Output: hx-get='/example/1'
+}
+
 func ExampleHX_Post() {
 	fmt.Println(hx.Post("/example"))
 	// Output: hx-post='/example'
 }
+
+func ExampleHX_Post_format() {
+	fmt.Println(hx.Post("/example/%d", 1))
+	// Output: hx-post='/example/1'
+}
+
 func ExampleHX_On() {
 	fmt.Println(hx.On("click", `alert("clicked")`))
 	// Output: hx-on:click='alert("clicked")'
@@ -44,6 +55,11 @@ func ExampleHX_PushURL() {
 func ExampleHX_PushURLPath() {
 	fmt.Println(hx.PushURLPath("/example"))
 	// Output: hx-push-url='/example'
+}
+
+func ExampleHX_PushURLPath_format() {
+	fmt.Println(hx.PushURLPath("/example/%d", 1))
+	// Output: hx-push-url='/example/1'
 }
 
 func ExampleHX_Select() {
@@ -164,6 +180,11 @@ func ExampleHX_Confirm() {
 func ExampleHX_Delete() {
 	fmt.Println(hx.Delete("/example"))
 	// Output: hx-delete='/example'
+}
+
+func ExampleHX_Delete_format() {
+	fmt.Println(hx.Delete("/example/%d", 1))
+	// Output: hx-delete='/example/1'
 }
 
 func ExampleHX_Disable() {
@@ -297,6 +318,11 @@ func ExampleHX_Patch() {
 	// Output: hx-patch='/example'
 }
 
+func ExampleHX_Patch_format() {
+	fmt.Println(hx.Patch("/example/%d", 1))
+	// Output: hx-patch='/example/1'
+}
+
 func ExampleHX_Preserve() {
 	fmt.Println(hx.Preserve())
 	// Output: hx-preserve
@@ -312,6 +338,11 @@ func ExampleHX_Put() {
 	// Output: hx-put='/example'
 }
 
+func ExampleHX_Put_format() {
+	fmt.Println(hx.Put("/example/%d", 1))
+	// Output: hx-put='/example/1'
+}
+
 func ExampleHX_ReplaceURL() {
 	fmt.Println(hx.ReplaceURL(true))
 	// Output: hx-replace-url='true'
@@ -320,6 +351,11 @@ func ExampleHX_ReplaceURL() {
 func ExampleHX_ReplaceURLWith() {
 	fmt.Println(hx.ReplaceURLWith("/example"))
 	// Output: hx-replace-url='/example'
+}
+
+func ExampleHX_ReplaceURLWith_format() {
+	fmt.Println(hx.ReplaceURLWith("/example/%d", 1))
+	// Output: hx-replace-url='/example/1'
 }
 
 func ExampleHX_Request() {

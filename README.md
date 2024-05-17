@@ -65,13 +65,33 @@ templ search() {
 }
 ```
 
+## Extensions
+
+htmx includes a set of extensions out of the box that address common developer needs. These extensions are tested against htmx in each distribution.
+
+While you can always use any extension by adding standard HTML attributes, `typed-htmx-go` has typed support for some extensions.
+
+These extensions each have their own package, and expose function that take a configured `hx` as a first parameter, and return a full attribute.
+
+`hx` also includes an `hx.Ext()` method to register an extension on an element (ie: `{ hx.Ext(classtools.Extension)... }` instead of `hx-ext="class-tools"`.
+
+### Current Extensions supported
+
+See [htmx/ext](./htmx/ext) for a full list of extensions.
+
+- [`class-tools`](https://htmx.org/extensions/class-tools/)
+- [`preload`](https://htmx.org/extensions/preload/)
+- [`remove-me`](https://htmx.org/extensions/remove-me/)
+
 ## Examples
 
 Usage examples are in [examples](./examples) (hosted at [typed-htmx-go.vercel.app](https://typed-htmx-go.vercel.app/))
 
+These are mostly ported from the [HTMX examples](https://htmx.org/examples/), but include a Templ and Gomponents implementation, and working server code to borrow from.
+
 ## HTMX Version
 
-`typed-hx-go` strives to keep up with HTMX releases. It currently supports HTMX `v1.9.10`.
+`typed-htmx-go` strives to keep up with HTMX releases. It currently supports HTMX `v1.9.10`.
 
 ## Goals
 
@@ -182,26 +202,6 @@ Form(
 ### Fully tested
 
 Every attribute function should have a test to make sure it's printing valid HTMX. And every function and option should include an example test, to make it easy to see usage in the godocs. These are also a good opportunity to try out the API and make sure it's ergonomic in practice.
-
-## Notable attributes
-
-Most of the attributes in HTMX are pretty straightforward to use - you just pass in CSS selector that the attribute should apply to, or nothing at all. A few are more complicated though, and are listed here:
-
-### Config
-
-TODO
-
-### On
-
-TODO
-
-### Swap
-
-TODO
-
-### Trigger
-
-TODO
 
 ## Contributing
 

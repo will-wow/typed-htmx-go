@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/will-wow/typed-htmx-go/htmx/internal/util"
 	"github.com/will-wow/typed-htmx-go/htmx/on"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 	"github.com/will-wow/typed-htmx-go/htmx/trigger"
@@ -71,7 +72,7 @@ type StandardCSSSelector string
 // [hx-boost]: https://htmx.org/attributes/hx-boost/
 // [nice fallback]: https://en.wikipedia.org/wiki/Progressive_enhancement
 func (hx *HX[T]) Boost(boost bool) T {
-	return hx.attr("hx-boost", boolToString(boost))
+	return hx.attr("hx-boost", util.BoolToString(boost))
 }
 
 // Get will cause an element to issue a GET to the specified URL and swap the HTML into the DOM using a swap strategy.
@@ -92,7 +93,10 @@ func (hx *HX[T]) Boost(boost bool) T {
 //
 // [hx-get]: https://htmx.org/attributes/hx-get/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (hx *HX[T]) Get(url string) T {
+func (hx *HX[T]) Get(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
 	return hx.attr(Get, url)
 }
 
@@ -115,7 +119,10 @@ func (hx *HX[T]) Get(url string) T {
 //
 // [hx-post]: https://htmx.org/attributes/hx-post/
 // [Parameters]: https://htmx.org/docs/#parameters
-func (hx *HX[T]) Post(url string) T {
+func (hx *HX[T]) Post(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
 	return hx.attr(Post, url)
 }
 
@@ -186,7 +193,7 @@ func (hx *HX[T]) On(event on.Event, action string) T {
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
 func (hx *HX[T]) PushURL(on bool) T {
-	return hx.attr(PushURL, boolToString(on))
+	return hx.attr(PushURL, util.BoolToString(on))
 }
 
 // PushURLPath allows you to push a URL into the browser location history. This creates a new history entry, allowing navigation with the browser’s back and forward buttons. htmx snapshots the current DOM and saves it into its history cache, and restores from this cache on navigation.
@@ -210,7 +217,11 @@ func (hx *HX[T]) PushURL(on bool) T {
 // HTMX Attribute: [hx-push-url]
 //
 // [hx-push-url]: https://htmx.org/attributes/hx-push-url/
-func (hx *HX[T]) PushURLPath(url string) T {
+func (hx *HX[T]) PushURLPath(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(PushURL, url)
 }
 
@@ -284,7 +295,7 @@ func (hx *HX[T]) Select(selector StandardCSSSelector) T {
 //
 // [hx-select-oob]: https://htmx.org/attributes/hx-select-oob/
 func (hx *HX[T]) SelectOOB(selectors ...StandardCSSSelector) T {
-	return hx.attr(SelectOOB, joinStringLikes(selectors, ","))
+	return hx.attr(SelectOOB, util.JoinStringLikes(selectors, ","))
 }
 
 type SelectOOBStrategy struct {
@@ -463,7 +474,7 @@ const (
 )
 
 // TargetRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Target()] attribute.
-var TargetRelative = makeRelativeSelector[RelativeModifier, TargetSelector]()
+var TargetRelative = util.MakeRelativeSelector[RelativeModifier, TargetSelector]()
 
 // Target allows you to target a different element for swapping than the one issuing the AJAX request.
 //
@@ -635,7 +646,11 @@ func (hx *HX[T]) Confirm(msg string) T {
 // [hx-delete]: https://htmx.org/attributes/hx-delete
 // [Parameters]: https://htmx.org/docs/#parameters
 // [Requests & Responses]: https://htmx.org/docs/#requests
-func (hx *HX[T]) Delete(url string) T {
+func (hx *HX[T]) Delete(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(Delete, url)
 }
 
@@ -661,7 +676,7 @@ type DisabledEltSelector string
 const DisabledEltThis DisabledEltSelector = "this" // indicates that this element should disable itself during the request.
 
 // DisabledEltRelative allows you to narrow a CSS selector with the allowed relative modifier `closest`, and pass it to the [HX.DisabledElt] attribute.
-var DisabledEltRelative = makeRelativeSelector[DisabledEltModifier, DisabledEltSelector]()
+var DisabledEltRelative = util.MakeRelativeSelector[DisabledEltModifier, DisabledEltSelector]()
 
 // DisabledElt allows you to specify elements that will have the disabled attribute added to them for the duration of the request.
 //
@@ -781,6 +796,8 @@ func (hx *HX[T]) Encoding(encoding EncodingContentType) T {
 	return hx.attr(Encoding, string(encoding))
 }
 
+type Extension string
+
 // Ext enables an htmx [extension] for an element and all its children.
 //
 // The value can be one or more extension names to apply.
@@ -795,8 +812,12 @@ func (hx *HX[T]) Encoding(encoding EncodingContentType) T {
 //
 // [hx-ext]: https://htmx.org/attributes/hx-ext
 // [extension]: https://htmx.org/extensions
-func (hx *HX[T]) Ext(ext ...string) T {
-	return hx.attr(Ext, strings.Join(ext, ","))
+func (hx *HX[T]) Ext(ext ...Extension) T {
+	exts := make([]string, len(ext))
+	for i, e := range ext {
+		exts[i] = string(e)
+	}
+	return hx.attr(Ext, strings.Join(exts, ","))
 }
 
 // ExtIgnore ignores an [extension] that is defined by a parent node.
@@ -880,7 +901,7 @@ func (hx *HX[T]) HeadersJS(headers map[string]string) T {
 //
 // [hx-history]: https://htmx.org/attributes/hx-history/
 func (hx *HX[T]) History(on bool) T {
-	return hx.attr(History, boolToString(on))
+	return hx.attr(History, util.BoolToString(on))
 }
 
 // HistoryElt allows you to specify the element that will be used to snapshot and restore page state during navigation. By default, the body tag is used. This is typically good enough for most setups, but you may want to narrow it down to a child element. Just make sure that the element is always visible in your application, or htmx will not be able to restore history navigation properly.
@@ -912,7 +933,7 @@ type IncludeSelector string
 const IncludeThis IncludeSelector = "this"
 
 // IncludeRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Include()] attribute.
-var IncludeRelative = makeRelativeSelector[RelativeModifier, IncludeSelector]()
+var IncludeRelative = util.MakeRelativeSelector[RelativeModifier, IncludeSelector]()
 
 // Include allows you to include additional element values in an AJAX request.
 //
@@ -930,7 +951,7 @@ const IndicatorClosest IndicatorModifier = "closest"
 type IndicatorSelector string
 
 // IndicatorRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Indicator()] attribute.
-var IndicatorRelative = makeRelativeSelector[IndicatorModifier, IndicatorSelector]()
+var IndicatorRelative = util.MakeRelativeSelector[IndicatorModifier, IndicatorSelector]()
 
 // The hx-indicator attribute allows you to specify the element that will have the htmx-request class added to it for the duration of the request. This can be used to show spinners or progress indicators while the request is in flight.
 //
@@ -1020,7 +1041,11 @@ func (hx *HX[T]) ParamsNot(paramNames ...string) T {
 //
 // [Parameters]: https://htmx.org/docs/#parameters
 // [hx-patch]: https://htmx.org/attributes/hx-patch/
-func (hx *HX[T]) Patch(url string) T {
+func (hx *HX[T]) Patch(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(Patch, url)
 }
 
@@ -1078,7 +1103,10 @@ func (hx *HX[T]) Prompt(msg string) T {
 //
 // [Parameters]: https://htmx.org/docs/#parameters
 // [hx-put]: https://htmx.org/attributes/hx-put/
-func (hx *HX[T]) Put(url string) T {
+func (hx *HX[T]) Put(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
 	return hx.attr(Put, url)
 }
 
@@ -1107,7 +1135,7 @@ func (hx *HX[T]) Put(url string) T {
 //
 // [hx-replace]: https://htmx.org/attributes/hx-replace/
 func (hx *HX[T]) ReplaceURL(on bool) T {
-	return hx.attr(ReplaceURL, boolToString(on))
+	return hx.attr(ReplaceURL, util.BoolToString(on))
 }
 
 // ReplaceURLWith allows you to replace the current url of the browser location history with
@@ -1129,7 +1157,11 @@ func (hx *HX[T]) ReplaceURL(on bool) T {
 //
 // [hx-replace]: https://htmx.org/attributes/hx-replace/
 // [history.replaceState()]: https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
-func (hx *HX[T]) ReplaceURLWith(url string) T {
+func (hx *HX[T]) ReplaceURLWith(url string, a ...any) T {
+	if len(a) > 0 {
+		url = fmt.Sprintf(url, a...)
+	}
+
 	return hx.attr(ReplaceURL, url)
 }
 
@@ -1231,7 +1263,7 @@ type SyncSelector string
 const SyncThis SyncSelector = "this" // synchronize requests from the current element.
 
 // SyncRelative allows you to narrow a CSS selector with an allowed relative modifier like `next`, and pass it to the [HX.Sync()] attribute.
-var SyncRelative = makeRelativeSelector[RelativeModifier, SyncSelector]()
+var SyncRelative = util.MakeRelativeSelector[RelativeModifier, SyncSelector]()
 
 // Sync allows you to synchronize AJAX requests between multiple elements, using a CSS selector to indicate the element to synchronize on.
 //
@@ -1289,7 +1321,7 @@ func (hx *HX[T]) SyncStrategy(extendedSelector SyncSelector, strategy SyncStrate
 //
 // [hx-validate]: https://htmx.org/attributes/hx-validate/
 func (hx *HX[T]) Validate(validate bool) T {
-	return hx.attr(Validate, boolToString(validate))
+	return hx.attr(Validate, util.BoolToString(validate))
 }
 
 // Non-standard attributes
@@ -1297,6 +1329,15 @@ func (hx *HX[T]) Validate(validate bool) T {
 // Unset sets the value of the selected attributes as "unset"  to clear a property that would normally be inherited (e.g. hx-confirm).
 func (hx *HX[T]) Unset(attr Attribute) T {
 	return hx.attr(attr, "unset")
+}
+
+type ExtAttribute struct {
+	Attribute string
+	Value     any
+}
+
+func (hx *HX[T]) Attr(attribute Attribute, value any) T {
+	return hx.attr(attribute, value)
 }
 
 // An Attribute is a valid HTMX attribute name. Used for general type changes like `unset` and `disinherit`.
@@ -1348,13 +1389,6 @@ const (
 	Previous RelativeModifier = "previous" // scan the DOM backwards fo
 )
 
-func boolToString(b bool) string {
-	if b {
-		return "true"
-	}
-	return "false"
-}
-
 func mapToJS(vals map[string]string) string {
 	values := make([]string, len(vals))
 
@@ -1379,20 +1413,4 @@ func quoteJSIdentifier(identifier string) string {
 		return identifier
 	}
 	return fmt.Sprintf(`"%s"`, identifier)
-}
-
-// joinStringLikes joins a slice of string-like values into a single string.
-func joinStringLikes[T ~string](elems []T, sep string) string {
-	var stringElems = make([]string, len(elems))
-	for i, x := range elems {
-		stringElems[i] = string(x)
-	}
-	return strings.Join(stringElems, sep)
-}
-
-// makeRelativeSelector creates a function that combines an allowed relative modifier with a CSS selector and returns a typed result.
-func makeRelativeSelector[Modifier ~string, Selector ~string]() func(Modifier, string) Selector {
-	return func(modifier Modifier, selector string) Selector {
-		return Selector(fmt.Sprintf("%s %s", modifier, selector))
-	}
 }

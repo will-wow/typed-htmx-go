@@ -34,6 +34,7 @@ func Wrapper(title string, children ...g.Node) g.Node {
 					hxconfig.New().IncludeIndicatorStyles(false),
 				)),
 				Script(Src("https://unpkg.com/htmx.org@1.9.10")),
+				Script(Src("https://unpkg.com/htmx.org@1.9.10/dist/ext/class-tools.js")),
 				Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css")),
 				Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css")),
 				Link(Rel("stylesheet"), Href("/static/main.css")),
