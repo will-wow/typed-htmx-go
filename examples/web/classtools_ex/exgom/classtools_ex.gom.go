@@ -7,6 +7,7 @@ import (
 	. "github.com/maragudk/gomponents/html"
 
 	g "github.com/maragudk/gomponents"
+
 	"github.com/will-wow/typed-htmx-go/htmx/ext/classtools"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/exprint"

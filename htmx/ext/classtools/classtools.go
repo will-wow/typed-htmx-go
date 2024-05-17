@@ -8,6 +8,14 @@ import (
 )
 
 // Extension allows you to specify CSS classes that will be swapped onto or off of the elements by using a classes or data-classes attribute. This functionality allows you to apply CSS Transitions to your HTML without resorting to javascript.
+//
+// # Install
+//
+//	<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/class-tools.js"></script>
+//
+// Extension: [class-tools]
+//
+// [class-tools]: https://htmx.org/extensions/class-tools/
 const Extension htmx.Extension = "class-tools"
 
 // An operation represents the type of class operation to perform after the specified delay.
@@ -43,6 +51,10 @@ type Run []classOperation
 //		<div class="bar" { classtools.Classes(classtools.Remove(hx, "bar", time.Second), classtools.Add("foo", time.Second))... } /> <!-- removes the class "bar" after 1s then adds the class "foo" 1s after that -->
 //		<div { classtools.Classes(classtools.Toggle(hx, "bar", time.Second))... } /> <!-- toggles the class "foo" every 1s -->
 //	</div>
+//
+// Extension: [class-tools]
+//
+// [class-tools]: https://htmx.org/extensions/class-tools/
 func Classes[T any](hx htmx.HX[T], operations ...classOperation) T {
 	return ClassesParallel(hx, []Run{operations})
 }
@@ -60,6 +72,10 @@ func Classes[T any](hx htmx.HX[T], operations ...classOperation) T {
 //			{classtools.Add("foo", time.Second)},
 //	})... } /> <!-- removes the class "bar" and adds class "foo" after 1s  -->
 //	</div>
+//
+// Extension: [class-tools]
+//
+// [class-tools]: https://htmx.org/extensions/class-tools/
 func ClassesParallel[T any](hx htmx.HX[T], runs []Run) T {
 	classes := strings.Builder{}
 

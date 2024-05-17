@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/will-wow/typed-htmx-go/htmx/internal/mod"
+	"github.com/will-wow/typed-htmx-go/htmx/internal/util"
 )
 
 // Modifier is an enum of the possible hx-swap modifiers.
@@ -147,7 +148,7 @@ func (s *Builder) ShowNone() *Builder {
 //
 // Alternatively, if you want the page to automatically scroll to the focused element after each request you can change the htmx global configuration value htmx.config.defaultFocusScroll to true. Then disable it for specific requests using focus-scroll:false.
 func (s *Builder) FocusScroll(value bool) *Builder {
-	s.modifiers[FocusScroll] = boolToString(value)
+	s.modifiers[FocusScroll] = util.BoolToString(value)
 	return s
 }
 
@@ -156,11 +157,4 @@ func (s *Builder) FocusScroll(value bool) *Builder {
 func (s *Builder) Clear(modifier Modifier) *Builder {
 	delete(s.modifiers, modifier)
 	return s
-}
-
-func boolToString(b bool) string {
-	if b {
-		return "true"
-	}
-	return "false"
 }

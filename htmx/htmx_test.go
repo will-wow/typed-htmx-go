@@ -319,8 +319,8 @@ func ExampleHX_Patch() {
 }
 
 func ExampleHX_Patch_format() {
-	fmt.Println(hx.Patch("/example"))
-	// Output: hx-patch='/example'
+	fmt.Println(hx.Patch("/example/%d", 1))
+	// Output: hx-patch='/example/1'
 }
 
 func ExampleHX_Preserve() {
