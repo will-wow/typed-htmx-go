@@ -81,6 +81,8 @@ See [htmx/ext](./htmx/ext) for a full list of extensions.
 
 - [`class-tools`](https://htmx.org/extensions/class-tools/)
 - [`preload`](https://htmx.org/extensions/preload/)
+- [`response-targets`](https://htmx.org/extensions/response-targets/)
+- [`event-header`](https://htmx.org/extensions/event-header/)
 - [`remove-me`](https://htmx.org/extensions/remove-me/)
 
 ## Examples

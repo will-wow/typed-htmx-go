@@ -796,6 +796,8 @@ func (hx *HX[T]) Encoding(encoding EncodingContentType) T {
 	return hx.attr(Encoding, string(encoding))
 }
 
+// An Extension is the name of an htmx extension, to be passed to [HX.Ext()] to initialize the extension.
+// Extensions are in packages under htmx/ext.
 type Extension string
 
 // Ext enables an htmx [extension] for an element and all its children.
