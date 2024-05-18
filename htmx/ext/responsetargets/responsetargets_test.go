@@ -11,7 +11,7 @@ import (
 var hx = htmx.NewStringAttrs()
 
 func ExampleTarget_code() {
-	attr := responsetargets.Target(hx, responsetargets.Code(http.StatusNotFound), htmx.TargetRelative(htmx.Next, "div"))
+	attr := responsetargets.Target(hx, responsetargets.Status(http.StatusNotFound), htmx.TargetRelative(htmx.Next, "div"))
 	fmt.Println(attr)
 	// Output: hx-target-404='next div'
 }

@@ -12,8 +12,8 @@ github.com/lithammer/dedent v1.1.0 h1:VNzHMVCBNG1j0fh3OrsFRkVUwStdDArbgBWoPAffkt
 github.com/lithammer/dedent v1.1.0/go.mod h1:jrXYCQtgg0nJiN+StA2KgR7w6CiQNv9Fd/Z9BP0jIOc=
 github.com/maragudk/gomponents v0.20.2 h1:39FhnBNNCJzqNcD9Hmvp/5xj0otweFoyvVgFG6kXoy0=
 github.com/maragudk/gomponents v0.20.2/go.mod h1:nHkNnZL6ODgMBeJhrZjkMHVvNdoYsfmpKB2/hjdQ0Hg=
-github.com/will-wow/typed-htmx-go v0.1.1 h1:Ow2kFDh35S6SplP1uD/gIYKQARm3n3gUmqp83wByvTg=
-github.com/will-wow/typed-htmx-go v0.1.1/go.mod h1:4kTdRyJEy/oSURNcUAUvSiJ90Mf19W0dEhe/ouK7530=
+github.com/will-wow/typed-htmx-go v0.1.2 h1:b9ZbWL/mXzEoed4sHNZeU9Q2L+I0aXjZZHGV8YQWmDU=
+github.com/will-wow/typed-htmx-go v0.1.2/go.mod h1:4kTdRyJEy/oSURNcUAUvSiJ90Mf19W0dEhe/ouK7530=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
