@@ -95,13 +95,14 @@ var hx = htmx.NewTempl()
 
 ### Current Extensions supported
 
-See [htmx/ext](./htmx/ext) for a full list of extensions.
+Some of the more complex extensions supported:
 
-- [`class-tools`](https://htmx.org/extensions/class-tools/)
-- [`preload`](https://htmx.org/extensions/preload/)
-- [`response-targets`](https://htmx.org/extensions/response-targets/)
-- [`event-header`](https://htmx.org/extensions/event-header/)
-- [`remove-me`](https://htmx.org/extensions/remove-me/)
+- [`class-tools`](https://pkg.go.dev/github.com/will-wow/typed-htmx-go/htmx/ext/classtools)
+- [`preload`](https://pkg.go.dev/github.com/will-wow/typed-htmx-go/htmx/ext/preload)
+- [`response-targets`](https://pkg.go.dev/github.com/will-wow/typed-htmx-go/htmx/ext/responsetargets)
+- [`loading-states`](https://pkg.go.dev/github.com/will-wow/typed-htmx-go/htmx/ext/loadingstates)
+
+See [htmx/ext](./htmx/ext) for a full list of extensions.
 
 ## Examples
 
