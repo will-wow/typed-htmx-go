@@ -1,3 +1,4 @@
+// package classtools allows you to specify CSS classes that will be swapped onto or off of the elements by using a classes or data-classes attribute. This functionality allows you to apply CSS Transitions to your HTML without resorting to javascript.
 package classtools
 
 import (
@@ -47,8 +48,8 @@ type Run []classOperation
 //
 //	<div { hx.Ext(classtools.Extension)... }>
 //		<div { classtools.Classes(classtools.Add("foo", time.Millisecond*100))... } /> <!-- adds the class "foo" after 100ms -->
-//		<div class="bar" { classtools.Classes(classtools.Remove(hx, "foo", time.Second*2))... } /> <!-- removes the class "bar" after 1s -->
-//		<div class="bar" { classtools.Classes(classtools.Remove(hx, "bar", time.Second), classtools.Add("foo", time.Second))... } /> <!-- removes the class "bar" after 1s then adds the class "foo" 1s after that -->
+//		<div class="bar" { classtools.Classes(hx, classtools.Remove(hx, "foo", time.Second*2))... } /> <!-- removes the class "bar" after 1s -->
+//		<div class="bar" { classtools.Classes(hx, classtools.Remove(hx, "bar", time.Second), classtools.Add("foo", time.Second))... } /> <!-- removes the class "bar" after 1s then adds the class "foo" 1s after that -->
 //		<div { classtools.Classes(classtools.Toggle(hx, "bar", time.Second))... } /> <!-- toggles the class "foo" every 1s -->
 //	</div>
 //

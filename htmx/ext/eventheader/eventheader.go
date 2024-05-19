@@ -1,4 +1,9 @@
-// package eventheader the Triggering-Event header to requests. The value of the header is a JSON serialized version of the event that triggered the request.
+// package eventheader adds the Triggering-Event header to requests. The value of the header is a JSON serialized version of the event that triggered the request.
+package eventheader
+
+import "github.com/will-wow/typed-htmx-go/htmx"
+
+// Extension adds the Triggering-Event header to requests. The value of the header is a JSON serialized version of the event that triggered the request.
 //
 // # Install
 //
@@ -17,8 +22,4 @@
 // Extension: [event-header]
 //
 // [event-header]: https://htmx.org/extensions/event-header/
-package eventheader
-
-import "github.com/will-wow/typed-htmx-go/htmx"
-
 const Extension htmx.Extension = "event-header"

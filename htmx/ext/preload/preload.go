@@ -1,3 +1,4 @@
+// package preload allows you to load HTML fragments into your browser’s cache before they are requested by the user, so that additional pages appear to users to load nearly instantaneously. As a developer, you can customize its behavior to fit your applications needs and use cases.
 package preload
 
 import (

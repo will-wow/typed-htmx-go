@@ -1,3 +1,4 @@
+// package removeme allows you to remove an element after a specified interval.
 package removeme
 
 import (

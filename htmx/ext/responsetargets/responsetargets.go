@@ -1,12 +1,4 @@
 // package responsetargets allows you to specify different target elements to be swapped when different HTTP response codes are received.
-//
-// # Install
-//
-//	<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
-//
-// Extension: [response-targets]
-//
-// [response-targets]: https://htmx.org/extensions/response-targets/
 package responsetargets
 
 import (

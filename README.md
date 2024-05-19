@@ -73,7 +73,25 @@ While you can always use any extension by adding standard HTML attributes, `type
 
 These extensions each have their own package, and expose function that take a configured `hx` as a first parameter, and return a full attribute.
 
-`hx` also includes an `hx.Ext()` method to register an extension on an element (ie: `{ hx.Ext(classtools.Extension)... }` instead of `hx-ext="class-tools"`.
+`hx` also includes an `hx.Ext()` method to register an extension on an element (ie: `{ hx.Ext(classtools.Extension)... }` instead of `hx-ext="class-tools"`).
+
+### Example
+
+```go
+var hx = htmx.NewTempl()
+
+<head>
+	<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/class-tools.js"></script>
+</head>
+...
+<div { hx.Ext(classtools.Extension)... }>
+	<div { classtools.Classes(hx, classtools.Add("foo", time.Millisecond*100))... } />
+	<div class="bar" { classtools.ClassesParallel(hx, []classtools.Run{
+			{classtools.Remove("bar", time.Second)},
+			{classtools.Add("foo", time.Second)},
+	})... } />
+</div>
+```
 
 ### Current Extensions supported
 
