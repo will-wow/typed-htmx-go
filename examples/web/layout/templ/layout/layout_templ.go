@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
-
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/hxconfig"
 )
@@ -70,7 +69,7 @@ func Wrapper(title string, className ...string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><script src=\"https://unpkg.com/htmx.org@1.9.10\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10/dist/ext/class-tools.js\"></script><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css\"><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css\"><link rel=\"stylesheet\" href=\"/static/main.css\"></head><body")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><script src=\"https://unpkg.com/htmx.org@1.9.10\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10/dist/ext/class-tools.js\"></script><script src=\"https://unpkg.com/htmx.org@1.9.12/dist/ext/sse.js\"></script><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css\"><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/default.min.css\"><link rel=\"stylesheet\" href=\"/static/main.css\"></head><body")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

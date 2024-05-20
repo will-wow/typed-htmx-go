@@ -1,0 +1,108 @@
+package extempl
+
+import (
+	"embed"
+
+	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
+	"github.com/will-wow/typed-htmx-go/htmx/ext/sse"
+	"github.com/will-wow/typed-htmx-go/htmx"
+	"github.com/will-wow/typed-htmx-go/htmx/swap"
+	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex/chatroom"
+	"github.com/will-wow/typed-htmx-go/htmx/on"
+)
+
+var hx = htmx.NewTempl()
+
+//go:embed sse.templ
+var fs embed.FS
+var ex = exprint.New(fs, "//", "")
+
+templ Page() {
+	@layout.Wrapper("Server-Side Events") {
+		<h1>Server-Side Events</h1>
+		<p>
+			A demo of Server-Side Events using htmx and typed-htmx-go.
+		</p>
+		<p>
+			When you click the button below, that fetches a new element that uses the sse extension to start a live feed.
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("sse.templ", "entry") }
+			</code>
+		</pre>
+		<p>
+			The new elements uses the sse.Connect attribute to connect to a server-side event stream, and allows you to POST messages to the stream.
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("sse.templ", "chatroom") }
+			</code>
+		</pre>
+		<p>
+			When you or another user posts a message, it will be sent to the server and broadcast to all connected clients as a simple div.
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("sse.templ", "message") }
+			</code>
+		</pre>
+		<p>
+			After 25 seconds, the server will send the EndEvent, that closes removes the sse connection by replacing the sse.Connect element with the initial button using <code>hx.Swap(swap.OuterHTML)</code>.
+		</p>
+		<h2>Demo</h2>
+		@Entry()
+	}
+}
+
+templ Entry() {
+	//ex:start:entry
+	<button
+		{ hx.Get("/examples/templ/sse/chatroom/")... }
+		{ hx.Target(htmx.TargetThis)... }
+		{ hx.Swap(swap.OuterHTML)... }
+	>
+		Enter Chat
+	</button>
+	//ex:end:entry
+}
+
+templ Chatroom() {
+	//ex:start:chatroom
+	<div
+		{ hx.Ext(sse.Extension)... }
+		{ sse.Connect(hx, "/examples/templ/sse/chatroom/feed/")... }
+		{ sse.Swap(hx, chatroom.EndEvent)... }
+		{ hx.Swap(swap.OuterHTML)... }
+	>
+		<form
+			id="form"
+			method="POST"
+			action="/examples/templ/sse/chatroom/post/"
+			{ hx.On(on.AfterRequest, "this.querySelector('#message').value = ''")... }
+		>
+			<label>
+				Send a message
+				<input
+					id="message"
+					type="text"
+					name="message"
+				/>
+			</label>
+			<button type="submit">Send</button>
+		</form>
+		<div
+			{ sse.Swap(hx, chatroom.ChatEvent)... }
+			{ hx.Swap(swap.BeforeEnd)... }
+		></div>
+	</div>
+	//ex:end:chatroom
+}
+
+//ex:start:message
+templ ChatMessage(msg string) {
+	<div>{ msg }</div>
+}
+
+//ex:end:message

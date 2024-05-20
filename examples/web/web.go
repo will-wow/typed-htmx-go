@@ -13,6 +13,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/examples/web/clicktoedit"
 	"github.com/will-wow/typed-htmx-go/examples/web/examples"
 	"github.com/will-wow/typed-htmx-go/examples/web/progressbar"
+	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex"
 )
 
 //go:embed "static"
@@ -57,6 +58,7 @@ func (h *Handler) routes() http.Handler {
 	delegateExample(mux, "active-search", activesearch.NewHandler)
 	delegateExample(mux, "progress-bar", progressbar.NewHandler)
 	delegateExample(mux, "class-tools", classtools_ex.NewHandler)
+	delegateExample(mux, "sse", sse_ex.NewHandler)
 
 	return h.recoverPanic(h.logRequest(mux))
 }
