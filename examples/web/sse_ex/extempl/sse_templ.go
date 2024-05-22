@@ -59,7 +59,7 @@ func Page() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>The new elements uses the sse.Connect attribute to connect to a server-side event streaming countdown.</p><pre><code class=\"language-go\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>The new elements uses the sse.Connect attribute to connect to a server-sent event streaming countdown.</p><pre><code class=\"language-go\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

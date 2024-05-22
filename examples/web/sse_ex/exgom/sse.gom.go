@@ -39,7 +39,7 @@ func Page() g.Node {
 			),
 		),
 		P(
-			g.Text("The new elements uses the sse.Connect attribute to connect to a server-side event streaming countdown."),
+			g.Text("The new elements uses the sse.Connect attribute to connect to a server-sent event streaming countdown."),
 		),
 		Pre(
 			Code(
