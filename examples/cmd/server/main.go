@@ -16,7 +16,7 @@ func main() {
 	server := &http.Server{
 		Addr:         "localhost:8080",
 		Handler:      handler,
-		ReadTimeout:  time.Second * 10,
+		ReadTimeout:  time.Second * 30,
 		WriteTimeout: time.Second * 10,
 	}
 

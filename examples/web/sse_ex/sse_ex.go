@@ -45,12 +45,6 @@ func (ex *example) chatroom(w http.ResponseWriter, r *http.Request) {
 func (ex *example) feed(w http.ResponseWriter, r *http.Request) {
 	rc := http.NewResponseController(w)
 
-	err := rc.SetWriteDeadline(time.Now().Add(30 * time.Second))
-	if err != nil {
-		fmt.Println("failed to set write deadline", err)
-		return
-	}
-
 	feedTimeout := time.NewTimer(25 * time.Second)
 
 	ctx := r.Context()
@@ -81,7 +75,6 @@ func (ex *example) feed(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-ctx.Done():
 			fmt.Println("ctx done")
-			// TODO: header
 			return
 		case msg := <-room:
 			fmt.Println("msg", msg.Message)
