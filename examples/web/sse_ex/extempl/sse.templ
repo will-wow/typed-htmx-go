@@ -8,8 +8,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/htmx/ext/sse"
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
-	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex/chatroom"
-	"github.com/will-wow/typed-htmx-go/htmx/on"
+	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex/shared"
 )
 
 var hx = htmx.NewTempl()
@@ -19,29 +18,29 @@ var fs embed.FS
 var ex = exprint.New(fs, "//", "")
 
 templ Page() {
-	@layout.Wrapper("Server-Side Events") {
-		<h1>Server-Side Events</h1>
+	@layout.Wrapper("Server-Sent Events", "sse") {
+		<h1>Server-Sent Events</h1>
 		<p>
-			A demo of Server-Side Events using htmx and typed-htmx-go.
+			A demo countdown using Server-Sent Events, with htmx and typed-htmx-go.
 		</p>
 		<p>
-			When you click the button below, that fetches a new element that uses the sse extension to start a live feed.
-		</p>
-		<pre>
-			<code class="language-go">
-				{ ex.PrintOrErr("sse.templ", "entry") }
-			</code>
-		</pre>
-		<p>
-			The new elements uses the sse.Connect attribute to connect to a server-side event stream, and allows you to POST messages to the stream.
+			When you click the button below, that fetches a new element that uses the sse extension to start stream a countdown.
 		</p>
 		<pre>
 			<code class="language-go">
-				{ ex.PrintOrErr("sse.templ", "chatroom") }
+				{ ex.PrintOrErr("sse.templ", "trigger") }
 			</code>
 		</pre>
 		<p>
-			When you or another user posts a message, it will be sent to the server and broadcast to all connected clients as a simple div.
+			The new elements uses the sse.Connect attribute to connect to a server-side event streaming countdown.
+		</p>
+		<pre>
+			<code class="language-go">
+				{ ex.PrintOrErr("sse.templ", "countdown") }
+			</code>
+		</pre>
+		<p>
+			Each second, the server sends a countdown message that updates the innerHTML of the div.
 		</p>
 		<pre>
 			<code class="language-go">
@@ -49,60 +48,44 @@ templ Page() {
 			</code>
 		</pre>
 		<p>
-			After 25 seconds, the server will send the EndEvent, that closes removes the sse connection by replacing the sse.Connect element with the initial button using <code>hx.Swap(swap.OuterHTML)</code>.
+			After the countdown is complete, the server will send a ResetEvent, that closes removes the sse connection by replacing the sse.Connect element with the initial button using <code>hx.Swap(swap.OuterHTML)</code>.
 		</p>
 		<h2>Demo</h2>
-		@Entry()
+		@Trigger()
 	}
 }
 
-templ Entry() {
-	//ex:start:entry
+templ Trigger() {
+	//ex:start:trigger
 	<button
-		{ hx.Get("/examples/templ/sse/chatroom/")... }
+		{ hx.Get("/examples/templ/sse/countdown/")... }
 		{ hx.Target(htmx.TargetThis)... }
 		{ hx.Swap(swap.OuterHTML)... }
 	>
-		Enter Chat
+		Start Countdown
 	</button>
-	//ex:end:entry
+	//ex:end:trigger
 }
 
-templ Chatroom() {
-	//ex:start:chatroom
+templ Countdown() {
+	//ex:start:countdown
 	<div
 		{ hx.Ext(sse.Extension)... }
-		{ sse.Connect(hx, "/examples/templ/sse/chatroom/feed/")... }
-		{ sse.Swap(hx, chatroom.EndEvent)... }
+		{ sse.Connect(hx, "/examples/templ/sse/countdown/feed/")... }
+		{ sse.Swap(hx, shared.ResetEvent)... }
 		{ hx.Swap(swap.OuterHTML)... }
 	>
-		<form
-			id="form"
-			method="POST"
-			action="/examples/templ/sse/chatroom/post/"
-			{ hx.On(on.AfterRequest, "this.querySelector('#message').value = ''")... }
-		>
-			<label>
-				Send a message
-				<input
-					id="message"
-					type="text"
-					name="message"
-				/>
-			</label>
-			<button type="submit">Send</button>
-		</form>
 		<div
-			{ sse.Swap(hx, chatroom.ChatEvent)... }
-			{ hx.Swap(swap.BeforeEnd)... }
+			{ sse.Swap(hx, shared.CountdownEvent)... }
+			{ hx.Swap(swap.InnerHTML)... }
 		></div>
 	</div>
-	//ex:end:chatroom
+	//ex:end:countdown
 }
 
 //ex:start:message
-templ ChatMessage(msg string) {
-	<div>{ msg }</div>
+templ Message(msg string) {
+	<p>{ msg }</p>
 }
 
 //ex:end:message

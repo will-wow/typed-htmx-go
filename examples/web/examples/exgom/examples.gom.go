@@ -1,9 +1,12 @@
 package exgom
 
 import (
+	"fmt"
+
 	g "github.com/maragudk/gomponents"
 	. "github.com/maragudk/gomponents/html"
 
+	"github.com/will-wow/typed-htmx-go/examples/web/examples/registry"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/gom/layout"
 )
 
@@ -29,31 +32,13 @@ func Page() g.Node {
 				),
 			),
 			TBody(
-				exampleRow(
-					"/examples/gomponents/click-to-edit",
-					"Click To Edit",
-					"Demonstrates inline editing of a data object",
-				),
-				exampleRow(
-					"/examples/gomponents/bulk-update",
-					"Bulk Update",
-					"Demonstrates bulk updating of multiple rows of data",
-				),
-				exampleRow(
-					"/examples/gomponents/active-search/",
-					"Active Search",
-					"Demonstrates the active search box pattern",
-				),
-				exampleRow(
-					"/examples/gomponents/progress-bar/",
-					"Progress Bar",
-					"Demonstrates a job-runner like progress bar",
-				),
-				exampleRow(
-					"/examples/gomponents/class-tools/",
-					"Class Tools",
-					"Demo of class-tools options",
-				),
+				g.Group(g.Map(registry.Examples, func(ex registry.Example) g.Node {
+					return exampleRow(
+						fmt.Sprintf("/examples/gomponents/%s/", ex.Slug),
+						ex.Title,
+						ex.Desc,
+					)
+				})),
 			),
 		),
 	)

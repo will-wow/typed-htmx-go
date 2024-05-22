@@ -7,13 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/will-wow/typed-htmx-go/examples/web/activesearch"
-	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate"
-	"github.com/will-wow/typed-htmx-go/examples/web/classtools_ex"
-	"github.com/will-wow/typed-htmx-go/examples/web/clicktoedit"
 	"github.com/will-wow/typed-htmx-go/examples/web/examples"
-	"github.com/will-wow/typed-htmx-go/examples/web/progressbar"
-	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex"
+	"github.com/will-wow/typed-htmx-go/examples/web/examples/registry"
 )
 
 //go:embed "static"
@@ -53,12 +48,10 @@ func (h *Handler) routes() http.Handler {
 
 	mux.HandleFunc("/{$}", templIndexRoutes.NewIndexHandler)
 	mux.HandleFunc("/examples/gomponents/{$}", gomIndexRoutes.NewIndexHandler)
-	delegateExample(mux, "click-to-edit", clicktoedit.NewHandler)
-	delegateExample(mux, "bulk-update", bulkupdate.NewHandler)
-	delegateExample(mux, "active-search", activesearch.NewHandler)
-	delegateExample(mux, "progress-bar", progressbar.NewHandler)
-	delegateExample(mux, "class-tools", classtools_ex.NewHandler)
-	delegateExample(mux, "sse", sse_ex.NewHandler)
+
+	for _, ex := range registry.Examples {
+		delegateExample(mux, ex.Slug, ex.Handler)
+	}
 
 	return h.recoverPanic(h.logRequest(mux))
 }

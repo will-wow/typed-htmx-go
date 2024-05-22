@@ -1,7 +1,9 @@
 package extempl
 
 import (
+	"fmt"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
+	"github.com/will-wow/typed-htmx-go/examples/web/examples/registry"
 )
 
 templ Page() {
@@ -32,31 +34,13 @@ templ Page() {
 				</tr>
 			</thead>
 			<tbody>
-				@exampleRow(
-					"/examples/templ/click-to-edit/",
-					"Click To Edit",
-					"Demonstrates inline editing of a data object",
-				)
-				@exampleRow(
-					"/examples/templ/bulk-update/",
-					"Bulk Update",
-					"Demonstrates bulk updating of multiple rows of data",
-				)
-				@exampleRow(
-					"/examples/templ/active-search/",
-					"Active Search",
-					"Demonstrates the active search box pattern",
-				)
-				@exampleRow(
-					"/examples/templ/progress-bar/",
-					"Progress Bar",
-					"Demonstrates a job-runner like progress bar",
-				)
-				@exampleRow(
-					"/examples/templ/class-tools/",
-					"Class Tools",
-					"Demo of class-tools options",
-				)
+				for _, ex := range registry.Examples {
+					@exampleRow(
+						fmt.Sprintf("/examples/templ/%s/", ex.Slug),
+						ex.Title,
+						ex.Desc,
+					)
+				}
 			</tbody>
 		</table>
 	}

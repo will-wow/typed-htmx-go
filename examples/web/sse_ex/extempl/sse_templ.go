@@ -14,12 +14,11 @@ import (
 	"github.com/a-h/templ"
 	"github.com/will-wow/typed-htmx-go/htmx"
 	"github.com/will-wow/typed-htmx-go/htmx/ext/sse"
-	"github.com/will-wow/typed-htmx-go/htmx/on"
 	"github.com/will-wow/typed-htmx-go/htmx/swap"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
-	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex/chatroom"
+	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex/shared"
 )
 
 var hx = htmx.NewTempl()
@@ -47,50 +46,50 @@ func Page() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Server-Side Events</h1><p>A demo of Server-Side Events using htmx and typed-htmx-go.</p><p>When you click the button below, that fetches a new element that uses the sse extension to start a live feed.</p><pre><code class=\"language-go\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Server-Sent Events</h1><p>A demo countdown using Server-Sent Events, with htmx and typed-htmx-go.</p><p>When you click the button below, that fetches a new element that uses the sse extension to start stream a countdown.</p><pre><code class=\"language-go\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("sse.templ", "entry"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("sse.templ", "trigger"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 32, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 31, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>The new elements uses the sse.Connect attribute to connect to a server-side event stream, and allows you to POST messages to the stream.</p><pre><code class=\"language-go\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>The new elements uses the sse.Connect attribute to connect to a server-side event streaming countdown.</p><pre><code class=\"language-go\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("sse.templ", "chatroom"))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("sse.templ", "countdown"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 40, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 39, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>When you or another user posts a message, it will be sent to the server and broadcast to all connected clients as a simple div.</p><pre><code class=\"language-go\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>Each second, the server sends a countdown message that updates the innerHTML of the div.</p><pre><code class=\"language-go\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("sse.templ", "message"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 48, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 47, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>After 25 seconds, the server will send the EndEvent, that closes removes the sse connection by replacing the sse.Connect element with the initial button using <code>hx.Swap(swap.OuterHTML)</code>.</p><h2>Demo</h2>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>After the countdown is complete, the server will send a ResetEvent, that closes removes the sse connection by replacing the sse.Connect element with the initial button using <code>hx.Swap(swap.OuterHTML)</code>.</p><h2>Demo</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = Entry().Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = Trigger().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -99,7 +98,7 @@ func Page() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Wrapper("Server-Side Events").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Wrapper("Server-Sent Events", "sse").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -110,7 +109,7 @@ func Page() templ.Component {
 	})
 }
 
-func Entry() templ.Component {
+func Trigger() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -127,7 +126,7 @@ func Entry() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Get("/examples/templ/sse/chatroom/"))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Get("/examples/templ/sse/countdown/"))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -139,7 +138,7 @@ func Entry() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">Enter Chat</button>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">Start Countdown</button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -150,7 +149,7 @@ func Entry() templ.Component {
 	})
 }
 
-func Chatroom() templ.Component {
+func Countdown() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -171,11 +170,11 @@ func Chatroom() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, sse.Connect(hx, "/examples/templ/sse/chatroom/feed/"))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, sse.Connect(hx, "/examples/templ/sse/countdown/feed/"))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, sse.Swap(hx, chatroom.EndEvent))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, sse.Swap(hx, shared.ResetEvent))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -183,23 +182,15 @@ func Chatroom() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><form id=\"form\" method=\"POST\" action=\"/examples/templ/sse/chatroom/post/\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><div")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.On(on.AfterRequest, "this.querySelector('#message').value = ''"))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, sse.Swap(hx, shared.CountdownEvent))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><label>Send a message <input id=\"message\" type=\"text\" name=\"message\"></label> <button type=\"submit\">Send</button></form><div")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, sse.Swap(hx, chatroom.ChatEvent))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Swap(swap.BeforeEnd))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Swap(swap.InnerHTML))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -215,7 +206,7 @@ func Chatroom() templ.Component {
 }
 
 //ex:start:message
-func ChatMessage(msg string) templ.Component {
+func Message(msg string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -228,20 +219,20 @@ func ChatMessage(msg string) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 105, Col: 11}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/sse_ex/extempl/sse.templ`, Line: 88, Col: 9}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -2,7 +2,7 @@
   "routes": [{ "src": "/(.*)", "dest": "/api" }],
   "functions": {
     "api/index.go": {
-      "maxDuration": 30
+      "maxDuration": 10
     }
   }
 }

@@ -8,10 +8,12 @@ package extempl
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/a-h/templ"
 
+	"github.com/will-wow/typed-htmx-go/examples/web/examples/registry"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
 )
 
@@ -38,45 +40,15 @@ func Page() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = exampleRow(
-				"/examples/templ/click-to-edit/",
-				"Click To Edit",
-				"Demonstrates inline editing of a data object",
-			).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = exampleRow(
-				"/examples/templ/bulk-update/",
-				"Bulk Update",
-				"Demonstrates bulk updating of multiple rows of data",
-			).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = exampleRow(
-				"/examples/templ/active-search/",
-				"Active Search",
-				"Demonstrates the active search box pattern",
-			).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = exampleRow(
-				"/examples/templ/progress-bar/",
-				"Progress Bar",
-				"Demonstrates a job-runner like progress bar",
-			).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = exampleRow(
-				"/examples/templ/class-tools/",
-				"Class Tools",
-				"Demo of class-tools options",
-			).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			for _, ex := range registry.Examples {
+				templ_7745c5c3_Err = exampleRow(
+					fmt.Sprintf("/examples/templ/%s/", ex.Slug),
+					ex.Title,
+					ex.Desc,
+				).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody></table>")
 			if templ_7745c5c3_Err != nil {
@@ -127,7 +99,7 @@ func exampleRow(link, name, description string) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/examples/extempl/examples.templ`, Line: 68, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/examples/extempl/examples.templ`, Line: 52, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -140,7 +112,7 @@ func exampleRow(link, name, description string) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/examples/extempl/examples.templ`, Line: 71, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/examples/extempl/examples.templ`, Line: 55, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
