@@ -139,7 +139,7 @@ func ExampleHX_Trigger_nonStandard() {
 
 func ExampleHX_TriggerExtended() {
 	fmt.Println(hx.TriggerExtended(
-		trigger.On("click").Filter("ctrlKey").Target("#element"),
+		trigger.On("click").When("ctrlKey").Target("#element"),
 		trigger.Every(time.Second),
 		trigger.Intersect().Root("#element").Threshold(0.2),
 	))

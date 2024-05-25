@@ -13,8 +13,8 @@ func ExampleOn() {
 	// Output: click
 }
 
-func ExampleEvent_Filter() {
-	trig := trigger.On("click").Filter("checkGlobalState()")
+func ExampleEvent_When() {
+	trig := trigger.On("click").When("checkGlobalState()")
 	fmt.Println(trig.String())
 	// Output: click[checkGlobalState()]
 }
@@ -104,7 +104,7 @@ func ExampleEvent_Clear() {
 }
 
 func ExampleOn_ordering_multiple() {
-	trig := trigger.On("click").Filter("isActive").Queue(trigger.First).Consume().Target("#element").From("#parent > #child")
+	trig := trigger.On("click").When("isActive").Queue(trigger.First).Consume().Target("#element").From("#parent > #child")
 	fmt.Println(trig.String())
 	// Output: click[isActive] consume from:(#parent > #child) queue:first target:#element
 }

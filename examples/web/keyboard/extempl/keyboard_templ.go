@@ -10,12 +10,11 @@ import (
 	"context"
 	"embed"
 	"io"
-	"time"
 
 	"github.com/a-h/templ"
 
 	"github.com/will-wow/typed-htmx-go/htmx"
-	"github.com/will-wow/typed-htmx-go/htmx/ext/classtools"
+	"github.com/will-wow/typed-htmx-go/htmx/trigger"
 
 	"github.com/will-wow/typed-htmx-go/examples/web/exprint"
 	"github.com/will-wow/typed-htmx-go/examples/web/layout/templ/layout"
@@ -23,7 +22,7 @@ import (
 
 var hx = htmx.NewTempl()
 
-//go:embed classtools_ex.templ
+//go:embed keyboard.templ
 var fs embed.FS
 var ex = exprint.New(fs, "//", "")
 
@@ -46,20 +45,20 @@ func Page() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Class Tools</h1><p>Demonstrates different uses of class-tools</p><pre><code class=\"language-go\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Keyboard Shortcuts</h1><p>In this example we show how to create a keyboard shortcut for an action.</p><p>We start with a simple button that loads some content from the server:</p><pre><code class=\"language-go\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("classtools_ex.templ", "demo"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(ex.PrintOrErr("keyboard.templ", "demo"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/classtools_ex/extempl/classtools_ex.templ`, Line: 27, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/keyboard/extempl/keyboard.templ`, Line: 29, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><h2>Demo</h2>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</code></pre><p>Note that the button responds to both the click event (as usual) and also the keyup event when alt-shift-D is pressed. The from: modifier is used to listen for the keyup event on the body element, thus making it a “global” keyboard shortcut.</p><p>You can trigger the demo below by either clicking on the button, or by hitting alt-shift-D.</p><p>You can find out the conditions needed for a given keyboard shortcut here:</p><p><a href=\"https://javascript.info/keyboard-events\" target=\"_blank\">https://javascript.info/keyboard-events</a></p><h2>Demo</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -72,7 +71,7 @@ func Page() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = layout.Wrapper("Class Tools", "class-tools-ex").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Wrapper("Keyboard Shortcuts", "keyboard-shortcuts").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,59 +95,24 @@ func demo() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Ext(classtools.Extension))
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.TriggerExtended(
+			trigger.On("click"),
+			trigger.
+				On("keyup").
+				When("altKey&&shiftKey&&key=='D'").
+				From("body")))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><p")
+		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, hx.Post("/examples/templ/keyboard/doit/"))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, classtools.Classes(hx,
-			classtools.Add("bold", time.Second),
-			classtools.Remove("bold", time.Second),
-			classtools.Toggle("color", time.Second),
-		))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">Add then remove bold after 1 second, then toggle color every second</p><p")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, classtools.ClassesParallel(hx, []classtools.Run{
-			{
-				classtools.Add("bold", time.Second),
-				classtools.Remove("bold", time.Second),
-			},
-			{
-				classtools.Toggle("color", time.Second),
-			},
-		}))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">Add then remove bold after 1 second, while toggling color every second\t\t</p><p")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, classtools.Classes(hx, classtools.Add("color", 0)))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">Add with no delay\t\t</p><p")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, classtools.Classes(hx, classtools.Toggle("color", 0)))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">Toggle with 0 delay\t\t</p></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">Do It! (alt-shift-D)</button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

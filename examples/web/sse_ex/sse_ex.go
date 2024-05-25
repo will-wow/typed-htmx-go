@@ -53,7 +53,7 @@ func (ex *example) feed(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		slog.Error("flush not supported")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("flush not supported"))
+		_, _ = w.Write([]byte("flush not supported"))
 		return
 	}
 

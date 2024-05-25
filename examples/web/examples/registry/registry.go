@@ -7,6 +7,7 @@ import (
 	"github.com/will-wow/typed-htmx-go/examples/web/bulkupdate"
 	"github.com/will-wow/typed-htmx-go/examples/web/classtools_ex"
 	"github.com/will-wow/typed-htmx-go/examples/web/clicktoedit"
+	"github.com/will-wow/typed-htmx-go/examples/web/keyboard"
 	"github.com/will-wow/typed-htmx-go/examples/web/progressbar"
 	"github.com/will-wow/typed-htmx-go/examples/web/sse_ex"
 )
@@ -54,5 +55,11 @@ var Examples = []Example{
 		Desc:    "Streaming responses with the SSE HTMX Extension",
 		Slug:    "sse",
 		Handler: sse_ex.NewHandler,
+	},
+	{
+		Title:   "Keyboard Shortcuts",
+		Desc:    "Demonstrates how to create keyboard shortcuts for htmx enabled elements",
+		Slug:    "keyboard",
+		Handler: keyboard.NewHandler,
 	},
 }

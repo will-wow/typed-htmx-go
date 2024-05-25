@@ -64,22 +64,37 @@ func (e *Event) OverrideEvent(event TriggerEvent) *Event {
 	return e
 }
 
-// Filter specifies a boolean javascript expression as an event filter.
+// When specifies a boolean javascript expression as an event filter.
 //
 // If this expression evaluates to true the event will be triggered, otherwise it will be ignored.
 //
-//	<div hx-get="/clicked" hx-trigger="click[ctrlKey]">Control Click Me</div>
+//	<div
+//		{ hx.Get("/clicked")...}
+//		{ hx.TriggerExtended(trigger.On("click").When("ctrlKey"))...}
+//	>
+//		Control Click Me
+//	</div>
 //
 // Conditions can also refer to global functions or state
 //
-//	<div hx-get="/clicked" hx-trigger="click[checkGlobalState()]">Control Click Me</div>
+//	<div
+//		{ hx.Get("/clicked")... }
+//		{ hx.TriggerExtended(trigger.On("click").When("checkGlobalState()"))...}
+//	>
+//		Control Click Me
+//	</div>
 //
 // And can also be combined using the standard javascript syntax
 //
-//	<div hx-get="/clicked" hx-trigger="click[ctrlKey&&shiftKey]">Control-Shift Click Me</div>
+//	<div
+//		{ hx.Get("/clicked")...}
+//		{ hx.TriggerExtended(trigger.On("click).When("ctrlKey&&shiftKey"))... }
+//	>
+//		Control-Shift Click Me
+//	</div>
 //
 // Note that all symbols used in the expression will be resolved first against the triggering event, and then next against the global namespace, so myEvent[foo] will first look for a property named foo on the event, then look for a global symbol with the name foo
-func (e *Event) Filter(filter string) *Event {
+func (e *Event) When(filter string) *Event {
 	e.filter = filter
 	return e
 }
