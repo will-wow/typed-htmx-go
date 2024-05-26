@@ -14,7 +14,7 @@ func main() {
 
 	//nolint:exhaustruct
 	server := &http.Server{
-		Addr:         "localhost:8080",
+		Addr:         ":8080",
 		Handler:      handler,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 10,

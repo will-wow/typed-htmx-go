@@ -62,3 +62,8 @@ tasks:
     desc: Install tools
     cmds:
       - go install github.com/a-h/templ/cmd/templ@latest
+
+  push:
+    desc: Push to docker hub
+    cmds:
+      - docker buildx build --platform linux/arm64 -t willwow/thxgo:latest --push .
