@@ -2,7 +2,7 @@ module github.com/will-wow/typed-htmx-go/examples
 
 go 1.22.0
 
-require github.com/a-h/templ v0.2.663
+require github.com/a-h/templ v0.2.707
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.1

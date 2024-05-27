@@ -35,9 +35,9 @@
       "func (ex *example) demo(w http.ResponseWriter, r *http.Request) {",
       "  component := extempl.Page()",
       "  _ = component.Render(r.Context(), w)",
-      "}",
+      "}"
     ],
-    "description": "example handler file",
+    "description": "example handler file"
   },
   "page": {
     "scope": "templ",
@@ -78,8 +78,8 @@
       "templ demo() {",
       "  //ex:start:demo",
       "  //ex:end:demo",
-      "}",
-    ],
+      "}"
+    ]
   },
   "gom": {
     "scope": "go",
@@ -128,9 +128,9 @@
       "func demo() g.Node {",
       "  //ex:start:demo",
       "  //ex:end:demo",
-      "}",
+      "}"
     ],
-    "description": "gom",
+    "description": "gom"
   },
   "ext": {
     "scope": "go",
@@ -155,9 +155,9 @@
       "// Attr",
       "func Attr[T any](hx htmx.HX[T]) T {",
       "  return hx.Attr(\"\")",
-      "}",
+      "}"
     ],
-    "description": "HTMX extension",
+    "description": "HTMX extension"
   },
   "ext_test": {
     "scope": "go",
@@ -178,8 +178,8 @@
       "  attr := hx.Ext(${TM_DIRECTORY/.*\\/(.*)$/$1/}.Extension)",
       "  fmt.Println(attr)",
       "  // Output: hx-ext='$2'",
-      "}",
+      "}"
     ],
-    "description": "extension test",
-  },
+    "description": "extension test"
+  }
 }
